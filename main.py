@@ -137,35 +137,51 @@ def serie(id: str):
     root = ET.fromstring(response.text)
     resultat = []
     isSeasonFile = False
-    for item in root.findall('.//item'):
-        title = item.find('title').text
-        link = item.find('link').text
-        if se in title:
-            if any(x in title for x in verif):
-                if not any(x in title for x in nonverif):
-                    if int(item.find('.//torznab:attr[@name="seeders"]', ns).attrib['value']) > 1:
-                        resultat.append(title)
-                        resultat.append(link)
-                        break
-                    else:
-                        isSeasonFile = True
-        else:
-            isSeasonFile = True
-        if isSeasonFile == True:
+    if root.findall('.//item') != []:
+        for item in root.findall('.//item'):
+            title = item.find('title').text
+            link = item.find('link').text
+            if se in title:
+                if any(x in title for x in verif):
+                    if not any(x in title for x in nonverif):
+                        if int(item.find('.//torznab:attr[@name="seeders"]', ns).attrib['value']) > 1:
+                            resultat.append(title)
+                            resultat.append(link)
+                            break
+                        else:
+                            isSeasonFile = True
+            else:
+                isSeasonFile = True
+            if isSeasonFile == True:
+                if f"S{saison}" in title:
+                    url = f'{jackettUrl}/api/v2.0/indexers/all/results/torznab/api?apikey={jackettApiKey}&t=search&cat={jackettCatSeries}&q={serie.replace(" ", "+")}+S{saison}'
+                    response = requests.get(url)
+                    root = ET.fromstring(response.text)
+                    resultat = []
+                    for item in root.findall('.//item'):
+                        title = item.find('title').text
+                        link = item.find('link').text
+                        if any(x in title for x in verif):
+                            if not any(x in title for x in nonverif):
+                                if int(item.find('.//torznab:attr[@name="seeders"]', ns).attrib['value']) > 1:
+                                    resultat.append(title)
+                                    resultat.append(link)
+                                    isSeasonFile = True
+    else:
+        url = f'{jackettUrl}/api/v2.0/indexers/all/results/torznab/api?apikey={jackettApiKey}&t=search&cat={jackettCatSeries}&q={serie.replace(" ", "+")}+S{saison}'
+        response = requests.get(url)
+        root = ET.fromstring(response.text)
+        resultat = []
+        for item in root.findall('.//item'):
+            title = item.find('title').text
+            link = item.find('link').text
             if f"S{saison}" in title:
-                url = f'{jackettUrl}/api/v2.0/indexers/all/results/torznab/api?apikey={jackettApiKey}&t=search&cat={jackettCatSeries}&q={serie.replace(" ", "+")}+S{saison}'
-                response = requests.get(url)
-                root = ET.fromstring(response.text)
-                resultat = []
-                for item in root.findall('.//item'):
-                    title = item.find('title').text
-                    link = item.find('link').text
-                    if any(x in title for x in verif):
-                        if not any(x in title for x in nonverif):
-                            if int(item.find('.//torznab:attr[@name="seeders"]', ns).attrib['value']) > 1:
-                                resultat.append(title)
-                                resultat.append(link)
-                                isSeasonFile = True
+                if any(x in title for x in verif):
+                    if not any(x in title for x in nonverif):
+                        if int(item.find('.//torznab:attr[@name="seeders"]', ns).attrib['value']) > 1:
+                            resultat.append(title)
+                            resultat.append(link)
+                            isSeasonFile = True
     if resultat == []:
         return {'link': 'Erreur', 'name': 'Aucun épisode trouvé'}
     if isSeasonFile != True:
