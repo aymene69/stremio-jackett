@@ -1,0 +1,11 @@
+{
+	"name": "stremio-addon-jackett",
+	"version": "1.0.0",
+	"description": "Stremio Jackett Addon",
+	"scripts": {
+		"start": "node server.js"
+	},
+	"dependencies": {
+		"stremio-addon-sdk": "1.1.x"
+	}
+}
