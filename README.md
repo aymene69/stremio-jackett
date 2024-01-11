@@ -7,6 +7,7 @@ This addon was made to be running only on Linux based OS and macOS.
 I am not responsible for any content downloaded through this addon.
 
 # Prerequisites
+- A Real-Debrid account
 - A publicly-reachable server ([Oracle](https://www.oracle.com/fr/cloud/) provide a free lifetime server for example).
 - A [Jackett](https://github.com/Jackett/Jackett) server running and reachable pubicly.
 - NodeJS, npm and Python 3.
