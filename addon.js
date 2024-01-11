@@ -1,7 +1,5 @@
 const { addonBuilder } = require("stremio-addon-sdk")
 
-const verif = ['.FRENCH.', '.TRUEFRENCH.', '.MULTI.', '.MULTi.', '.VFQ', ' FRENCH ', ' TRUEFRENCH ', ' MULTI ', ' MULTi ', ' VFQ ']
-const nonverif = ['BLUERAY', 'BLURAY', 'BLU-RAY', 'BLU RAY', 'BLU-RAY', 'BDRip']
 // Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/responses/manifest.md
 const manifest = {
 	"id": "community.jackett",
