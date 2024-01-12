@@ -1,40 +1,19 @@
-import { addonBuilder } from 'stremio-addon-sdk'
+import express from 'express';
+import cors from 'cors';
 import { parseString } from 'xml2js'
 import fetch from 'node-fetch'
 import torrent2magnet from "torrent2magnet-js";
 import { Buffer } from "buffer";
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
+const app = express();
+const port = process.env.PORT || 3000;
 
-const verif = ['.FRENCH.', '.TRUEFRENCH.', '.MULTI.', '.MULTi.', '.VFQ', ' FRENCH ', ' TRUEFRENCH ', ' MULTI ', ' MULTi ', ' VFQ ']
-const nonverif = ['BLUERAY', 'BLURAY', 'BLU-RAY', 'BLU RAY', 'BLU-RAY', 'BDRip', 'HDRip', '2160p']
-const apiKey = ''
-
-const jackettUrl = ''
-const jackettApi = ''
-const jackettIndexer = ''
-const jackettMovieCat = ''
-const jackettSerieCat = ''
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 const noResults = { streams: [{ url: "#", title: "No results found" }] }
-
-const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// Docs: https://github.com/Stremio/stremio-addon-sdk/blob/master/docs/api/responses/manifest.md
-const manifest = {
-	"id": "community.aymene69.jackett",
-	"version": "1.0.0",
-	"catalogs": [],
-	"resources": [
-		"stream"
-	],
-	"types": [
-		"movie",
-		"series",
-		"tv"
-	],
-	"name": "Jackett",
-	"description": "Stremio Jackett Addon"
-}
 
 function getNum(s) {
     let entier_formatte;
@@ -69,17 +48,51 @@ function selectBiggestFileSeason(se, torrentInfo) {
     return biggestFileId;
 }
 
-const builder = new addonBuilder(manifest)
+const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-builder.defineStreamHandler(async ({ type, id }) => {
-    console.log("request for streams: " + type + " " + id);
+var respond = function (res, data) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Headers', '*');
+    res.setHeader('Content-Type', 'application/json');
+    res.send(data);
+};
 
-    if (type === "movie") {
+app.use(cors());
+
+// Route pour le manifeste
+app.get('/:rdApi/:jackettUrl/:jackettApi/:jackettIndexer/:jackettMovieCat/:jackettSerieCat/:verif/:nonverif/manifest.json', (req, res) => {
+    const manifest = {
+        id: 'community.aymene69.jackett',
+        version: '1.0.0',
+        catalogs: [],
+        resources: ['stream'],
+        types: ['movie', 'series'],
+        name: 'Jackett',
+        description: 'Stremio Jackett Addon'
+    };
+    respond(res, manifest);
+});
+
+// Route pour le flux vidéo (OKTest)
+app.get('/:rdApi/:jackettUrl/:jackettApi/:jackettIndexer/:jackettMovieCat/:jackettSerieCat/:verif/:nonverif/stream/:type/:id', async (req, res) => {
+    const type = req.params.type;
+    const id = req.params.id.replace(".json", "");
+    const rdApi = req.params.rdApi;
+    const jackettUrl = req.params.jackettUrl;
+    const jackettApi = req.params.jackettApi;
+    const jackettIndexer = req.params.jackettIndexer;
+    const jackettMovieCat = req.params.jackettMovieCat;
+    const jackettSerieCat = req.params.jackettSerieCat;
+    const verif = req.params.verif.split(",");
+    const nonverif = req.params.nonverif.split(",");
+
+  // Simule un flux vidéo pour l'exemple
+    if (type == 'movie') {
         let response = await fetch("https://v3-cinemeta.strem.io/meta/movie/" + id + ".json")
         let responseJson = await response.json()
         let filmName = responseJson.meta.name
-        console.log(jackettUrl + "/api/v2.0/indexers/" + jackettIndexer + "/results/torznab/api?apikey=" + jackettApi + "&t=search&cat=" + jackettMovieCat +"&q=" + filmName)
-        response = await fetch(jackettUrl + "/api/v2.0/indexers/" + jackettIndexer + "/results/torznab/api?apikey=" + jackettApi + "&t=search&cat=" + jackettMovieCat +"&q=" + filmName)
+
+        response = await fetch("http://" + jackettUrl + "/api/v2.0/indexers/" + jackettIndexer + "/results/torznab/api?apikey=" + jackettApi + "&t=search&cat=" + jackettMovieCat +"&q=" + filmName)
         responseJson = await response.text()
         let items
         parseString(responseJson, function (err, result) {
@@ -102,6 +115,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
         if (result.length == 0) {
             return noResults
         }
+
         let torrentName = result[0]
         let torrentLink = result[1]
 
@@ -111,11 +125,9 @@ builder.defineStreamHandler(async ({ type, id }) => {
         const { success, infohash, magnet_uri, dn, xl, main_tracker, tracker_list, is_private, files } = torrent2magnet(Buffer.from(torrentBuffer));
         let magnet = magnet_uri + "&tr=" + main_tracker
 
-
-
         let apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/addMagnet`;
         let headers = {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${rdApi}`,
         };
         let body = new URLSearchParams();
         body.append('magnet', magnet);
@@ -123,12 +135,11 @@ builder.defineStreamHandler(async ({ type, id }) => {
         response = await fetch(apiUrl, { method: 'POST', headers, body })
         responseJson = await response.json()
         let torrentId = responseJson.id
-
-
+        
         while (true) {
             apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/info/${torrentId}`;
             headers = {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${rdApi}`,
             };
         
             response = await fetch(apiUrl, { method: 'GET', headers })
@@ -141,7 +152,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
         }
 
         let torrentFiles = responseJson["files"]
-        
+
         const maxIndex = torrentFiles.reduce((maxIndex, file, currentIndex, array) => {
             const currentBytes = file["bytes"] || 0;
             const maxBytes = array[maxIndex] ? array[maxIndex]["bytes"] || 0 : 0;
@@ -153,7 +164,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
 
         apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/selectFiles/${torrentId}`;
         headers = {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${rdApi}`,
         };
         body = new URLSearchParams();
         body.append('files', torrentFileId);
@@ -163,7 +174,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
         while (true) {
             apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/info/${torrentId}`;
             headers = {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${rdApi}`,
             };
         
             response = await fetch(apiUrl, { method: 'GET', headers })
@@ -179,18 +190,16 @@ builder.defineStreamHandler(async ({ type, id }) => {
 
         apiUrl = `https://api.real-debrid.com/rest/1.0/unrestrict/link`
         headers = {
-        Authorization: `Bearer ${apiKey}`,
+        Authorization: `Bearer ${rdApi}`,
         };
         body = new URLSearchParams();
         body.append('link', downloadLink);
         response = await fetch(apiUrl, { method: 'POST', headers, body })
         responseJson = await response.json()
         let mediaLink = responseJson["download"]
-
-        const stream = { url: mediaLink, title: torrentName }
-            return { streams: [stream] };
-	}
-    if (type === "series") {
+        respond(res, { streams: [{ title: torrentName, url: mediaLink }] });
+    }
+    if (type == 'series') {
         let serieId = id.split(":")[0]
         let season = getNum(id.split(":")[1])
         let episode = getNum(id.split(":")[2])
@@ -198,7 +207,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
         let response = await fetch("https://v3-cinemeta.strem.io/meta/series/" + serieId + ".json")
         let responseJson = await response.json()
         let serieName = responseJson.meta.name
-        response = await fetch(jackettUrl + "/api/v2.0/indexers/" + jackettIndexer + "/results/torznab/api?apikey=" + jackettApi + "&t=search&cat=" + jackettSerieCat + "&q=" + serieName + "+" + seasonEpisode)
+        response = await fetch("http://" + jackettUrl + "/api/v2.0/indexers/" + jackettIndexer + "/results/torznab/api?apikey=" + jackettApi + "&t=search&cat=" + jackettSerieCat + "&q=" + serieName + "+" + seasonEpisode)
         responseJson = await response.text()
         let items
         parseString(responseJson, function (err, result) {
@@ -221,7 +230,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
                         }
                     }
                     else {
-                        response = await fetch(jackettUrl + "/api/v2.0/indexers/" + jackettIndexer + "/results/torznab/api?apikey=" + jackettApi + "&t=search&cat=" + jackettSerieCat + "&q=" + serieName + "+" + "S" + season)
+                        response = await fetch("http://" + jackettUrl + "/api/v2.0/indexers/" + jackettIndexer + "/results/torznab/api?apikey=" + jackettApi + "&t=search&cat=" + jackettSerieCat + "&q=" + serieName + "+" + "S" + season)
                         responseJson = await response.text()
                         parseString(responseJson, function (err, result) {
                             items = Object.values(result)[0].channel[0].item
@@ -247,7 +256,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
             };
         }
         else {
-            response = await fetch(jackettUrl + "/api/v2.0/indexers/" + jackettIndexer + "/results/torznab/api?apikey=" + jackettApi + "&t=search&cat=" + jackettSerieCat + "&q=" + serieName + "+" + "S" + season)
+            response = await fetch("http://" + jackettUrl + "/api/v2.0/indexers/" + jackettIndexer + "/results/torznab/api?apikey=" + jackettApi + "&t=search&cat=" + jackettSerieCat + "&q=" + serieName + "+" + "S" + season)
             responseJson = await response.text()
             parseString(responseJson, function (err, result) {
                 items = Object.values(result)[0].channel[0].item
@@ -272,7 +281,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
             };
         }
         if (result.length == 0) {
-            return noResults
+            respond(res, noResults)
         }
         if (!seasonFile) {
             let torrentName = result[0]
@@ -287,7 +296,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
     
             let apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/addMagnet`;
             let headers = {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${rdApi}`,
             };
             let body = new URLSearchParams();
             body.append('magnet', magnet);
@@ -299,7 +308,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
             while (true) {
                 apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/info/${torrentId}`;
                 headers = {
-                Authorization: `Bearer ${apiKey}`,
+                Authorization: `Bearer ${rdApi}`,
                 };
             
                 response = await fetch(apiUrl, { method: 'GET', headers })
@@ -312,7 +321,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
             }
             
             let torrentFiles = responseJson["files"]
-            
+            console.log(torrentFiles)
             const maxIndex = torrentFiles.reduce((maxIndex, file, currentIndex, array) => {
                 const currentBytes = file["bytes"] || 0;
                 const maxBytes = array[maxIndex] ? array[maxIndex]["bytes"] || 0 : 0;
@@ -324,7 +333,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
     
             apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/selectFiles/${torrentId}`;
             headers = {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${rdApi}`,
             };
             body = new URLSearchParams();
             body.append('files', torrentFileId);
@@ -334,7 +343,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
             while (true) {
                 apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/info/${torrentId}`;
                 headers = {
-                Authorization: `Bearer ${apiKey}`,
+                Authorization: `Bearer ${rdApi}`,
                 };
             
                 response = await fetch(apiUrl, { method: 'GET', headers })
@@ -350,7 +359,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
     
             apiUrl = `https://api.real-debrid.com/rest/1.0/unrestrict/link`
             headers = {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${rdApi}`,
             };
             body = new URLSearchParams();
             body.append('link', downloadLink);
@@ -359,7 +368,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
             let mediaLink = responseJson["download"]
     
             const stream = { url: mediaLink, title: torrentName }
-                return { streams: [stream] };
+            respond(res,  { streams: [stream] })
         }
         else {
             let torrentName = result[0]
@@ -374,7 +383,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
     
             let apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/addMagnet`;
             let headers = {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${rdApi}`,
             };
             let body = new URLSearchParams();
             body.append('magnet', magnet);
@@ -387,7 +396,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
             while (true) {
                 apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/info/${torrentId}`;
                 headers = {
-                Authorization: `Bearer ${apiKey}`,
+                Authorization: `Bearer ${rdApi}`,
                 };
             
                 response = await fetch(apiUrl, { method: 'GET', headers })
@@ -407,7 +416,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
 
             apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/selectFiles/${torrentId}`;
             headers = {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${rdApi}`,
             };
             body = new URLSearchParams();
             body.append('files', torrentFileId);
@@ -417,7 +426,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
             while (true) {
                 apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/info/${torrentId}`;
                 headers = {
-                Authorization: `Bearer ${apiKey}`,
+                Authorization: `Bearer ${rdApi}`,
                 };
             
                 response = await fetch(apiUrl, { method: 'GET', headers })
@@ -433,7 +442,7 @@ builder.defineStreamHandler(async ({ type, id }) => {
     
             apiUrl = `https://api.real-debrid.com/rest/1.0/unrestrict/link`
             headers = {
-            Authorization: `Bearer ${apiKey}`,
+            Authorization: `Bearer ${rdApi}`,
             };
             body = new URLSearchParams();
             body.append('link', downloadLink);
@@ -442,10 +451,19 @@ builder.defineStreamHandler(async ({ type, id }) => {
             let mediaLink = responseJson["download"]
     
             const stream = { url: mediaLink, title: torrentName.replace("S" + season, seasonEpisode) }
-                return { streams: [stream] };
+            respond(res, { streams: [{ title: "No results found", url: "#" }] });
         }
     }
-}
-);
+});
 
-export default builder.getInterface();
+app.get('/configure', (req, res) => {
+    res.sendFile(__dirname + '/index.html');
+})
+
+app.get('/', (req, res) => {
+    res.redirect('/configure');
+})
+
+app.listen(port, () => {
+    console.log(`Server is running at http://localhost:${port}`);
+});
