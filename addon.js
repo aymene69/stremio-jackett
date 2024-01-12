@@ -15,7 +15,7 @@ const jackettIndexer = ''
 const jackettMovieCat = ''
 const jackettSerieCat = ''
 
-const noResults = { streams: [{ url: "#", title: "Aucun résultat trouvé" }] }
+const noResults = { streams: [{ url: "#", title: "No results found" }] }
 
 const wait = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
