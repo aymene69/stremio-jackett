@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            background: linear-gradient( rgba(0,0,0,.5), rgba(0,0,0,.5) ), url("https://uploaad.wikimedia.org/wikipedia/commons/thumb/0/00/Flag_of_Palestine.svg/1280px-Flag_of_Palestine.svg.png") no-repeat center center fixed; 
+            -webkit-background-size: cover;
+            -moz-background-size: cover;
+            -o-background-size: cover;
+            background-size: cover;
+            font-family: 'Roboto', sans-serif;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <title>Stremio-Jackett by Aymene69</title>
+</head>
+<body>
+    <section class="vh-100">
+        <div class="container py-5 h-100">
+            <div class="row d-flex justify-content-center align-items-center h-100">
+                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                    <div class="card bg-dark text-white" style="border-radius: 1rem;">
+                        <div class="card-body p-5 text-center">
+                            <div class="mb-md-5 mt-md-4 pb-5">
+                                <img src="https://user-images.githubusercontent.com/27040483/28728094-99f3e3f6-73c7-11e7-8f8d-28912dc6ac0d.png" class="img-fluid mb-5" alt="logo" width="100" height="100">
+                                <h2 class="fw-bold mb-2 text-uppercase">Stremio-Jackett</h2><p class="text-white-50 mb-5">1.0.0</p>
+                                <h3 class="text-white mb-5">Configuration page</h3>
+                                <p class="text-white-50 mb-5">Please fill in the following fields to install Stremio-Jackett</p>
+                                <div class="form-outline form-white mb-4">
+                                    <label class="form-label">Real-Debrid API key (you can get it <a href="https://real-debrid.com/apitoken" target="_blank">here</a>)</label>
+                                    <input required type="realApi" class="form-control form-control-lg" placeholder="Enter your Real-Debrid API key"/>
+                                </div>
+
+                                <div class="form-outline form-white mb-4">
+                                    <label class="form-label">Jackett URL</label>
+                                    <input required type="jackettUrl" class="form-control form-control-lg" placeholder="For example 'jackett_url:port'"/>
+                                </div>
+
+                                <div class="form-outline form-white mb-4">
+                                    <label class="form-label">Jackett API Key</label>
+                                    <input required type="jackettApi" class="form-control form-control-lg" placeholder="Enter your Jackett API key"/>
+                                </div>
+
+                                <div class="form-outline form-white mb-4">
+                                    <label class="form-label">Jackett Indexer</label>
+                                    <input required type="jackettIndexer" class="form-control form-control-lg" placeholder="Enter your indexer name or 'all' for all indexers"/>
+                                </div>
+
+                                <div class="form-outline form-white mb-4">
+                                    <label class="form-label">Jackett Movie Category</label>
+                                    <input required type="jackettMovieCat" class="form-control form-control-lg" placeholder="For example '2000'"/>
+                                </div>
+
+                                <div class="form-outline form-white mb-4">
+                                    <label class="form-label">Jackett Series Category</label>
+                                    <input required type="jackettSeriesCat" class="form-control form-control-lg" placeholder="For example '5000'"/>
+                                </div>
+
+                                <div class="form-outline form-white mb-4">
+                                    <label class="form-label">Inclusion list (needed keys for torrent to be fetched) separate with comas</label>
+                                    <input required type="inclusionList" class="form-control form-control-lg" placeholder="For example '.FRENCH.,.MULTi.'"/>
+                                </div>
+
+                                <div class="form-outline form-white mb-4">
+                                    <label class="form-label">Exclusion list (excluded keys for torrent to be fetched) separate with comas</label>
+                                    <input required type="exclusionList" class="form-control form-control-lg" placeholder="For example '.CAMHD.,BDRIP'"/>
+                                </div>
+
+                                <a id="configureLink" href="" class="btn btn-primary">Install</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <script>
+        var inputElements = document.querySelectorAll("input");
+
+        // Créez un tableau pour stocker les valeurs des inputs
+        var inputValues = [];
+
+        // Ajoutez un écouteur d'événements pour l'événement 'input' à chaque input
+        inputElements.forEach(function(inputElement, index) {
+            inputElement.addEventListener("input", function() {
+                // Mettez à jour la valeur correspondante dans le tableau
+                inputValues[index] = inputElement.value;
+
+                var configureLink = document.getElementById("configureLink");
+                // changer le href de configureLink
+                configureLink.href = "stremio://" + window.location['host'] +inputValues[0]+"/"+inputValues[1]+"/"+inputValues[2]+"/"+inputValues[3]+"/"+inputValues[4]+"/"+inputValues[5]+"/"+inputValues[6]+"/"+inputValues[7]+" + /manifest.json"
+            });
+        });
+    </script>
+</body>
+</html>
