@@ -6,12 +6,20 @@ import torrent2magnet from "torrent2magnet-js";
 import { Buffer } from "buffer";
 import { fileURLToPath } from 'url';
 import { dirname } from 'path';
+import fs from 'fs';
+import https from 'https';
 
 const app = express();
 const port = process.env.PORT || 3000;
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+const privateKey = fs.readFileSync(__dirname + '/server.key', 'utf8');
+const certificate = fs.readFileSync(__dirname + '/server.cert', 'utf8');
+const credentials = { key: privateKey, cert: certificate };
+const httpsServer = https.createServer(credentials, app);
+
 
 const noResults = { streams: [{ url: "#", title: "Aucun résultat trouvé" }] }
 
@@ -85,7 +93,12 @@ app.get('/:rdApi/:jackettUrl/:jackettApi/:jackettIndexer/:jackettMovieCat/:jacke
     const jackettSerieCat = req.params.jackettSerieCat;
     const verif = req.params.verif.split(",");
     const nonverif = req.params.nonverif.split(",");
-
+    const allParams = [type, id, rdApi, jackettUrl, jackettApi, jackettIndexer, jackettMovieCat, jackettSerieCat, verif, nonverif]
+    for (const param of allParams) {
+        if (param == 'undefined') {
+            respond(res, { streams: [{ title: "Jackett misconfigured", url: "#" }] });
+        }
+    }
   // Simule un flux vidéo pour l'exemple
     if (type == 'movie') {
         let response = await fetch("https://v3-cinemeta.strem.io/meta/movie/" + id + ".json")
@@ -464,6 +477,6 @@ app.get('/', (req, res) => {
     res.redirect('/configure');
 })
 
-app.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}`);
+httpsServer.listen(port, () => {
+    console.log(`Server is running at https://localhost:${port}`);
 });
