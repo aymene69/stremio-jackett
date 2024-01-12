@@ -1,17 +1,17 @@
 {
-	"type":"module",
-	"name":"stremio-addon-jackett",
-	"version":"1.0.0",
-	"description":"Stremio Jackett Addon",
-	"scripts":
-	{
-		"start":"node server.js"
+	"type": "module",
+	"name": "stremio-addon-jackett",
+	"version": "1.0.0",
+	"description": "Stremio Jackett Addon",
+	"scripts": {
+		"start": "node index.js"
 	},
-	"dependencies":
-	{
-		"node-fetch":"^3.3.2",
-		"stremio-addon-sdk":"1.1.x",
-		"torrent2magnet-js":"^1.1.1",
-		"xml2js":"^0.6.2"
+	"dependencies": {
+		"buffer": "^6.0.3",
+		"cors": "^2.8.5",
+		"express": "^4.18.2",
+		"node-fetch": "^3.3.2",
+		"torrent2magnet-js": "^1.1.1",
+		"xml2js": "^0.6.2"
 	}
 }
