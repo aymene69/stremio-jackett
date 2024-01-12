@@ -13,7 +13,7 @@ const port = process.env.PORT || 3000;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const noResults = { streams: [{ url: "#", title: "No results found" }] }
+const noResults = { streams: [{ url: "#", title: "Aucun résultat trouvé" }] }
 
 function getNum(s) {
     let entier_formatte;
@@ -258,6 +258,7 @@ app.get('/:rdApi/:jackettUrl/:jackettApi/:jackettIndexer/:jackettMovieCat/:jacke
         else {
             response = await fetch("http://" + jackettUrl + "/api/v2.0/indexers/" + jackettIndexer + "/results/torznab/api?apikey=" + jackettApi + "&t=search&cat=" + jackettSerieCat + "&q=" + serieName + "+" + "S" + season)
             responseJson = await response.text()
+            let items
             parseString(responseJson, function (err, result) {
                 items = Object.values(result)[0].channel[0].item
             })
@@ -321,7 +322,6 @@ app.get('/:rdApi/:jackettUrl/:jackettApi/:jackettIndexer/:jackettMovieCat/:jacke
             }
             
             let torrentFiles = responseJson["files"]
-            console.log(torrentFiles)
             const maxIndex = torrentFiles.reduce((maxIndex, file, currentIndex, array) => {
                 const currentBytes = file["bytes"] || 0;
                 const maxBytes = array[maxIndex] ? array[maxIndex]["bytes"] || 0 : 0;
@@ -451,7 +451,7 @@ app.get('/:rdApi/:jackettUrl/:jackettApi/:jackettIndexer/:jackettMovieCat/:jacke
             let mediaLink = responseJson["download"]
     
             const stream = { url: mediaLink, title: torrentName.replace("S" + season, seasonEpisode) }
-            respond(res, { streams: [{ title: "No results found", url: "#" }] });
+            respond(res,  { streams: [stream] })
         }
     }
 });
