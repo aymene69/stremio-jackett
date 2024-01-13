@@ -10,8 +10,6 @@
 		"buffer": "^6.0.3",
 		"cors": "^2.8.5",
 		"express": "^4.18.2",
-		"fs": "^0.0.1-security",
-		"https": "^1.0.0",
 		"node-fetch": "^3.3.2",
 		"torrent2magnet-js": "^1.1.1",
 		"xml2js": "^0.6.2"
