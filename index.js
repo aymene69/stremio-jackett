@@ -29,7 +29,7 @@ var respond = function (res, data) {
 
 app.use(cors());
 
-app.get('/:debridApi/:service/:jackettUrl/:jackettApi/:verif/:nonverif/manifest.json', (req, res) => {
+app.get('/:debridApi/:service/:jackettUrl/:jackettApi/manifest.json', (req, res) => {
     const manifest = {
         id: 'community.aymene69.jackett',
         version: '1.0.0',
@@ -54,14 +54,15 @@ app.get('/:debridApi/:service/:jackettUrl/:jackettApi/stream/:type/:id', async (
     const service = req.params.service;
     const jackettUrl = req.params.jackettUrl;
     const jackettApi = req.params.jackettApi;
-
     let mediaName = await helper.getName(id[0], type)
     if (type == 'movie') {
         let torrentInfo = await jackett.jackettSearch(debridApi, jackettUrl, jackettApi, service, { name: mediaName, type: type });
+        console.log(torrentInfo)
         respond(res, { "streams": torrentInfo});
     }
     if (type == 'series') {
         let torrentInfo = await jackett.jackettSearch(debridApi, jackettUrl, jackettApi, service, { name: mediaName, type: type, season: helper.getNum(id[1]), episode: helper.getNum(id[2]) });
+        console.log(torrentInfo)
         respond(res, { "streams": torrentInfo});
     }
 
