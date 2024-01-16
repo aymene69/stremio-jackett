@@ -7,9 +7,9 @@ Addon accessible publicly! Configure it for you [here](https://va-dda.click/)!
 I am not responsible for any content downloaded through this addon.
 
 # Prerequisites
-- A Real-Debrid account.
 - A [Jackett](https://github.com/Jackett/Jackett) server running and reachable pubicly.
 - NodeJS, npm.
+- *(optionnal)* A Real-Debrid account.
 
 # Installation
 ## Without Docker
