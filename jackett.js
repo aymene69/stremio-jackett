@@ -46,25 +46,35 @@ async function processXML(xml) {
 }
 
 async function getTorrentInfo(torrentLink) {
-    let response = await fetch(torrentLink);
-    const torrentBuffer = await response.arrayBuffer();
-    const torrentParsed = await parseTorrent(Buffer.from(torrentBuffer))
-    const torrentInfo = {
-        name: "Jackett",
-        infoHash: torrentParsed.infoHash,
-        magnetLink: toMagnetURI(torrentParsed),
-        trackers: torrentParsed.announce,
-        files: torrentParsed.files.map(file => {
-            return {
-                name: file.name,
-                length: file.length
-            }
-        })
+    try {
+        let response = await fetch(torrentLink);
+        const torrentBuffer = await response.arrayBuffer();
+        const torrentParsed = await parseTorrent(Buffer.from(torrentBuffer))
+
+        const torrentInfo = {
+            name: "Jackett",
+            infoHash: torrentParsed.infoHash,
+            magnetLink: toMagnetURI(torrentParsed),
+            seeders: "1",
+            fileIdx: 0,
+            sources: torrentParsed.announce.map(function(element) {
+                return 'tracker:' + element;
+              }),
+            files: torrentParsed.files.map(file => {
+                return {
+                    name: file.name,
+                    length: file.length
+                }
+            })
+        }
+        return torrentInfo;
+    } catch (e) {
+        return undefined
     }
-    return torrentInfo;
 }
 
 async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, searchQuery) {
+    console.log(searchQuery)
     if (searchQuery.type == 'movie') {
         try {
             const searchUrl = jackettHost + '/api/v2.0/indexers/all/results/torznab/api?apikey=' + jackettApiKey + '&cat=' + "2000" + '&q=' + encodeURIComponent(searchQuery.name)
@@ -79,6 +89,7 @@ async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, s
                     let torrentInfo = await getTorrentInfo(item.link)
                     torrentInfo.seeders = item.seeders
                     torrentInfo.title = item.title + "\r\n👤" + item.seeders + " 📁" + helper.toHomanReadable(item.size)
+                    delete torrentInfo.fileIdx
                     results.push(torrentInfo);
                 }
                 if (results.length == 0) {
@@ -111,23 +122,48 @@ async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, s
     }
     if (searchQuery.type == 'series') {
         try {
-            const searchUrl = jackettHost + '/api/v2.0/indexers/all/results/torznab/api?apikey=' + jackettApiKey + '&cat=' + "5000" + '&q=' + encodeURIComponent(searchQuery.name) + '+S' + searchQuery.season + 'E' + searchQuery.episode
+            const searchUrl = jackettHost + '/api/v2.0/indexers/all/results/torznab/api?apikey=' + jackettApiKey + '&cat=5000' + '&q=' + encodeURIComponent(searchQuery.name) + '+S' + searchQuery.season + 'E' + searchQuery.episode
             let response = await fetch(searchUrl);
             let responseXml = await response.text()
             let items = await processXML(responseXml);
             let results = [];
+            console.log(searchUrl)
+            console.log(items[0])
             addonType = 'debrid'
             if (addonType == 'torrent') {
                 for (let i = 0; i < 5 ; i++) {
                     let item = items[i];
+                    if (!item) {
+                        break
+                    }
                     let torrentInfo = await getTorrentInfo(item.link)
                     torrentInfo.seeders = item.seeders
                     torrentInfo.title = item.title + "\r\n👤" + item.seeders + " 📁" + helper.toHomanReadable(item.size)
                     results.push(torrentInfo);
                 }
                 if (results.length == 0) {
-                    results.push({ name: "Jackett", title: "Aucun résultat trouvé", url: "#" })
+                    if (results.length == 0) {
+                        const searchUrl = jackettHost + '/api/v2.0/indexers/all/results/torznab/api?apikey=' + jackettApiKey + '&cat=5000&q=' + encodeURIComponent(searchQuery.name) + '+S' + searchQuery.season
+                        let response = await fetch(searchUrl);
+                        let responseXml = await response.text()
+                        let items = await processXML(responseXml);
+                        let results = [];
+                        for (let i = 0; i < items.length; i++) {
+                            let item = items[i];
+                            let torrentInfo = await getTorrentInfo(item.link)
+                            torrentInfo.seeders = item.seeders
+                            torrentInfo.title = item.title + "\r\n👤" + item.seeders + " 📁" + helper.toHomanReadable(item.size)
+                            torrentInfo.fileIdx = parseInt(helper.selectBiggestFileSeasonTorrent(torrentInfo.files, "S" + searchQuery.season+ "E" + searchQuery.episode), 10)
+                            console.log(torrentInfo.files[torrentInfo.fileIdx])
+                            results.push(torrentInfo);
+                        }
+                        if (results.length == 0) {
+                            results.push({ name: "Jackett", title: "Aucun résultat trouvé", url: "#" })
+                        }
+                        return results;
+                    }
                 }
+                return results;
             }
             else {
                 for (let i = 0; i < items.length; i++) {
@@ -163,11 +199,13 @@ async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, s
                     if (results.length == 0) {
                         results.push({ name: "Jackett Debrid", title: "Aucun résultat trouvé", url: "#" })
                     }
+                    return results;
                 }
+                return results;
             }
-            return results;
         }
         catch (e) {
+            console.log(e)
             let results = [];
             results.push({ name: "Jackett", title: "Aucun résultat trouvé", url: "#" })
             return results;
