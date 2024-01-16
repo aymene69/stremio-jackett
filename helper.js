@@ -24,6 +24,27 @@ function selectBiggestFileSeason(files, se) {
     return biggestFileId;
 }
 
+function selectBiggestFileSeasonTorrent(files, se) {
+    var filteredFiles = files.filter(function(file) {
+        return file.name.includes(se);
+    });
+
+        // Vérifier si des fichiers ont été trouvés
+    if (filteredFiles.length === 0) {
+        return null;
+    }
+
+        // Trier les fichiers par taille décroissante
+    var filesTried = filteredFiles.sort(function(a, b) {
+        return b.length - a.length;
+    });
+
+        // Trouver l'index du fichier recherché
+    var biggestFileId = files.indexOf(filesTried[0]);
+
+    return biggestFileId;
+}
+
 function toHomanReadable(bytes) {
     if (Math.abs(bytes) < 1024) { return bytes + ' B'; }
   
@@ -145,6 +166,7 @@ async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 }
 export default {
     getNum,
+    selectBiggestFileSeasonTorrent,
     selectBiggestFileSeason,
     toHomanReadable,
     getName,
