@@ -82,7 +82,6 @@ async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, s
             let responseXml = await response.text()
             let items = await processXML(responseXml);
             let results = [];
-            addonType = 'debrid'
             if (addonType == 'torrent') {
                 for (let i = 0; i < 5 ; i++) {
                     let item = items[i];
@@ -129,7 +128,6 @@ async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, s
             let results = [];
             console.log(searchUrl)
             console.log(items[0])
-            addonType = 'debrid'
             if (addonType == 'torrent') {
                 for (let i = 0; i < 5 ; i++) {
                     let item = items[i];
