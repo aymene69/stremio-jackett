@@ -36,40 +36,23 @@
                                     <label class="form-label">Real-Debrid API key (you can get it <a href="https://real-debrid.com/apitoken" target="_blank">here</a>)</label>
                                     <input required type="realApi" class="form-control form-control-lg" placeholder="Enter your Real-Debrid API key"/>
                                 </div>
+                                
+                                <div class="form-outline form-white mb-4">
+                                    <label class="form-label">Stream service (direct torrent or debrid service)</label>
+                                    <select required class="form-select" aria-label="">
+                                        <option value="torrent">torrent</option>
+                                        <option value="realdebrid">realdebrid</option>
+                                    </select>
+                                </div>
 
                                 <div class="form-outline form-white mb-4">
                                     <label class="form-label">Jackett URL</label>
-                                    <input required type="jackettUrl" class="form-control form-control-lg" placeholder="For example 'jackett_url:port'"/>
+                                    <input required type="jackettUrl" class="form-control form-control-lg" placeholder="For example 'http(s)://jackett_url:port'"/>
                                 </div>
 
                                 <div class="form-outline form-white mb-4">
                                     <label class="form-label">Jackett API Key</label>
                                     <input required type="jackettApi" class="form-control form-control-lg" placeholder="Enter your Jackett API key"/>
-                                </div>
-
-                                <div class="form-outline form-white mb-4">
-                                    <label class="form-label">Jackett Indexer</label>
-                                    <input required type="jackettIndexer" class="form-control form-control-lg" placeholder="Enter your indexer name or 'all' for all indexers"/>
-                                </div>
-
-                                <div class="form-outline form-white mb-4">
-                                    <label class="form-label">Jackett Movie Category</label>
-                                    <input required type="jackettMovieCat" class="form-control form-control-lg" placeholder="For example '2000'"/>
-                                </div>
-
-                                <div class="form-outline form-white mb-4">
-                                    <label class="form-label">Jackett Series Category</label>
-                                    <input required type="jackettSeriesCat" class="form-control form-control-lg" placeholder="For example '5000'"/>
-                                </div>
-
-                                <div class="form-outline form-white mb-4">
-                                    <label class="form-label">Inclusion list (needed keys for torrent to be fetched) separate with comas</label>
-                                    <input required type="inclusionList" class="form-control form-control-lg" placeholder="For example '.FRENCH.,.MULTi.'"/>
-                                </div>
-
-                                <div class="form-outline form-white mb-4">
-                                    <label class="form-label">Exclusion list (excluded keys for torrent to be fetched) separate with comas</label>
-                                    <input required type="exclusionList" class="form-control form-control-lg" placeholder="For example '.CAMHD.,BDRIP'"/>
                                 </div>
 
                                 <a id="configureLink" href="" class="btn btn-primary">Install</a>
@@ -82,21 +65,32 @@
     </section>
     <script>
         var inputElements = document.querySelectorAll("input");
+        var selectElement = document.querySelector("select"); // Ajout de l'élément <select>
 
         // Créez un tableau pour stocker les valeurs des inputs
         var inputValues = [];
 
         // Ajoutez un écouteur d'événements pour l'événement 'input' à chaque input
         inputElements.forEach(function(inputElement, index) {
-            inputElement.addEventListener("input", function() {
-                // Mettez à jour la valeur correspondante dans le tableau
-                inputValues[index] = inputElement.value;
-
-                var configureLink = document.getElementById("configureLink");
-                // changer le href de configureLink
-                configureLink.href = "stremio://" + window.location['host'] +"/"+inputValues[0]+"/"+inputValues[1]+"/"+inputValues[2]+"/"+inputValues[3]+"/"+inputValues[4]+"/"+inputValues[5]+"/"+inputValues[6]+"/"+inputValues[7]+"/manifest.json"
-            });
+            inputElement.addEventListener("input", updateValues);
         });
+
+        // Ajoutez un écouteur d'événements pour l'événement 'change' à l'élément <select>
+        selectElement.addEventListener("change", updateValues);
+
+        function updateValues() {
+            // Mettez à jour les valeurs correspondantes dans le tableau
+            inputValues = Array.from(inputElements).map(function(inputElement) {
+                return inputElement.value.trim() || undefined; // Utilisez trim() pour supprimer les espaces vides
+            });
+            
+            inputValues.push(selectElement.value.trim() || undefined); // Ajout de la valeur du <select>
+
+            var configureLink = document.getElementById("configureLink");
+            // changer le href de configureLink
+            configureLink.href = "stremio://" + window.location['host'] + "/" + inputValues[0] + "/" + inputValues[3] + "/" + inputValues[1] + "/" + inputValues[2] + "/manifest.json";
+        }
+
     </script>
 </body>
 </html>
