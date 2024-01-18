@@ -29,7 +29,7 @@ var respond = function (res, data) {
 
 app.use(cors());
 
-app.get('/:debridApi/:service/:jackettUrl/:jackettApi/manifest.json', (req, res) => {
+app.get('/:params/manifest.json', (req, res) => {
     const manifest = {
         id: 'community.aymene69.jackett',
         version: '1.0.0',
@@ -49,23 +49,24 @@ app.use((err, req, res, next) => {
     respond(res, noResults);
 });
 
-app.get('/:debridApi/:service/:jackettUrl/:jackettApi/stream/:type/:id', async (req, res) => {
+app.get('/:params/stream/:type/:id', async (req, res) => {
     try {
+        const paramsJson = JSON.parse(atob(req.params.params))
         const type = req.params.type;
         const id = req.params.id.replace(".json", "").split(':');
-        const debridApi = req.params.debridApi;
-        const service = req.params.service;
-        const jackettUrl = req.params.jackettUrl;
-        const jackettApi = req.params.jackettApi;
+        const service = paramsJson.streamService;
+        const jackettUrl = paramsJson.jackettUrl;
+        const jackettApi = paramsJson.jackettApiKey;
+        const debridApi = paramsJson.debridApiKey;
         const mediaName = await helper.getName(id[0], type)
         if (type == 'movie') {
+            console.log("Movie request. ID: " + id[0] + " Name: " + mediaName)
             const torrentInfo = await jackett.jackettSearch(debridApi, jackettUrl, jackettApi, service, { name: mediaName, type: type });
-            console.log(torrentInfo[0])
             respond(res, { "streams": torrentInfo});
         }
         if (type == 'series') {
+            console.log("Series request. ID: " + id[0] + " Name: " + mediaName + " Season: " + helper.getNum(id[1]) + " Episode: " + helper.getNum(id[2]))
             const torrentInfo = await jackett.jackettSearch(debridApi, jackettUrl, jackettApi, service, { name: mediaName, type: type, season: helper.getNum(id[1]), episode: helper.getNum(id[2]) });
-            console.log(torrentInfo)
             respond(res, { "streams": torrentInfo});
         }
     } catch (e) {
