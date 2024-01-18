@@ -65,32 +65,32 @@
     </section>
     <script>
         var inputElements = document.querySelectorAll("input");
-        var selectElement = document.querySelector("select"); // Ajout de l'élément <select>
+        var selectElement = document.querySelector("select");
 
-        // Créez un tableau pour stocker les valeurs des inputs
         var inputValues = [];
 
-        // Ajoutez un écouteur d'événements pour l'événement 'input' à chaque input
         inputElements.forEach(function(inputElement, index) {
             inputElement.addEventListener("input", updateValues);
         });
 
-        // Ajoutez un écouteur d'événements pour l'événement 'change' à l'élément <select>
         selectElement.addEventListener("change", updateValues);
 
         function updateValues() {
-            // Mettez à jour les valeurs correspondantes dans le tableau
             inputValues = Array.from(inputElements).map(function(inputElement) {
-                return inputElement.value.trim() || undefined; // Utilisez trim() pour supprimer les espaces vides
+                return inputElement.value.trim() || undefined;
             });
             
-            inputValues.push(selectElement.value.trim() || undefined); // Ajout de la valeur du <select>
+            inputValues.push(selectElement.value.trim() || undefined);
 
             var configureLink = document.getElementById("configureLink");
-            // changer le href de configureLink
-            configureLink.href = "stremio://" + window.location['host'] + "/" + inputValues[0] + "/" + inputValues[3] + "/" + encodeURIComponent(inputValues[1]) + "/" + inputValues[2] + "/manifest.json";
+            var dataJson = {
+                debridApiKey: inputValues[0],
+                streamService: inputValues[3],
+                jackettUrl: inputValues[1],
+                jackettApiKey: inputValues[2]
+            };
+            configureLink.href = "stremio://" + window.location['host'] + "/" + btoa(JSON.stringify(dataJson)) + "/manifest.json";
         }
-
     </script>
 </body>
 </html>
