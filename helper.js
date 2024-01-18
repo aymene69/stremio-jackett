@@ -23,7 +23,6 @@ function selectBiggestFileSeasonTorrent(files, se) {
         return b.length - a.length;
     });
 
-        // Trouver l'index du fichier recherché
     const biggestFileId = files.indexOf(filesTried[0]);
 
     return biggestFileId;
@@ -84,7 +83,9 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
     let torrentFiles = responseJson["files"]
     let maxIndex
     if (seasonEpisode) {
+        console.log("Selecting biggest file for season/episode...")
         maxIndex = selectBiggestFileSeason(torrentFiles, seasonEpisode)
+        console.log("Biggest file selected.")
     }
     else { 
         maxIndex = torrentFiles.reduce((maxIndex, file, currentIndex, array) => {
@@ -111,14 +112,19 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 
 async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
     let torrentId = await addMagnetToRD(torrentLink, debridApi)
+    console.log("Magnet added to RD. ID: " + torrentId)
     if (seasonEpisode) {
+        console.log("Setting episode file for season/episode...")
         await setMovieFileRD(torrentId, debridApi, seasonEpisode)
     }
     else {
+        console.log("Setting movie file...")
         await setMovieFileRD(torrentId, debridApi)
     }
     let responseJson
+    console.log("Getting RD link...")
     while (true) {
+        console.log("Waiting for RD link...")
         let apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/info/${torrentId}`;
         let headers = {
         Authorization: `Bearer ${debridApi}`,
@@ -128,14 +134,15 @@ async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
         responseJson = await response.json()
         let links = responseJson["links"]
         if (links.length >= 1) {
+            console.log("RD link found.")
             break
         }
         await wait(5000)
+        console.log("RD link isn't ready. Retrying...")
     }
 
     
     let downloadLink = responseJson["links"][0]
-
     let apiUrl = `https://api.real-debrid.com/rest/1.0/unrestrict/link`
     let headers = {
     Authorization: `Bearer ${debridApi}`,
@@ -145,6 +152,7 @@ async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
     let response = await fetch(apiUrl, { method: 'POST', headers, body })
     responseJson = await response.json()
     let mediaLink = responseJson["download"]
+    console.log("RD link: " + mediaLink)
     return mediaLink
 }
 export default {
