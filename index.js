@@ -37,7 +37,10 @@ app.get('/:debridApi/:service/:jackettUrl/:jackettApi/manifest.json', (req, res)
         resources: ['stream'],
         types: ['movie', 'series'],
         name: 'Jackett',
-        description: 'Stremio Jackett Addon'
+        description: 'Stremio Jackett Addon',
+        behaviorHints: {
+            "configurable": true,
+        },
     };
     respond(res, manifest);
 });
@@ -47,25 +50,28 @@ app.use((err, req, res, next) => {
 });
 
 app.get('/:debridApi/:service/:jackettUrl/:jackettApi/stream/:type/:id', async (req, res) => {
-
-    const type = req.params.type;
-    const id = req.params.id.replace(".json", "").split(':');
-    const debridApi = req.params.debridApi;
-    const service = req.params.service;
-    const jackettUrl = req.params.jackettUrl;
-    const jackettApi = req.params.jackettApi;
-    let mediaName = await helper.getName(id[0], type)
-    if (type == 'movie') {
-        let torrentInfo = await jackett.jackettSearch(debridApi, jackettUrl, jackettApi, service, { name: mediaName, type: type });
-        console.log(torrentInfo)
-        respond(res, { "streams": torrentInfo});
+    try {
+        const type = req.params.type;
+        const id = req.params.id.replace(".json", "").split(':');
+        const debridApi = req.params.debridApi;
+        const service = req.params.service;
+        const jackettUrl = req.params.jackettUrl;
+        const jackettApi = req.params.jackettApi;
+        const mediaName = await helper.getName(id[0], type)
+        if (type == 'movie') {
+            const torrentInfo = await jackett.jackettSearch(debridApi, jackettUrl, jackettApi, service, { name: mediaName, type: type });
+            console.log(torrentInfo[0])
+            respond(res, { "streams": torrentInfo});
+        }
+        if (type == 'series') {
+            const torrentInfo = await jackett.jackettSearch(debridApi, jackettUrl, jackettApi, service, { name: mediaName, type: type, season: helper.getNum(id[1]), episode: helper.getNum(id[2]) });
+            console.log(torrentInfo)
+            respond(res, { "streams": torrentInfo});
+        }
+    } catch (e) {
+        console.log(e)
+        respond(res, noResults);
     }
-    if (type == 'series') {
-        let torrentInfo = await jackett.jackettSearch(debridApi, jackettUrl, jackettApi, service, { name: mediaName, type: type, season: helper.getNum(id[1]), episode: helper.getNum(id[2]) });
-        console.log(torrentInfo)
-        respond(res, { "streams": torrentInfo});
-    }
-
 });
 
 app.get('/configure', (req, res) => {
