@@ -1,7 +1,9 @@
 import { Router } from 'express';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
+import helper from './helper.js';
 import { subpath } from './index.js';
+import jackett from './jackett.js';
 
 const routes = Router();
 
