@@ -1,6 +1,6 @@
-import fetch from 'node-fetch'
-import parseTorrent, { toMagnetURI } from 'parse-torrent';
 import { Buffer } from "buffer";
+import fetch from 'node-fetch';
+import parseTorrent, { toMagnetURI } from 'parse-torrent';
 import xml2js from 'xml2js';
 import helper from './helper.js';
 
@@ -48,7 +48,7 @@ async function getTorrentInfo(torrentLink) {
     try {
 		let torrentParsed;
 		const isMagnetLink = torrentLink.startsWith("magnet:");
-		
+
 		if (isMagnetLink) {
 			torrentParsed = await parseTorrent(torrentLink);
 		} else  {
