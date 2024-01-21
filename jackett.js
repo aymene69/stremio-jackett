@@ -46,26 +46,35 @@ async function processXML(xml) {
 
 async function getTorrentInfo(torrentLink) {
     try {
-        let response = await fetch(torrentLink);
-        const torrentBuffer = await response.arrayBuffer();
-        const torrentParsed = await parseTorrent(Buffer.from(torrentBuffer))
+		let torrentParsed;
+		const isMagnetLink = torrentLink.startsWith("magnet:");
+		
+		if (isMagnetLink) {
+			torrentParsed = await parseTorrent(torrentLink);
+		} else  {
+			let response = await fetch(torrentLink);
+			const torrentBuffer = await response.arrayBuffer();
+			torrentParsed = await parseTorrent(Buffer.from(torrentBuffer));
+		}
 
         const torrentInfo = {
             name: "Jackett",
             infoHash: torrentParsed.infoHash,
-            magnetLink: toMagnetURI(torrentParsed),
+            magnetLink: isMagnetLink ? torrentLink : toMagnetURI(torrentParsed),
             seeders: "1",
             fileIdx: 0,
             sources: torrentParsed.announce.map(function(element) {
                 return 'tracker:' + element;
               }),
-            files: torrentParsed.files.map(file => {
+			// Only `.torrent` outputs a files array, and parseTorrent() only supports magnets, `.torrent` and info hash which you don't seem to use.
+            files: !isMagnetLink && torrentParsed.files.map(file => {
                 return {
                     name: file.name,
                     length: file.length
                 }
             })
         }
+
         return torrentInfo;
     } catch (e) {
         return undefined
