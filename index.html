@@ -1,96 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <style>
-        body {
-            background: linear-gradient( rgba(0,0,0,.5), rgba(0,0,0,.5) ), url("https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Flag_of_Palestine.svg/1280px-Flag_of_Palestine.svg.png") no-repeat center center fixed; 
-            -webkit-background-size: cover;
-            -moz-background-size: cover;
-            -o-background-size: cover;
-            background-size: cover;
-            font-family: 'Roboto', sans-serif;
-        }
-    </style>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
-    <title>Stremio-Jackett by Aymene69</title>
-</head>
-<body>
-    <section class="vh-100">
-        <div class="container py-5 h-100">
-            <div class="row d-flex justify-content-center align-items-center h-100">
-                <div class="col-12 col-md-8 col-lg-6 col-xl-5">
-                    <div class="card bg-dark text-white" style="border-radius: 1rem;">
-                        <div class="card-body p-5 text-center">
-                            <div class="mb-md-5 mt-md-4 pb-5">
-                                <img src="https://user-images.githubusercontent.com/27040483/28728094-99f3e3f6-73c7-11e7-8f8d-28912dc6ac0d.png" class="img-fluid mb-5" alt="logo" width="100" height="100">
-                                <h2 class="fw-bold mb-2 text-uppercase">Stremio-Jackett</h2><p class="text-white-50 mb-5">1.0.0</p>
-                                <h3 class="text-white mb-5">Configuration page</h3>
-                                <p class="text-white-50 mb-5">Please fill in the following fields to install Stremio-Jackett</p>
-                                <div class="form-outline form-white mb-4">
-                                    <label class="form-label">Real-Debrid API key (you can get it <a href="https://real-debrid.com/apitoken" target="_blank">here</a>)</label>
-                                    <input required type="realApi" class="form-control form-control-lg" placeholder="Enter your Real-Debrid API key"/>
-                                </div>
-                                
-                                <div class="form-outline form-white mb-4">
-                                    <label class="form-label">Stream service (direct torrent or debrid service)</label>
-                                    <select required class="form-select" aria-label="">
-                                        <option value="torrent">torrent</option>
-                                        <option value="realdebrid">realdebrid</option>
-                                    </select>
-                                </div>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <style>
+            body {
+                background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+                    url("https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Flag_of_Palestine.svg/1280px-Flag_of_Palestine.svg.png")
+                        no-repeat center center fixed;
+                -webkit-background-size: cover;
+                -moz-background-size: cover;
+                -o-background-size: cover;
+                background-size: cover;
+                font-family: "Roboto", sans-serif;
+            }
+        </style>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+            crossorigin="anonymous"
+        />
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
+            crossorigin="anonymous"
+        ></script>
+        <title>Stremio-Jackett by Aymene69</title>
+    </head>
+    <body>
+        <section class="vh-100">
+            <div class="container py-5 h-100">
+                <div class="row d-flex justify-content-center align-items-center h-100">
+                    <div class="col-12 col-md-8 col-lg-6 col-xl-5">
+                        <div class="card bg-dark text-white" style="border-radius: 1rem">
+                            <div class="card-body p-5 text-center">
+                                <div class="mb-md-5 mt-md-4 pb-5">
+                                    <img
+                                        src="https://user-images.githubusercontent.com/27040483/28728094-99f3e3f6-73c7-11e7-8f8d-28912dc6ac0d.png"
+                                        class="img-fluid mb-5"
+                                        alt="logo"
+                                        width="100"
+                                        height="100"
+                                    />
+                                    <h2 class="fw-bold mb-2 text-uppercase">Stremio-Jackett</h2>
+                                    <p class="text-white-50 mb-5">1.0.0</p>
+                                    <h3 class="text-white mb-5">Configuration page</h3>
+                                    <p class="text-white-50 mb-5">
+                                        Please fill in the following fields to install Stremio-Jackett
+                                    </p>
+                                    <div class="form-outline form-white mb-4">
+                                        <label class="form-label"
+                                            >Real-Debrid API key (you can get it
+                                            <a href="https://real-debrid.com/apitoken" target="_blank"
+                                                >here</a
+                                            >)</label
+                                        >
+                                        <input
+                                            required
+                                            type="realApi"
+                                            class="form-control form-control-lg"
+                                            placeholder="Enter your Real-Debrid API key"
+                                        />
+                                    </div>
 
-                                <div class="form-outline form-white mb-4">
-                                    <label class="form-label">Jackett URL</label>
-                                    <input required type="jackettUrl" class="form-control form-control-lg" placeholder="For example 'http(s)://jackett_url:port'"/>
-                                </div>
+                                    <div class="form-outline form-white mb-4">
+                                        <label class="form-label"
+                                            >Stream service (direct torrent or debrid service)</label
+                                        >
+                                        <select required class="form-select" aria-label="">
+                                            <option value="torrent">torrent</option>
+                                            <option value="realdebrid">realdebrid</option>
+                                        </select>
+                                    </div>
 
-                                <div class="form-outline form-white mb-4">
-                                    <label class="form-label">Jackett API Key</label>
-                                    <input required type="jackettApi" class="form-control form-control-lg" placeholder="Enter your Jackett API key"/>
-                                </div>
+                                    <div class="form-outline form-white mb-4">
+                                        <label class="form-label">Jackett URL</label>
+                                        <input
+                                            required
+                                            type="jackettUrl"
+                                            class="form-control form-control-lg"
+                                            placeholder="For example 'http(s)://jackett_url:port'"
+                                        />
+                                    </div>
 
-                                <a id="configureLink" href="" class="btn btn-primary">Install</a>
+                                    <div class="form-outline form-white mb-4">
+                                        <label class="form-label">Jackett API Key</label>
+                                        <input
+                                            required
+                                            type="jackettApi"
+                                            class="form-control form-control-lg"
+                                            placeholder="Enter your Jackett API key"
+                                        />
+                                    </div>
+
+                                    <a id="configureLink" href="" class="btn btn-primary">Install</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
-    <script>
-        var inputElements = document.querySelectorAll("input");
-        var selectElement = document.querySelector("select");
+        </section>
+        <script>
+            var inputElements = document.querySelectorAll("input");
+            var selectElement = document.querySelector("select");
 
-        var inputValues = [];
+            var inputValues = [];
 
-        inputElements.forEach(function(inputElement, index) {
-            inputElement.addEventListener("input", updateValues);
-        });
-
-        selectElement.addEventListener("change", updateValues);
-
-        function updateValues() {
-            inputValues = Array.from(inputElements).map(function(inputElement) {
-                return inputElement.value.trim() || undefined;
+            inputElements.forEach(function (inputElement, index) {
+                inputElement.addEventListener("input", updateValues);
             });
-            
-            inputValues.push(selectElement.value.trim() || undefined);
 
-            var configureLink = document.getElementById("configureLink");
-            var dataJson = {
-                debridApiKey: inputValues[0],
-                streamService: inputValues[3],
-                jackettUrl: inputValues[1],
-                jackettApiKey: inputValues[2]
-            };
-            configureLink.href = "stremio://" + window.location['host'] + "/" + btoa(JSON.stringify(dataJson)) + "/manifest.json";
-        }
-    </script>
-</body>
+            selectElement.addEventListener("change", updateValues);
+            console.log(
+                `stremio://${window.location["host"]}${process.env.SUBPATH || ""}/${btoa(
+                    JSON.stringify(dataJson)
+                )}/manifest.json`
+            );
+
+            function updateValues() {
+                inputValues = Array.from(inputElements).map(function (inputElement) {
+                    return inputElement.value.trim() || undefined;
+                });
+
+                inputValues.push(selectElement.value.trim() || undefined);
+
+                var configureLink = document.getElementById("configureLink");
+                var dataJson = {
+                    debridApiKey: inputValues[0],
+                    streamService: inputValues[3],
+                    jackettUrl: inputValues[1],
+                    jackettApiKey: inputValues[2],
+                };
+                configureLink.href = `stremio://${
+                    window.location["host"]
+                }${window.location.pathname.replace("/configure", "")}/${btoa(
+                    JSON.stringify(dataJson)
+                )}/manifest.json`;
+            }
+        </script>
+    </body>
 </html>
