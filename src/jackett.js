@@ -125,7 +125,7 @@ async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, s
 				}
 				if (results.length === 0) {
 					console.log("No results found.");
-					results.push({ name: "Jackett", title: "Aucun résultat trouvé", url: "#" });
+					results.push({ name: "Jackett", title: "No results found", url: "#" });
 				}
 			} else {
 				console.log("Will return Debrid links.");
@@ -145,14 +145,14 @@ async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, s
 					break;
 				}
 				if (results.length === 0) {
-					results.push({ name: "Jackett Debrid", title: "Aucun résultat trouvé", url: "#" });
+					results.push({ name: "Jackett Debrid", title: "No results found", url: "#" });
 				}
 			}
 			console.log("Returning results.");
 			return results;
 		} catch (e) {
 			const results = [];
-			results.push({ name: "Jackett", title: "Aucun résultat trouvé", url: "#" });
+			results.push({ name: "Jackett", title: "No results found", url: "#" });
 			console.log(`Error: ${e}`);
 			return results;
 		}
@@ -214,7 +214,7 @@ async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, s
 					}
 					if (results.length === 0) {
 						console.log("No results found.");
-						results.push({ name: "Jackett", title: "Aucun résultat trouvé", url: "#" });
+						results.push({ name: "Jackett", title: "No results found", url: "#" });
 					}
 					return results;
 				}
@@ -262,7 +262,7 @@ async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, s
 					break;
 				}
 				if (results.length === 0) {
-					results.push({ name: "Jackett Debrid", title: "Aucun résultat trouvé", url: "#" });
+					results.push({ name: "Jackett Debrid", title: "No results found", url: "#" });
 				}
 				return results;
 			}
@@ -270,7 +270,7 @@ async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, s
 		} catch (e) {
 			console.log(e);
 			const results = [];
-			results.push({ name: "Jackett", title: "Aucun résultat trouvé", url: "#" });
+			results.push({ name: "Jackett", title: "No results found", url: "#" });
 			return results;
 		}
 	}
