@@ -9,11 +9,6 @@ jobs:
       - name: 🏗 Checkout code
         uses: actions/checkout@v2
 
-      - name: 🏗 Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '21.5'
-
       - name: 🚀 Build Docker image for arm64
         run: docker buildx build --platform linux/arm64 -t belmeg/stremio-addon-jackett:${{ github.event.release.tag_name }}-arm64 .
 
