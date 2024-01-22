@@ -1,4 +1,6 @@
-import helper from "../helper.js";
+import { getMovieRDLink } from "../helpers/getMovieRDLink.js";
+import { selectBiggestFileSeasonTorrent } from "../helpers/selectBiggestFileSeasonTorrent.js";
+import { toHumanReadable } from "../helpers/toHumanReadable.js";
 import getTorrentInfo from "./utils/getTorrentInfo.js";
 import processXML from "./utils/processXML.js";
 
@@ -38,10 +40,10 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 			if (!torrentAddon) {
 				console.log("Getting RD link...");
 
-				const downloadLink = await helper.getMovieRDLink(torrentInfo.magnetLink, debridApi);
+				const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
 				results.push({
 					name: "Jackett Debrid",
-					title: `${item.title}\r\n📁${helper.toHomanReadable(item.size)}`,
+					title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
 					url: downloadLink,
 				});
 
@@ -49,7 +51,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 			}
 
 			torrentInfo.seeders = item.seeders;
-			torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${helper.toHomanReadable(item.size)}`;
+			torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
 			if (!isSeries) {
 				delete torrentInfo.fileIdx;
 			}
@@ -74,7 +76,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 				const torrentInfo = await getTorrentInfo(item.link);
 
 				if (!torrentAddon) {
-					const url = await helper.getMovieRDLink(
+					const url = await getMovieRDLink(
 						torrentInfo.magnetLink,
 						debridApi,
 						`S${searchQuery.season}E${searchQuery.episode}`,
@@ -82,7 +84,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 
 					results.push({
 						name: "Jackett Debrid",
-						title: `${item.title}\r\n📁${helper.toHomanReadable(item.size)}`,
+						title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
 						url,
 					});
 
@@ -93,14 +95,11 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 				console.log(`Torrent info: ${item.title}`);
 
 				torrentInfo.seeders = item.seeders;
-				torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${helper.toHomanReadable(item.size)}`;
+				torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
 
 				console.log("Determining episode file...");
 				torrentInfo.fileIdx = parseInt(
-					helper.selectBiggestFileSeasonTorrent(
-						torrentInfo.files,
-						`S${searchQuery.season}E${searchQuery.episode}`,
-					),
+					selectBiggestFileSeasonTorrent(torrentInfo.files, `S${searchQuery.season}E${searchQuery.episode}`),
 					10,
 				);
 				console.log("Episode file determined.");
