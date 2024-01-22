@@ -1,4 +1,6 @@
 import { Buffer } from "buffer";
+import http from 'http';
+import https from 'https';
 import fetch from 'node-fetch';
 import parseTorrent, { toMagnetURI } from 'parse-torrent';
 import xml2js from 'xml2js';
@@ -45,17 +47,29 @@ async function processXML(xml) {
 }
 
 async function getTorrentInfo(torrentLink) {
-    try {
-		let torrentParsed;
-		const isMagnetLink = torrentLink.startsWith("magnet:");
+	let torrentParsed;
+	let isMagnetLink = torrentLink.startsWith("magnet:");
 
-		if (isMagnetLink) {
-			torrentParsed = await parseTorrent(torrentLink);
-		} else  {
-			let response = await fetch(torrentLink);
+	if (isMagnetLink) {
+		torrentParsed = await parseTorrent(torrentLink);
+	} else {
+		try {
+			const response = await fetch(torrentLink);
 			const torrentBuffer = await response.arrayBuffer();
-			torrentParsed = await parseTorrent(Buffer.from(torrentBuffer));
+                        torrentParsed = await parseTorrent(Buffer.from(torrentBuffer));
+		} catch {
+			isMagnetLink = true;
+
+			await new Promise((resolve, reject) => (torrentLink.startsWith("https") ? https : http).request(
+			    torrentLink,
+			    async (res) => {
+				torrentLink = res.headers.location;
+			        torrentParsed = await parseTorrent(res.headers.location);
+				resolve();
+			    },
+			).end());
 		}
+	}
 
         const torrentInfo = {
             name: "Jackett",
@@ -76,9 +90,6 @@ async function getTorrentInfo(torrentLink) {
         }
 
         return torrentInfo;
-    } catch (e) {
-        return undefined
-    }
 }
 
 async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, searchQuery) {
