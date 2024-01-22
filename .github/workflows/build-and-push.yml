@@ -15,12 +15,6 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
 
-      - name: 🚀 Build Docker image for arm64
-        run: docker buildx build --platform linux/arm64 -t belmeg/stremio-addon-jackett:${{ github.event.release.tag_name }}-arm64 .
-
-      - name: 🚀 Build Docker image for latest arm64
-        run: docker buildx build --platform linux/arm64 -t belmeg/stremio-addon-jackett:${{ github.event.release.tag_name }}-arm64 .
-
       - name: 🚀 Build Docker image for amd64
         run: docker buildx build --platform linux/amd64 -t belmeg/stremio-addon-jackett:latest-amd64 .
 
@@ -32,12 +26,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
-
-      - name: 📩 Push arm64 Docker image to Docker Hub
-        run: docker push belmeg/stremio-addon-jackett:${{ github.event.release.tag_name }}-arm64
-
-      - name: 📩 Push latest arm64 Docker image to Docker Hub
-        run: docker push belmeg/stremio-addon-jackett:latest-arm64
 
       - name: 📩 Push amd64 Docker image to Docker Hub
         run: docker push belmeg/stremio-addon-jackett:${{ github.event.release.tag_name }}-amd64
