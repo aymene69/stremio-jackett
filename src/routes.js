@@ -3,7 +3,7 @@ import { dirname } from "path";
 import { fileURLToPath } from "url";
 import helper from "./helper.js";
 import { subpath } from "./index.js";
-import jackett from "./jackett.js";
+import jackettSearch from "./jackett/index.js";
 
 const routes = Router();
 
@@ -49,7 +49,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const mediaName = await helper.getName(id[0], type);
 		if (type === "movie") {
 			console.log(`Movie request. ID: ${id[0]} Name: ${mediaName}`);
-			const torrentInfo = await jackett.jackettSearch(debridApi, jackettUrl, jackettApi, service, {
+			const torrentInfo = await jackettSearch(debridApi, jackettUrl, jackettApi, service, {
 				name: mediaName,
 				type: type,
 			});
@@ -61,7 +61,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 					id[1],
 				)} Episode: ${helper.getNum(id[2])}`,
 			);
-			const torrentInfo = await jackett.jackettSearch(debridApi, jackettUrl, jackettApi, service, {
+			const torrentInfo = await jackettSearch(debridApi, jackettUrl, jackettApi, service, {
 				name: mediaName,
 				type: type,
 				season: helper.getNum(id[1]),
