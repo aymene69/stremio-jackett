@@ -1,7 +1,7 @@
-import cors from 'cors';
-import express from 'express';
-import http from 'http';
-import routes from './routes.js';
+import cors from "cors";
+import express from "express";
+import http from "http";
+import routes from "./routes.js";
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -16,5 +16,5 @@ app.use(cors());
 app.use(subpath, routes);
 
 server.listen(port, () => {
-    console.log(`Server is running at http://localhost:${port}${subpath || ""}`);
+	console.log(`Server is running at http://localhost:${port}${subpath || ""}`);
 });

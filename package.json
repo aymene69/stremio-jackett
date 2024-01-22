@@ -4,7 +4,7 @@
 	"version": "1.0.0",
 	"description": "Stremio Jackett Addon",
 	"scripts": {
-		"start": "node index.js"
+		"start": "node src/index.js"
 	},
 	"dependencies": {
 		"buffer": "^6.0.3",
@@ -14,5 +14,8 @@
 		"node-fetch": "^3.3.2",
 		"parse-torrent": "^11.0.14",
 		"xml2js": "^0.6.2"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "^1.5.2"
 	}
 }
