@@ -9,7 +9,7 @@ const routes = Router();
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const noResults = { streams: [{ url: "#", title: "Aucun résultat trouvé" }] };
+const noResults = { streams: [{ url: "#", title: "No results found" }] };
 function respond(res, data) {
 	res.setHeader("Access-Control-Allow-Origin", "*");
 	res.setHeader("Access-Control-Allow-Headers", "*");
