@@ -55,38 +55,56 @@
                                     <p class="text-white-50 mb-5">
                                         Please fill in the following fields to install Stremio-Jackett
                                     </p>
-                                    <div class="form-outline form-white mb-4">
-                                        <label class="form-label"
-                                            >Real-Debrid API key (you can get it
-                                            <a href="https://real-debrid.com/apitoken" target="_blank"
-                                                >here</a
-                                            >)</label
-                                        >
-                                        <input
-                                            required
-                                            type="realApi"
-                                            class="form-control form-control-lg"
-                                            placeholder="Enter your Real-Debrid API key"
-                                        />
-                                    </div>
 
                                     <div class="form-outline form-white mb-4">
                                         <label class="form-label"
                                             >Stream service (direct torrent or debrid service)</label
                                         >
-                                        <select required class="form-select" aria-label="">
+                                        <select required class="form-select" aria-label="" id="serviceProvider" onchange="updateLink()">
                                             <option value="torrent">torrent</option>
                                             <option value="realdebrid">realdebrid</option>
                                         </select>
                                     </div>
 
+                                    <div class="form-outline form-white mb-4" id="debridApiDiv">
+                                        <label class="form-label"
+                                        >Real-Debrid API key (you can get it
+                                            <a href="https://real-debrid.com/apitoken" target="_blank"
+                                            >here</a
+                                            >)</label
+                                        >
+                                        <input
+                                            required
+                                            class="form-control form-control-lg"
+                                            placeholder="Enter your Real-Debrid API key"
+                                            id="debridApi"
+                                            oninput="updateLink()"
+                                        />
+                                    </div>
+
+                                    <div class="form-outline form-white mb-4" id="maxResultDiv">
+                                        <label class="form-label"
+                                        >Number of results per search
+                                        </label
+                                        >
+                                        <input
+                                            required
+                                            class="form-control form-control-lg"
+                                            placeholder="Enter your Real-Debrid API key"
+                                            oninput="updateLink()"
+                                            id="maxResults"
+                                        />
+                                    </div>
+
+
                                     <div class="form-outline form-white mb-4">
                                         <label class="form-label">Jackett URL</label>
                                         <input
                                             required
-                                            type="jackettUrl"
                                             class="form-control form-control-lg"
                                             placeholder="For example 'http(s)://jackett_url:port'"
+                                            oninput="updateLink()"
+                                            id="jackettUrl"
                                         />
                                     </div>
 
@@ -94,9 +112,10 @@
                                         <label class="form-label">Jackett API Key</label>
                                         <input
                                             required
-                                            type="jackettApi"
                                             class="form-control form-control-lg"
                                             placeholder="Enter your Jackett API key"
+                                            oninput="updateLink()"
+                                            id="jackettApi"
                                         />
                                     </div>
 
@@ -109,41 +128,37 @@
             </div>
         </section>
         <script>
-            var inputElements = document.querySelectorAll("input");
-            var selectElement = document.querySelector("select");
+            document.getElementById("debridApiDiv").style.display = "none";
+            function updateLink() {
+                let serviceProvider = document.getElementById("serviceProvider").value;
+                let debridApi = document.getElementById("debridApi").value;
+                let maxResults = document.getElementById("maxResults").value;
+                let jackettUrl = document.getElementById("jackettUrl").value;
+                let jackettApi = document.getElementById("jackettApi").value;
 
-            var inputValues = [];
+                let dynamicLink = document.getElementById("configureLink");
 
-            inputElements.forEach(function (inputElement, index) {
-                inputElement.addEventListener("input", updateValues);
-            });
-
-            selectElement.addEventListener("change", updateValues);
-            console.log(
-                `stremio://${window.location["host"]}${process.env.SUBPATH || ""}/${btoa(
-                    JSON.stringify(dataJson)
-                )}/manifest.json`
-            );
-
-            function updateValues() {
-                inputValues = Array.from(inputElements).map(function (inputElement) {
-                    return inputElement.value.trim() || undefined;
-                });
-
-                inputValues.push(selectElement.value.trim() || undefined);
-
-                var configureLink = document.getElementById("configureLink");
-                var dataJson = {
-                    debridApiKey: inputValues[0],
-                    streamService: inputValues[3],
-                    jackettUrl: inputValues[1],
-                    jackettApiKey: inputValues[2],
-                };
-                configureLink.href = `stremio://${
-                    window.location["host"]
-                }${window.location.pathname.replace("/configure", "")}/${btoa(
-                    JSON.stringify(dataJson)
-                )}/manifest.json`;
+                if (serviceProvider === "torrent") {
+                    document.getElementById("debridApiDiv").style.display = "none";
+                    document.getElementById("maxResultDiv").style.display = "block";
+                    let dataJson = {
+                        streamService: serviceProvider,
+                        jackettUrl: jackettUrl,
+                        jackettApiKey: jackettApi,
+                        maxResults: maxResults
+                    };
+                    dynamicLink.href = `stremio://${window.location.host}${window.location.pathname.replace("/configure", "")}/${btoa(JSON.stringify(dataJson))}/manifest.json`;
+                } else if (serviceProvider === "realdebrid") {
+                    document.getElementById("debridApiDiv").style.display = "block";
+                    document.getElementById("maxResultDiv").style.display = "none";
+                    let dataJson = {
+                        streamService: serviceProvider,
+                        jackettUrl: jackettUrl,
+                        jackettApiKey: jackettApi,
+                        debridApiKey: debridApi
+                    };
+                    dynamicLink.href = `stremio://${window.location.host}${window.location.pathname.replace("/configure", "")}/${btoa(JSON.stringify(dataJson))}/manifest.json`;
+                }
             }
         </script>
     </body>
