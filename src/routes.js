@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import helper from "./helper.js";
+import { getName } from "./helpers/getName.js";
+import { getNum } from "./helpers/getNum.js";
 import { subpath } from "./index.js";
 import jackettSearch from "./jackett/index.js";
 
@@ -46,7 +47,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const jackettUrl = paramsJson.jackettUrl;
 		const jackettApi = paramsJson.jackettApiKey;
 		const debridApi = paramsJson.debridApiKey;
-		const mediaName = await helper.getName(id[0], type);
+		const mediaName = await getName(id[0], type);
 		if (type === "movie") {
 			console.log(`Movie request. ID: ${id[0]} Name: ${mediaName}`);
 			const torrentInfo = await jackettSearch(debridApi, jackettUrl, jackettApi, service, {
@@ -57,15 +58,15 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		}
 		if (type === "series") {
 			console.log(
-				`Series request. ID: ${id[0]} Name: "${mediaName}" Season: ${helper.getNum(
-					id[1],
-				)} Episode: ${helper.getNum(id[2])}`,
+				`Series request. ID: ${id[0]} Name: "${mediaName}" Season: ${getNum(id[1])} Episode: ${getNum(
+					id[2],
+				)}`,
 			);
 			const torrentInfo = await jackettSearch(debridApi, jackettUrl, jackettApi, service, {
 				name: mediaName,
 				type: type,
-				season: helper.getNum(id[1]),
-				episode: helper.getNum(id[2]),
+				season: getNum(id[1]),
+				episode: getNum(id[2]),
 			});
 			respond(res, { streams: torrentInfo });
 		}

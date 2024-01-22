@@ -1,58 +1,7 @@
-import fetch from "node-fetch";
+import { selectBiggestFileSeason } from "./selectBiggestFileSeason.js";
 
-const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
-
-function getNum(s) {
-	return s < 10 ? `0${s}` : s.toString();
-}
-
-function selectBiggestFileSeason(files, se) {
-	return files.find(file => se && file.path.includes(se))?.id || null;
-}
-
-function selectBiggestFileSeasonTorrent(files, se) {
-	const filteredFiles = files.filter(file => {
-		return file.name.includes(se);
-	});
-
-	if (filteredFiles.length === 0) {
-		return null;
-	}
-
-	const filesTried = filteredFiles.sort((a, b) => {
-		return b.length - a.length;
-	});
-
-	const biggestFileId = files.indexOf(filesTried[0]);
-
-	return biggestFileId;
-}
-
-function toHomanReadable(bytes) {
-	if (Math.abs(bytes) < 1024) {
-		return `${bytes} B`;
-	}
-
-	const units = ["kB", "MB", "GB", "TB", "PB", "EB", "ZB", "YB"];
-
-	let i = -1;
-	do {
-		bytes /= 1024;
-		++i;
-	} while (Math.abs(bytes) >= 1024 && i < units.length - 1);
-
-	return `${bytes.toFixed(1)} ${units[i]}`;
-}
-
-async function getName(id, type) {
-	if (typeof id !== "string") {
-		return id;
-	}
-
-	const res = await fetch(`https://v3-cinemeta.strem.io/meta/${type}/${id}.json`);
-	const name = (await res.json()).meta.name;
-
-	return name;
+function wait(ms) {
+	new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function addMagnetToRD(magnetLink, debridApi) {
@@ -110,7 +59,7 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 	const response = await fetch(apiUrl, { method: "POST", headers, body });
 }
 
-async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
+export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 	const torrentId = await addMagnetToRD(torrentLink, debridApi);
 	console.log(`Magnet added to RD. ID: ${torrentId}`);
 	if (seasonEpisode) {
@@ -153,12 +102,3 @@ async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 	console.log(`RD link: ${mediaLink}`);
 	return mediaLink;
 }
-
-export default {
-	getNum,
-	selectBiggestFileSeasonTorrent,
-	selectBiggestFileSeason,
-	toHomanReadable,
-	getName,
-	getMovieRDLink,
-};
