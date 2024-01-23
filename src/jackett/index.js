@@ -1,4 +1,5 @@
 import { getMovieRDLink } from "../helpers/getMovieRDLink.js";
+import { getMovieADLink } from "../helpers/getMovieADLink.js";
 import { selectBiggestFileSeasonTorrent } from "../helpers/selectBiggestFileSeasonTorrent.js";
 import { toHumanReadable } from "../helpers/toHumanReadable.js";
 import getTorrentInfo from "./utils/getTorrentInfo.js";
@@ -38,16 +39,29 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 			console.log(`Torrent info: ${item.title}`);
 
 			if (!torrentAddon) {
-				console.log("Getting RD link...");
+				if (addonType === "realdebrid") {
+					console.log("Getting RD link...");
 
-				const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
-				results.push({
-					name: "Jackett Debrid",
-					title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
-					url: downloadLink,
-				});
+					const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
+					results.push({
+						name: "Jackett Debrid",
+						title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+						url: downloadLink,
+					});
 
-				break;
+					break;
+				} else if (addonType === "alldebrid") {
+					console.log("Getting AD link...");
+
+					const downloadLink = await getMovieADLink(torrentInfo.magnetLink, debridApi);
+					results.push({
+						name: "Jackett Debrid",
+						title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+						url: downloadLink,
+					});
+
+					break;
+				}
 			}
 
 			torrentInfo.seeders = item.seeders;
