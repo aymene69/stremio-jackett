@@ -1,3 +1,3 @@
-export function selectBiggestFileSeason(files, se) {
-	return files.find(file => se && file.path.includes(se))?.id || null;
+export function selectBiggestFileSeasonAD(files, se) {
+	return files.findIndex(file => file.filename.includes(se)) + 1 || null;
 }
