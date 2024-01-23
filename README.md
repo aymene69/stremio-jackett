@@ -1,8 +1,6 @@
 # Stremio Jackett Addon
 Elevate your Stremio experience with seamless access to Jackett torrent links, effortlessly fetching torrents for your selected movies within the Stremio interface.
 
-Addon accessible publicly! Configure it for you [here](https://va-dda.click/)!
-
 # Disclaimer
 I am not responsible for any content downloaded through this addon.
 
