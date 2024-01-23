@@ -9,7 +9,7 @@ I am not responsible for any content downloaded through this addon.
 # Prerequisites
 - A [Jackett](https://github.com/Jackett/Jackett) server running and reachable pubicly.
 - NodeJS, npm.
-- *(optionnal)* A Real-Debrid account.
+- *(optionnal)* A Real-Debrid or All-Debrid account.
 
 # Installation
 ## Without Docker
