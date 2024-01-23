@@ -67,7 +67,7 @@
                                         </select>
                                     </div>
 
-                                    <div class="form-outline form-white mb-4" id="debridApiDiv">
+                                    <div class="form-outline form-white mb-4" id="realDebridApiDiv">
                                         <label class="form-label"
                                         >Real-Debrid API key (you can get it
                                             <a href="https://real-debrid.com/apitoken" target="_blank"
@@ -77,8 +77,24 @@
                                         <input
                                             required
                                             class="form-control form-control-lg"
-                                            placeholder="Enter your Debrid service API key"
-                                            id="debridApi"
+                                            placeholder="Enter your Real-Debrid service API key"
+                                            id="realDebridApi"
+                                            oninput="updateLink()"
+                                        />
+                                    </div>
+
+                                    <div class="form-outline form-white mb-4" id="allDebridApiDiv">
+                                        <label class="form-label"
+                                        >All-Debrid API key (you can get it
+                                            <a href="https://alldebrid.fr/apikeys/" target="_blank"
+                                            >here</a
+                                            >)</label
+                                        >
+                                        <input
+                                            required
+                                            class="form-control form-control-lg"
+                                            placeholder="Enter your All-Debrid service API key"
+                                            id="allDebridApi"
                                             oninput="updateLink()"
                                         />
                                     </div>
@@ -129,10 +145,12 @@
             </div>
         </section>
         <script>
-            document.getElementById("debridApiDiv").style.display = "none";
+            document.getElementById("realDebridApiDiv").style.display = "none";
+            document.getElementById("allDebridApiDiv").style.display = "none";
             function updateLink() {
                 let serviceProvider = document.getElementById("serviceProvider").value;
-                let debridApi = document.getElementById("debridApi").value;
+                let realDebridApi = document.getElementById("realDebridApi").value;
+                let allDebridApi = document.getElementById("allDebridApi").value;
                 let maxResults = document.getElementById("maxResults").value;
                 let jackettUrl = document.getElementById("jackettUrl").value;
                 let jackettApi = document.getElementById("jackettApi").value;
@@ -140,7 +158,8 @@
                 let dynamicLink = document.getElementById("configureLink");
 
                 if (serviceProvider === "torrent") {
-                    document.getElementById("debridApiDiv").style.display = "none";
+                    document.getElementById("realDebridApiDiv").style.display = "none";
+                    document.getElementById("allDebridApiDiv").style.display = "none";
                     document.getElementById("maxResultDiv").style.display = "block";
                     let dataJson = {
                         streamService: serviceProvider,
@@ -150,13 +169,25 @@
                     };
                     dynamicLink.href = `stremio://${window.location.host}${window.location.pathname.replace("/configure", "")}/${btoa(JSON.stringify(dataJson))}/manifest.json`;
                 } else if (serviceProvider === "realdebrid") {
-                    document.getElementById("debridApiDiv").style.display = "block";
+                    document.getElementById("realDebridApiDiv").style.display = "block";
+                    document.getElementById("allDebridApiDiv").style.display = "none";
                     document.getElementById("maxResultDiv").style.display = "none";
                     let dataJson = {
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
                         jackettApiKey: jackettApi,
-                        debridApiKey: debridApi
+                        debridApiKey: realDebridApi
+                    };
+                    dynamicLink.href = `stremio://${window.location.host}${window.location.pathname.replace("/configure", "")}/${btoa(JSON.stringify(dataJson))}/manifest.json`;
+                } else if (serviceProvider === "alldebrid") {
+                    document.getElementById("realDebridApiDiv").style.display = "none";
+                    document.getElementById("allDebridApiDiv").style.display = "block";
+                    document.getElementById("maxResultDiv").style.display = "none";
+                    let dataJson = {
+                        streamService: serviceProvider,
+                        jackettUrl: jackettUrl,
+                        jackettApiKey: jackettApi,
+                        debridApiKey: allDebridApi
                     };
                     dynamicLink.href = `stremio://${window.location.host}${window.location.pathname.replace("/configure", "")}/${btoa(JSON.stringify(dataJson))}/manifest.json`;
                 }

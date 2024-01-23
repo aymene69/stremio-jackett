@@ -54,6 +54,10 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 					console.log("Getting AD link...");
 
 					const downloadLink = await getMovieADLink(torrentInfo.magnetLink, debridApi);
+					if (downloadLink === "blocked") {
+						console.log("Error: AllDebrid blocked for this IP. Please check your email.");
+						return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
+					}
 					results.push({
 						name: "Jackett Debrid",
 						title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
