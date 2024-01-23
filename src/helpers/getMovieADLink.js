@@ -9,12 +9,18 @@ async function addMagnetToAD(magnetLink, debridApi) {
 
 	const response = await fetch(apiUrl, { method: "POST" });
 	const responseJson = await response.json();
-
+	if (responseJson.status === "error" && responseJson.error.code === "AUTH_BLOCKED") {
+		return "blocked"
+	}
+	console.log(responseJson)
 	return responseJson.data.magnets[0].id
 }
 
 export async function getMovieADLink(torrentLink, debridApi, seasonEpisode) {
 	const torrentId = await addMagnetToAD(torrentLink, debridApi);
+	if (torrentId === "blocked") {
+		return "blocked"
+	}
 	console.log(`Magnet added to AD. ID: ${torrentId}`);
 	let responseJson;
 	while (true) {
