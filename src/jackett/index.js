@@ -97,7 +97,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 					if (addonType === "realdebrid") {
 						const url = await getMovieRDLink(
 							torrentInfo.magnetLink,
-							debridApi,
+							,
 							`S${searchQuery.season}E${searchQuery.episode}`,
 						);
 
@@ -108,6 +108,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 						});
 
 						break;
+            
 					} else if (addonType === "alldebrid") {
 						const url = await getMovieADLink(
 							torrentInfo.magnetLink,
@@ -123,7 +124,6 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 
 						break;
 					}
-
 				}
 
 				console.log("Getting torrent info...");
