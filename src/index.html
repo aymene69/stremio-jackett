@@ -60,7 +60,13 @@
                                         <label class="form-label"
                                             >Stream service (direct torrent or debrid service)</label
                                         >
-                                        <select required class="form-select" aria-label="" id="serviceProvider" onchange="updateLink()">
+                                        <select
+                                            required
+                                            class="form-select"
+                                            aria-label=""
+                                            id="serviceProvider"
+                                            onchange="updateLink()"
+                                        >
                                             <option value="torrent">torrent</option>
                                             <option value="realdebrid">realdebrid</option>
                                             <option value="alldebrid">alldebrid</option>
@@ -69,9 +75,9 @@
 
                                     <div class="form-outline form-white mb-4" id="realDebridApiDiv">
                                         <label class="form-label"
-                                        >Real-Debrid API key (you can get it
+                                            >Real-Debrid API key (you can get it
                                             <a href="https://real-debrid.com/apitoken" target="_blank"
-                                            >here</a
+                                                >here</a
                                             >)</label
                                         >
                                         <input
@@ -85,9 +91,9 @@
 
                                     <div class="form-outline form-white mb-4" id="allDebridApiDiv">
                                         <label class="form-label"
-                                        >All-Debrid API key (you can get it
+                                            >All-Debrid API key (you can get it
                                             <a href="https://alldebrid.fr/apikeys/" target="_blank"
-                                            >here</a
+                                                >here</a
                                             >)</label
                                         >
                                         <input
@@ -100,10 +106,7 @@
                                     </div>
 
                                     <div class="form-outline form-white mb-4" id="maxResultDiv">
-                                        <label class="form-label"
-                                        >Number of results per search
-                                        </label
-                                        >
+                                        <label class="form-label">Number of results per search </label>
                                         <input
                                             required
                                             class="form-control form-control-lg"
@@ -112,7 +115,6 @@
                                             id="maxResults"
                                         />
                                     </div>
-
 
                                     <div class="form-outline form-white mb-4">
                                         <label class="form-label">Jackett URL</label>
@@ -155,6 +157,10 @@
                 let jackettUrl = document.getElementById("jackettUrl").value;
                 let jackettApi = document.getElementById("jackettApi").value;
 
+                if (jackettUrl.at(-1) === "/") {
+                    jackettUrl = jackettUrl.slice(0, -1);
+                }
+
                 let dynamicLink = document.getElementById("configureLink");
 
                 if (serviceProvider === "torrent") {
@@ -165,9 +171,13 @@
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
                         jackettApiKey: jackettApi,
-                        maxResults: maxResults
+                        maxResults: maxResults,
                     };
-                    dynamicLink.href = `stremio://${window.location.host}${window.location.pathname.replace("/configure", "")}/${btoa(JSON.stringify(dataJson))}/manifest.json`;
+                    dynamicLink.href = `stremio://${
+                        window.location.host
+                    }${window.location.pathname.replace("/configure", "")}/${btoa(
+                        JSON.stringify(dataJson)
+                    )}/manifest.json`;
                 } else if (serviceProvider === "realdebrid") {
                     document.getElementById("realDebridApiDiv").style.display = "block";
                     document.getElementById("allDebridApiDiv").style.display = "none";
@@ -176,9 +186,13 @@
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
                         jackettApiKey: jackettApi,
-                        debridApiKey: realDebridApi
+                        debridApiKey: realDebridApi,
                     };
-                    dynamicLink.href = `stremio://${window.location.host}${window.location.pathname.replace("/configure", "")}/${btoa(JSON.stringify(dataJson))}/manifest.json`;
+                    dynamicLink.href = `stremio://${
+                        window.location.host
+                    }${window.location.pathname.replace("/configure", "")}/${btoa(
+                        JSON.stringify(dataJson)
+                    )}/manifest.json`;
                 } else if (serviceProvider === "alldebrid") {
                     document.getElementById("realDebridApiDiv").style.display = "none";
                     document.getElementById("allDebridApiDiv").style.display = "block";
@@ -187,9 +201,13 @@
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
                         jackettApiKey: jackettApi,
-                        debridApiKey: allDebridApi
+                        debridApiKey: allDebridApi,
                     };
-                    dynamicLink.href = `stremio://${window.location.host}${window.location.pathname.replace("/configure", "")}/${btoa(JSON.stringify(dataJson))}/manifest.json`;
+                    dynamicLink.href = `stremio://${
+                        window.location.host
+                    }${window.location.pathname.replace("/configure", "")}/${btoa(
+                        JSON.stringify(dataJson)
+                    )}/manifest.json`;
                 }
             }
         </script>
