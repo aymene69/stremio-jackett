@@ -1,5 +1,7 @@
 import { getMovieRDLink } from "../helpers/getMovieRDLink.js";
 import { getMovieADLink } from "../helpers/getMovieADLink.js";
+import { getAvailabilityAD } from "../helpers/getAvailabilityAD.js";
+import { getAvailabilityRD } from "../helpers/getAvailabilityRD.js";
 import { selectBiggestFileSeasonTorrent } from "../helpers/selectBiggestFileSeasonTorrent.js";
 import { toHumanReadable } from "../helpers/toHumanReadable.js";
 import getTorrentInfo from "./utils/getTorrentInfo.js";
@@ -30,7 +32,10 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 
 		let items = await getItemsFromUrl(searchUrl);
 		for (const [index, item] of items.entries()) {
-			if (torrentAddon && index >= maxResults) {
+			if (index >= maxResults) {
+				break;
+			}
+			if (index >= 15 ) {
 				break;
 			}
 
@@ -40,41 +45,77 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 
 			if (!torrentAddon) {
 				if (addonType === "realdebrid") {
+					if (maxResults === 1) {
+						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+							url: downloadLink,
+						});
+						break;
+					}
 					console.log("Getting RD link...");
+					const availability = await getAvailabilityRD(torrentInfo.infoHash, debridApi);
+					if (!availability) {
+						console.log("No RD link found. Skipping...");
+						continue;
+					}
+					if (availability) {
+						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+							url: downloadLink,
+						});
+					}
 
-					const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
-					results.push({
-						name: "Jackett Debrid",
-						title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
-						url: downloadLink,
-					});
-
-					break;
-				} else if (addonType === "alldebrid") {
+				} if (addonType === "alldebrid") {
+					if (maxResults === 1) {
+						const downloadLink = await getMovieADLink(torrentInfo.magnetLink, debridApi);
+						if (downloadLink === "blocked") {
+							console.log("Error: AllDebrid blocked for this IP. Please check your email.");
+							return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
+						}
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+							url: downloadLink,
+						});
+						break;
+					}
 					console.log("Getting AD link...");
-
-					const downloadLink = await getMovieADLink(torrentInfo.magnetLink, debridApi);
-					if (downloadLink === "blocked") {
+					const availability = await getAvailabilityAD(torrentInfo.magnetLink, debridApi);
+					if (availability === "blocked") {
 						console.log("Error: AllDebrid blocked for this IP. Please check your email.");
 						return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
 					}
-					results.push({
-						name: "Jackett Debrid",
-						title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
-						url: downloadLink,
-					});
+					if (!availability) {
+						console.log("No AD link found. Skipping...");
+						continue;
+					}
+					if (availability) {
+						const downloadLink = await getMovieADLink(torrentInfo.magnetLink, debridApi);
+						if (downloadLink === "blocked") {
+							console.log("Error: AllDebrid blocked for this IP. Please check your email.");
+							return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
+						}
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+							url: downloadLink,
+						});
+					}
 
-					break;
 				}
 			}
 
 			torrentInfo.seeders = item.seeders;
 			torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
 			if (!isSeries) {
-				delete torrentInfo.fileIdx;
+				torrentInfo.fileIdx = undefined;
 			}
 
-			results.push(torrentInfo);
+			if (torrentAddon) results.push(torrentInfo);
 			console.log(`Added torrent to results: ${item.title}`);
 		}
 
@@ -95,34 +136,83 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 
 				if (!torrentAddon) {
 					if (addonType === "realdebrid") {
-						const url = await getMovieRDLink(
-							torrentInfo.magnetLink,
-							,
-							`S${searchQuery.season}E${searchQuery.episode}`,
-						);
-
-						results.push({
-							name: "Jackett Debrid",
-							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
-							url,
-						});
-
-						break;
+						if (maxResults === 1) {
+							const url = await getMovieRDLink(
+								torrentInfo.magnetLink,
+								debridApi,
+								`S${searchQuery.season}E${searchQuery.episode}`,
+							);
+							results.push({
+								name: "Jackett Debrid",
+								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								url,
+							});
+							break;
+						}
+						console.log("Getting RD link...");
+						const availability = await getAvailabilityRD(torrentInfo.infoHash, debridApi);
+						if (!availability) {
+							console.log("No RD link found. Skipping...");
+							continue;
+						}
+						if (availability) {
+							const url = await getMovieRDLink(
+								torrentInfo.magnetLink,
+								debridApi,
+								`S${searchQuery.season}E${searchQuery.episode}`,
+							);
+							results.push({
+								name: "Jackett Debrid",
+								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								url,
+							});
+						}
             
-					} else if (addonType === "alldebrid") {
-						const url = await getMovieADLink(
-							torrentInfo.magnetLink,
-							debridApi,
-							`S${searchQuery.season}E${searchQuery.episode}`,
-						);
-
-						results.push({
-							name: "Jackett Debrid",
-							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
-							url,
-						});
-
-						break;
+					} if (addonType === "alldebrid") {
+						if (maxResults === 1) {
+							console.log("Getting AD link...");
+							const url = await getMovieADLink(
+								torrentInfo.magnetLink,
+								debridApi,
+								`S${searchQuery.season}E${searchQuery.episode}`,
+							);
+							if (url === "blocked") {
+								console.log("Error: AllDebrid blocked for this IP. Please check your email.");
+								return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
+							}
+							results.push({
+								name: "Jackett Debrid",
+								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								url,
+							});
+							break;
+						}
+						console.log("Getting AD link...");
+						const availability = await getAvailabilityAD(torrentInfo.magnetLink, debridApi);
+						if (availability === "blocked") {
+							console.log("Error: AllDebrid blocked for this IP. Please check your email.");
+							return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
+						}
+						if (!availability) {
+							console.log("No AD link found. Skipping...");
+							continue;
+						}
+						if (availability) {
+							const url = await getMovieADLink(
+								torrentInfo.magnetLink,
+								debridApi,
+								`S${searchQuery.season}E${searchQuery.episode}`,
+							);
+							if (url === "blocked") {
+								console.log("Error: AllDebrid blocked for this IP. Please check your email.");
+								return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
+							}
+							results.push({
+								name: "Jackett Debrid",
+								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								url,
+							});
+						}
 					}
 				}
 
