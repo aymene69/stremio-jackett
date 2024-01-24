@@ -97,7 +97,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 					if (addonType === "realdebrid") {
 						const url = await getMovieRDLink(
 							torrentInfo.magnetLink,
-							,
+							debridApi,
 							`S${searchQuery.season}E${searchQuery.episode}`,
 						);
 
