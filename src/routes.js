@@ -48,7 +48,16 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const jackettUrl = paramsJson.jackettUrl;
 		const jackettApi = paramsJson.jackettApiKey;
 		const debridApi = paramsJson.debridApiKey;
-		const maxResults = paramsJson.maxResults || 5;
+		let maxResults
+		if (paramsJson.maxResults < 1) {
+			maxResults = 1
+		}
+		if (paramsJson.maxResults > 20) {
+			maxResults = 20
+		}
+		else {
+			maxResults = 1
+		}
 		const mediaName = await getName(id[0], type);
 		if (type === "movie") {
 			console.log(`Movie request. ID: ${id[0]} Name: ${mediaName}`);
