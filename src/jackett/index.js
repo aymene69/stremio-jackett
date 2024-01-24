@@ -1,4 +1,7 @@
-import helper from "../helper.js";
+import { getMovieRDLink } from "../helpers/getMovieRDLink.js";
+import { getMovieADLink } from "../helpers/getMovieADLink.js";
+import { selectBiggestFileSeasonTorrent } from "../helpers/selectBiggestFileSeasonTorrent.js";
+import { toHumanReadable } from "../helpers/toHumanReadable.js";
 import getTorrentInfo from "./utils/getTorrentInfo.js";
 import processXML from "./utils/processXML.js";
 
@@ -36,20 +39,37 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 			console.log(`Torrent info: ${item.title}`);
 
 			if (!torrentAddon) {
-				console.log("Getting RD link...");
+				if (addonType === "realdebrid") {
+					console.log("Getting RD link...");
 
-				const downloadLink = await helper.getMovieRDLink(torrentInfo.magnetLink, debridApi);
-				results.push({
-					name: "Jackett Debrid",
-					title: `${item.title}\r\n📁${helper.toHomanReadable(item.size)}`,
-					url: downloadLink,
-				});
+					const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
+					results.push({
+						name: "Jackett Debrid",
+						title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+						url: downloadLink,
+					});
 
-				break;
+					break;
+				} else if (addonType === "alldebrid") {
+					console.log("Getting AD link...");
+
+					const downloadLink = await getMovieADLink(torrentInfo.magnetLink, debridApi);
+					if (downloadLink === "blocked") {
+						console.log("Error: AllDebrid blocked for this IP. Please check your email.");
+						return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
+					}
+					results.push({
+						name: "Jackett Debrid",
+						title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+						url: downloadLink,
+					});
+
+					break;
+				}
 			}
 
 			torrentInfo.seeders = item.seeders;
-			torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${helper.toHomanReadable(item.size)}`;
+			torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
 			if (!isSeries) {
 				delete torrentInfo.fileIdx;
 			}
@@ -74,7 +94,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 				const torrentInfo = await getTorrentInfo(item.link);
 
 				if (!torrentAddon) {
-					const url = await helper.getMovieRDLink(
+					const url = await getMovieRDLink(
 						torrentInfo.magnetLink,
 						debridApi,
 						`S${searchQuery.season}E${searchQuery.episode}`,
@@ -82,7 +102,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 
 					results.push({
 						name: "Jackett Debrid",
-						title: `${item.title}\r\n📁${helper.toHomanReadable(item.size)}`,
+						title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
 						url,
 					});
 
@@ -93,14 +113,11 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 				console.log(`Torrent info: ${item.title}`);
 
 				torrentInfo.seeders = item.seeders;
-				torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${helper.toHomanReadable(item.size)}`;
+				torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
 
 				console.log("Determining episode file...");
 				torrentInfo.fileIdx = parseInt(
-					helper.selectBiggestFileSeasonTorrent(
-						torrentInfo.files,
-						`S${searchQuery.season}E${searchQuery.episode}`,
-					),
+					selectBiggestFileSeasonTorrent(torrentInfo.files, `S${searchQuery.season}E${searchQuery.episode}`),
 					10,
 				);
 				console.log("Episode file determined.");
@@ -110,45 +127,16 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 			}
 		}
 
-			if (results.length === 0) {
-				const searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&cat=5000&q=${encodeURIComponent(
-					searchQuery.name,
-				)}+S${searchQuery.season}`;
-				const response = await fetch(searchUrl);
-				const responseXml = await response.text();
-				const items = await processXML(responseXml);
-				const results = [];
-				for (let i = 0; i < items.length; i++) {
-					const item = items[i];
-					const torrentInfo = await getTorrentInfo(item.link);
-					const downloadLink = await helper.getMovieRDLink(
-						torrentInfo.magnetLink,
-						debridApi,
-						`S${searchQuery.season}E${searchQuery.episode}`,
-					);
-					const torrentReturn = {
-						name: "Jackett Debrid",
-						title: `${item.title}\r\n📁${helper.toHomanReadable(item.size)}`,
-						url: downloadLink,
-					};
-					results.push(torrentReturn);
-					break;
-				}
-				if (results.length === 0) {
-					results.push({ name: "Jackett Debrid", title: "No results found", url: "#" });
-				}
-				return results;
-			}
-			return results;
-		} catch (e) {
-			console.log(e);
-			const results = [];
+		if (results.length === 0) {
+			console.log("No results found.");
+
 			results.push({ name: "Jackett", title: "No results found", url: "#" });
-			return results;
 		}
+
+		return results;
+	} catch (e) {
+		console.error(e);
+
+		return [{ name: "Jackett", title: "No results found", url: "#" }];
 	}
 }
-
-export default {
-	jackettSearch,
-};
