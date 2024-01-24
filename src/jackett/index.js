@@ -13,7 +13,7 @@ async function getItemsFromUrl(url) {
 	return items;
 }
 
-export default async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, searchQuery) {
+export default async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, maxResults, searchQuery) {
 	try {
 		const { episode, name, season, type } = searchQuery;
 		const isSeries = type === "series";
@@ -94,19 +94,36 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 				const torrentInfo = await getTorrentInfo(item.link);
 
 				if (!torrentAddon) {
-					const url = await getMovieRDLink(
-						torrentInfo.magnetLink,
-						debridApi,
-						`S${searchQuery.season}E${searchQuery.episode}`,
-					);
+					if (addonType === "realdebrid") {
+						const url = await getMovieRDLink(
+							torrentInfo.magnetLink,
+							,
+							`S${searchQuery.season}E${searchQuery.episode}`,
+						);
 
-					results.push({
-						name: "Jackett Debrid",
-						title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
-						url,
-					});
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+							url,
+						});
 
-					break;
+						break;
+            
+					} else if (addonType === "alldebrid") {
+						const url = await getMovieADLink(
+							torrentInfo.magnetLink,
+							debridApi,
+							`S${searchQuery.season}E${searchQuery.episode}`,
+						);
+
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+							url,
+						});
+
+						break;
+					}
 				}
 
 				console.log("Getting torrent info...");

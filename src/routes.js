@@ -48,10 +48,11 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const jackettUrl = paramsJson.jackettUrl;
 		const jackettApi = paramsJson.jackettApiKey;
 		const debridApi = paramsJson.debridApiKey;
+		const maxResults = paramsJson.maxResults || 5;
 		const mediaName = await getName(id[0], type);
 		if (type === "movie") {
 			console.log(`Movie request. ID: ${id[0]} Name: ${mediaName}`);
-			const torrentInfo = await jackettSearch(debridApi, jackettUrl, jackettApi, service, {
+			const torrentInfo = await jackettSearch(debridApi, jackettUrl, jackettApi, service, maxResults, {
 				name: mediaName,
 				type: type,
 			});
@@ -63,7 +64,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 					id[2],
 				)}`,
 			);
-			const torrentInfo = await jackettSearch(debridApi, jackettUrl, jackettApi, service, {
+			const torrentInfo = await jackettSearch(debridApi, jackettUrl, jackettApi, service, maxResults, {
 				name: mediaName,
 				type: type,
 				season: getNum(id[1]),
