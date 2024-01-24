@@ -30,7 +30,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 
 		let items = await getItemsFromUrl(searchUrl);
 		for (const [index, item] of items.entries()) {
-			if (torrentAddon && index >= 5) {
+			if (torrentAddon && index >= maxResults) {
 				break;
 			}
 
