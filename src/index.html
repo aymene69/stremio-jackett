@@ -109,12 +109,10 @@
                                         <label class="form-label">Number of results per search </label>
                                         <input
                                             required
-                                            type="number"
                                             class="form-control form-control-lg"
-                                            min="1"
-                                            max="20"
-                                            value="1"
+                                            placeholder="Enter maximum results per search"
                                             oninput="updateLink()"
+                                            onchange="onChangeMaxResults()"
                                             id="maxResults"
                                         />
                                     </div>
@@ -152,13 +150,23 @@
         <script>
             document.getElementById("realDebridApiDiv").style.display = "none";
             document.getElementById("allDebridApiDiv").style.display = "none";
+
+            function onChangeMaxResults() {
+                let addonType = document.getElementById("serviceProvider").value;
+                let maxResultsInput = document.getElementById("maxResults");
+
+                if (addonType !== "torrent" && Number(maxResultsInput.value) > 15) {
+                    maxResultsInput.value = String(15);
+                }
+            }
+
             function updateLink() {
                 let serviceProvider = document.getElementById("serviceProvider").value;
                 let realDebridApi = document.getElementById("realDebridApi").value;
                 let allDebridApi = document.getElementById("allDebridApi").value;
+                let maxResults = document.getElementById("maxResults").value;
                 let jackettUrl = document.getElementById("jackettUrl").value;
                 let jackettApi = document.getElementById("jackettApi").value;
-                let maxResults = document.getElementById("maxResults").value;
 
                 if (jackettUrl.at(-1) === "/") {
                     jackettUrl = jackettUrl.slice(0, -1);
