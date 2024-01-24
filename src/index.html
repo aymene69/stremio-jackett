@@ -109,8 +109,11 @@
                                         <label class="form-label">Number of results per search </label>
                                         <input
                                             required
+                                            type="number"
                                             class="form-control form-control-lg"
-                                            placeholder="Enter maximum results per search"
+                                            min="1"
+                                            max="20"
+                                            value="1"
                                             oninput="updateLink()"
                                             id="maxResults"
                                         />
@@ -153,9 +156,9 @@
                 let serviceProvider = document.getElementById("serviceProvider").value;
                 let realDebridApi = document.getElementById("realDebridApi").value;
                 let allDebridApi = document.getElementById("allDebridApi").value;
-                let maxResults = document.getElementById("maxResults").value;
                 let jackettUrl = document.getElementById("jackettUrl").value;
                 let jackettApi = document.getElementById("jackettApi").value;
+                let maxResults = document.getElementById("maxResults").value;
 
                 if (jackettUrl.at(-1) === "/") {
                     jackettUrl = jackettUrl.slice(0, -1);
@@ -166,7 +169,6 @@
                 if (serviceProvider === "torrent") {
                     document.getElementById("realDebridApiDiv").style.display = "none";
                     document.getElementById("allDebridApiDiv").style.display = "none";
-                    document.getElementById("maxResultDiv").style.display = "block";
                     let dataJson = {
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
@@ -181,12 +183,12 @@
                 } else if (serviceProvider === "realdebrid") {
                     document.getElementById("realDebridApiDiv").style.display = "block";
                     document.getElementById("allDebridApiDiv").style.display = "none";
-                    document.getElementById("maxResultDiv").style.display = "none";
                     let dataJson = {
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
                         jackettApiKey: jackettApi,
                         debridApiKey: realDebridApi,
+                        maxResults: maxResults,
                     };
                     dynamicLink.href = `stremio://${
                         window.location.host
@@ -196,12 +198,12 @@
                 } else if (serviceProvider === "alldebrid") {
                     document.getElementById("realDebridApiDiv").style.display = "none";
                     document.getElementById("allDebridApiDiv").style.display = "block";
-                    document.getElementById("maxResultDiv").style.display = "none";
                     let dataJson = {
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
                         jackettApiKey: jackettApi,
                         debridApiKey: allDebridApi,
+                        maxResults: maxResults,
                     };
                     dynamicLink.href = `stremio://${
                         window.location.host
