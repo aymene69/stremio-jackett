@@ -32,7 +32,7 @@
             integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
             crossorigin="anonymous"
         ></script>
-        <title>Stremio-Jackett by Aymene69</title>
+        <title>Stremio-Jackett</title>
     </head>
     <body>
         <section class="vh-100">
@@ -50,7 +50,7 @@
                                         height="100"
                                     />
                                     <h2 class="fw-bold mb-2 text-uppercase">Stremio-Jackett</h2>
-                                    <p class="text-white-50 mb-5">1.0.0</p>
+                                    <p class="text-white-50 mb-5">1.1.3</p>
                                     <h3 class="text-white mb-5">Configuration page</h3>
                                     <p class="text-white-50 mb-5">
                                         Please fill in the following fields to install Stremio-Jackett
@@ -112,6 +112,7 @@
                                             class="form-control form-control-lg"
                                             placeholder="Enter maximum results per search"
                                             oninput="updateLink()"
+                                            onchange="onChangeMaxResults()"
                                             id="maxResults"
                                         />
                                     </div>
@@ -149,6 +150,16 @@
         <script>
             document.getElementById("realDebridApiDiv").style.display = "none";
             document.getElementById("allDebridApiDiv").style.display = "none";
+
+            function onChangeMaxResults() {
+                let addonType = document.getElementById("serviceProvider").value;
+                let maxResultsInput = document.getElementById("maxResults");
+
+                if (addonType !== "torrent" && Number(maxResultsInput.value) > 15) {
+                    maxResultsInput.value = String(15);
+                }
+            }
+
             function updateLink() {
                 let serviceProvider = document.getElementById("serviceProvider").value;
                 let realDebridApi = document.getElementById("realDebridApi").value;
@@ -166,7 +177,6 @@
                 if (serviceProvider === "torrent") {
                     document.getElementById("realDebridApiDiv").style.display = "none";
                     document.getElementById("allDebridApiDiv").style.display = "none";
-                    document.getElementById("maxResultDiv").style.display = "block";
                     let dataJson = {
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
@@ -181,12 +191,12 @@
                 } else if (serviceProvider === "realdebrid") {
                     document.getElementById("realDebridApiDiv").style.display = "block";
                     document.getElementById("allDebridApiDiv").style.display = "none";
-                    document.getElementById("maxResultDiv").style.display = "none";
                     let dataJson = {
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
                         jackettApiKey: jackettApi,
                         debridApiKey: realDebridApi,
+                        maxResults: maxResults,
                     };
                     dynamicLink.href = `stremio://${
                         window.location.host
@@ -196,12 +206,12 @@
                 } else if (serviceProvider === "alldebrid") {
                     document.getElementById("realDebridApiDiv").style.display = "none";
                     document.getElementById("allDebridApiDiv").style.display = "block";
-                    document.getElementById("maxResultDiv").style.display = "none";
                     let dataJson = {
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
                         jackettApiKey: jackettApi,
                         debridApiKey: allDebridApi,
+                        maxResults: maxResults,
                     };
                     dynamicLink.href = `stremio://${
                         window.location.host
