@@ -10,7 +10,7 @@ I am not responsible for any content downloaded through this addon.
 - *(optionnal)* A Real-Debrid or All-Debrid account.
 
 # Installation
-## If you are a newbie, check this [guide](https://github.com/aymene69/stremio-jackett/wiki/Selfhosting-the-addon:-complete-guide!-(FREE))
+## If you are a newbie, check this [guide](https://github.com/aymene69/stremio-jackett/wiki/Selfhosting-the-addon-(for-FREE))
 
 
 ## Without Docker
