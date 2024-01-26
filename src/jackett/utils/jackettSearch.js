@@ -2,6 +2,7 @@ import { getMovieRDLink } from "../../helpers/getMovieRDLink.js";
 import { getMovieADLink } from "../../helpers/getMovieADLink.js";
 import { getAvailabilityAD } from "../../helpers/getAvailabilityAD.js";
 import { getAvailabilityRD } from "../../helpers/getAvailabilityRD.js";
+import { detectLanguageEmoji } from "../../helpers/getLanguage.js";
 import { selectBiggestFileSeasonTorrent } from "../../helpers/selectBiggestFileSeasonTorrent.js";
 import { toHumanReadable } from "../../helpers/toHumanReadable.js";
 import getTorrentInfo from "./getTorrentInfo.js";
@@ -49,7 +50,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
 						results.push({
 							name: "Jackett Debrid",
-							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+							title: `${detectLanguageEmoji(item.title)} ${item.title}\r\n📁${toHumanReadable(item.size)}`,
 							url: downloadLink,
 						});
 						break;
@@ -64,7 +65,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
 						results.push({
 							name: "Jackett Debrid",
-							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+							title: `${detectLanguageEmoji(item.title)} ${item.title}\r\n📁${toHumanReadable(item.size)}`,
 							url: downloadLink,
 						});
 					}
@@ -78,7 +79,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 						}
 						results.push({
 							name: "Jackett Debrid",
-							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+							title: `${detectLanguageEmoji(item.title)} ${item.title}\r\n📁${toHumanReadable(item.size)}`,
 							url: downloadLink,
 						});
 						break;
@@ -101,7 +102,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 						}
 						results.push({
 							name: "Jackett Debrid",
-							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+							title: `${detectLanguageEmoji(item.title)} ${item.title}\r\n📁${toHumanReadable(item.size)}`,
 							url: downloadLink,
 						});
 					}
@@ -110,7 +111,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 			}
 
 			torrentInfo.seeders = item.seeders;
-			torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
+			torrentInfo.title = `${detectLanguageEmoji(item.title)} ${item.title}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
 			if (!isSeries) {
 				torrentInfo.fileIdx = undefined;
 			}
@@ -144,7 +145,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 							);
 							results.push({
 								name: "Jackett Debrid",
-								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								title: `${detectLanguageEmoji(item.title)} ${item.title}\r\n📁${toHumanReadable(item.size)}`,
 								url,
 							});
 							break;
@@ -163,7 +164,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 							);
 							results.push({
 								name: "Jackett Debrid",
-								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								title: `${detectLanguageEmoji(item.title)} ${item.title}\r\n📁${toHumanReadable(item.size)}`,
 								url,
 							});
 						}
@@ -182,7 +183,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 							}
 							results.push({
 								name: "Jackett Debrid",
-								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								title: `${detectLanguageEmoji(item.title)} ${item.title}\r\n📁${toHumanReadable(item.size)}`,
 								url,
 							});
 							break;
@@ -209,7 +210,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 							}
 							results.push({
 								name: "Jackett Debrid",
-								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								title: `${detectLanguageEmoji(item.title)} ${item.title}\r\n📁${toHumanReadable(item.size)}`,
 								url,
 							});
 						}
@@ -220,7 +221,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 				console.log(`Torrent info: ${item.title}`);
 
 				torrentInfo.seeders = item.seeders;
-				torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
+				torrentInfo.title = `${detectLanguageEmoji(item.title)} ${item.title}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
 
 				console.log("Determining episode file...");
 				torrentInfo.fileIdx = parseInt(
