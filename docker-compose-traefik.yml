@@ -10,7 +10,7 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_default"
       - "traefik.http.routers.addon.entrypoints=web,websecure"
-      - "traefik.http.routers.addon.rule=Host(`yourdomain.com`)"
+      - "traefik.http.routers.addon.rule=HostHeader(`YOURADDON.COM`) && PathPrefix(`/addon`)"
       - "traefik.http.services.addon.loadbalancer.server.port=3000"
       - "traefik.http.routers.addon.tls=true"
       - "traefik.http.routers.addon.tls.certresolver=production"
