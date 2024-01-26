@@ -13,10 +13,10 @@ services:
       - ./data:/config
       - ./blackhole:/downloads
     networks:
-      - traefik_network
+      - traefik_default
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik_network"
+      - "traefik.docker.network=traefik_default"
       - "traefik.http.routers.jackett.entrypoints=web,websecure"
       - "traefik.http.routers.jackett.rule=Host(`aymenestremio.ddns.net`) && Path(`/jackett`)"
       - "traefik.http.services.jackett.loadbalancer.server.port=9117"
