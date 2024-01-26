@@ -5,10 +5,10 @@ services:
     image: belmeg/stremio-addon-jackett:latest
     container_name: addon
     networks:
-      - traefik_network
+      - traefik_default
     labels:
       - "traefik.enable=true"
-      - "traefik.docker.network=traefik_network"
+      - "traefik.docker.network=traefik_default"
       - "traefik.http.routers.addon.entrypoints=web,websecure"
       - "traefik.http.routers.addon.rule=Host(`aymenestremio.ddns.net`)"
       - "traefik.http.services.addon.loadbalancer.server.port=3000"
