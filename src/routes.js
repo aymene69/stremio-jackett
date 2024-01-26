@@ -37,7 +37,11 @@ routes.get("/:params/manifest.json", (req, res) => {
 });
 
 routes.use((err, req, res, next) => {
-	respond(res, noResults);
+	if (req.path.startsWith('/jackett')) {
+		next();
+	} else {
+		respond(res, noResults);
+	}
 });
 
 routes.get("/:params/stream/:type/:id", async (req, res) => {
