@@ -14,7 +14,6 @@ sudo apt-get update -y
 
 sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 clear
-sudo apt-get install -y netfilter-persistent
 echo "Please enter your email: "
 read userMail
 
@@ -42,7 +41,7 @@ sudo curl -fsSL https://raw.githubusercontent.com/aymene69/stremio-jackett/main/
 sudo sed -i "s/YOURADDON.COM/$domainName/g" ./docker-compose.yml
 sudo docker compose up -d
 sudo docker compose down
-sudo sed -i "s/\"BasePathOverride\": null,/\"BasePathOverride\": /jackett,/g" /data/Jackett/ServerConfig.json
+sudo sed -i 's/"BasePathOverride": null/"BasePathOverride": "\/jackett"/g' ./data/Jackett/ServerConfig.json
 sudo docker compose up -d
 cd ../addon
 sudo curl -fsSL https://raw.githubusercontent.com/aymene69/stremio-jackett/main/docker-compose-traefik.yml -o ./docker-compose.yml
