@@ -1,7 +1,7 @@
 {
 	"type": "module",
 	"name": "stremio-addon-jackett",
-	"version": "1.0.0",
+	"version": "1.1.3",
 	"description": "Stremio Jackett Addon",
 	"scripts": {
 		"start": "node src/index.js"
