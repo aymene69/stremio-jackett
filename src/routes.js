@@ -1,13 +1,11 @@
 import { Router } from "express";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
-import packageJson from "../package.json" with { type: "json" };
 import { getName } from "./helpers/getName.js";
 import { getNum } from "./helpers/getNum.js";
 import { subpath } from "./index.js";
+import jackettSearch from "./jackett/index.js";
 import fetchResults from "./jackett/index.js";
-
-const { version } = packageJson;
 
 const routes = Router();
 
@@ -22,11 +20,10 @@ function respond(res, data) {
 }
 
 routes.get("/:params/manifest.json", (req, res) => {
-	/** @type {import("stremio-addon-sdk").Manifest} */
 	const manifest = {
 		id: "community.aymene69.jackett",
-		logo: "https://i.imgur.com/tVjqEJP.png",
-		version,
+		icon: "https://i.imgur.com/tVjqEJP.png",
+		version: "1.1.3",
 		catalogs: [],
 		resources: ["stream"],
 		types: ["movie", "series"],
@@ -36,12 +33,15 @@ routes.get("/:params/manifest.json", (req, res) => {
 			configurable: true,
 		},
 	};
-
 	respond(res, manifest);
 });
 
 routes.use((err, req, res, next) => {
-	respond(res, noResults);
+	if (req.path.startsWith('/jackett')) {
+		next();
+	} else {
+		respond(res, noResults);
+	}
 });
 
 routes.get("/:params/stream/:type/:id", async (req, res) => {
@@ -53,14 +53,15 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const jackettUrl = paramsJson.jackettUrl;
 		const jackettApi = paramsJson.jackettApiKey;
 		const debridApi = paramsJson.debridApiKey;
-		let maxResults;
+		let maxResults
 		if (paramsJson.maxResults < 1) {
-			maxResults = 1;
+			maxResults = 1
 		}
 		if (paramsJson.maxResults > 20) {
-			maxResults = 20;
-		} else {
-			maxResults = 1;
+			maxResults = 20
+		}
+		else {
+			maxResults = 1
 		}
 		const mediaName = await getName(id[0], type);
 		if (type === "movie") {
