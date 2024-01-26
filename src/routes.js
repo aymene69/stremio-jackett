@@ -22,9 +22,10 @@ function respond(res, data) {
 }
 
 routes.get("/:params/manifest.json", (req, res) => {
+	/** @type {import("stremio-addon-sdk").Manifest} */
 	const manifest = {
 		id: "community.aymene69.jackett",
-		icon: "https://i.imgur.com/tVjqEJP.png",
+		logo: "https://i.imgur.com/tVjqEJP.png",
 		version,
 		catalogs: [],
 		resources: ["stream"],

@@ -3,7 +3,8 @@
 		"checkJs": true,
 		"module": "NodeNext",
 		"resolveJsonModule": true,
-		"target": "ES6"
+		"target": "ES6",
+        "typeRoots":["node_modules/@types", "src/@types"]
 	},
 	"include": ["src/**/*"]
 }
