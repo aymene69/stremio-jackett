@@ -54,6 +54,14 @@ export default async function jackettSearch(
 				if (addonType === "realdebrid") {
 					if (maxResults === 1) {
 						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
+						if (downloadLink === null) {
+							results.push({
+								name: "Jackett Debrid",
+								title: "RD link not found.",
+								url: "#",
+							});
+							break;
+						}
 						results.push({
 							name: "Jackett Debrid",
 							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
@@ -69,11 +77,20 @@ export default async function jackettSearch(
 					}
 					if (availability) {
 						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
-						results.push({
-							name: "Jackett Debrid",
-							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
-							url: downloadLink,
-						});
+						if (downloadLink === null) {
+							results.push({
+								name: "Jackett Debrid",
+								title: "RD link not found.",
+								url: "#",
+							});
+						}
+						else {
+							results.push({
+								name: "Jackett Debrid",
+								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								url: downloadLink,
+							});
+						}
 					}
 				}
 				if (addonType === "alldebrid") {
@@ -148,6 +165,14 @@ export default async function jackettSearch(
 								debridApi,
 								`S${searchQuery.season}E${searchQuery.episode}`,
 							);
+							if (url === null) {
+								results.push({
+									name: "Jackett Debrid",
+									title: "RD link not found.",
+									url: "#",
+								});
+								break;
+							}
 							results.push({
 								name: "Jackett Debrid",
 								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
@@ -167,6 +192,9 @@ export default async function jackettSearch(
 								debridApi,
 								`S${searchQuery.season}E${searchQuery.episode}`,
 							);
+							if (url === null) {
+								continue
+							}
 							results.push({
 								name: "Jackett Debrid",
 								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,

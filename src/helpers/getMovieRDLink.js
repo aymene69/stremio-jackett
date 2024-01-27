@@ -71,7 +71,12 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 	}
 	let responseJson;
 	console.log("Getting RD link...");
+	let tries = 0;
 	while (true) {
+		if (tries >= 10) {
+			console.log("RD link not found.");
+			return null;
+		}
 		console.log("Waiting for RD link...");
 		const apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/info/${torrentId}`;
 		const headers = {
@@ -87,6 +92,7 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 		}
 		await wait(5000);
 		console.log("RD link isn't ready. Retrying...");
+		tries++;
 	}
 
 	const downloadLink = responseJson.links[0];
