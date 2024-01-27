@@ -15,7 +15,45 @@ async function getItemsFromUrl(url) {
 	return items;
 }
 
-export default async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, maxResults, searchQuery) {
+const qualityOrder = [['4k', '2160p'], ['1080p'], ['720p'], ['480p']];
+
+function getQualityIndex(title) {
+    for (let i = 0; i < qualityOrder.length; i++) {
+        for (let j = 0; j < qualityOrder[i].length; j++) {
+            if (title.includes(qualityOrder[i][j])) {
+                return i;
+            }
+        }
+    }
+    return qualityOrder.length; // If none of the qualities match
+}
+
+function compareItems(a, b, prioQuality) {
+    const aContainsPrioQuality = a.title.toLowerCase().includes(prioQuality);
+    const bContainsPrioQuality = b.title.toLowerCase().includes(prioQuality);
+
+    // If both or neither title contains the dynamic value, then sort by quality
+    if (aContainsPrioQuality === bContainsPrioQuality) {
+        const aQualityIndex = getQualityIndex(a.title);
+        const bQualityIndex = getQualityIndex(b.title);
+
+        if (aQualityIndex === bQualityIndex) {
+            // If quality is the same, then sort by seeders (descending)
+            return b.seeders - a.seeders;
+        }
+
+        return aQualityIndex - bQualityIndex;
+    }
+
+    // If only one title contains the dynamic value, it should come first
+    return aContainsPrioQuality ? -1 : 1;
+}
+
+function sortItemsIntoPrioritizedQuality(items, prioQuality) {
+    return items.sort((a, b) => compareItems(a, b, prioQuality));
+}
+
+export default async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, maxResults, searchQuery, id, prioQuality) {
 	try {
 		const { episode, name, season, type } = searchQuery;
 		const isSeries = type === "series";
@@ -26,11 +64,31 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 
 		let searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&cat=${
 			isSeries ? 5000 : 2000
-		}&q=${encodeURIComponent(name)}${isSeries ? `+S${season}E${episode}` : ""}`;
+		}&q=${encodeURIComponent(id)}${isSeries ? `&season=${season}&episode=${episode}` : ""}`;
 
+		console.log(`Searching for ${id}...`);
 		const results = [];
 
 		let items = await getItemsFromUrl(searchUrl);
+		if (items.length === 0) {
+			searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&cat=${
+				isSeries ? 5000 : 2000
+			}&q=${encodeURIComponent(name)}${isSeries ? `&season=${season}&episode=${episode}` : ""}`;
+
+			items = await getItemsFromUrl(searchUrl);
+		}
+
+		if (!torrentAddon) {
+			let quality = ["1080p"];
+			if (prioQuality === "4k"){
+				quality = ["2160p", "4k"];
+			}else {
+				quality = [prioQuality];
+			}
+
+			items = sortItemsIntoPrioritizedQuality(items, quality);
+		}
+		
 		for (const [index, item] of items.entries()) {
 			if (index >= maxResults) {
 				break;
@@ -128,7 +186,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 
 			searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&cat=5000&q=${encodeURIComponent(
 				searchQuery.name,
-			)}+S${searchQuery.season}`;
+			)}&season${searchQuery.season}`;
 
 			items = await getItemsFromUrl(searchUrl);
 			for (const item of items) {

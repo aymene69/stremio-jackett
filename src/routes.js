@@ -49,6 +49,8 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const jackettUrl = paramsJson.jackettUrl;
 		const jackettApi = paramsJson.jackettApiKey;
 		const debridApi = paramsJson.debridApiKey;
+		const prioritizedQuality = paramsJson.prioritizedQuality;
+		console.log(`Quality: ${prioritizedQuality}`);
 		let maxResults
 		if (paramsJson.maxResults < 1) {
 			maxResults = 1
@@ -65,7 +67,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 			const torrentInfo = await fetchResults(debridApi, jackettUrl, jackettApi, service, maxResults, {
 				name: mediaName,
 				type: type,
-			});
+			}, id[0], prioritizedQuality);
 			respond(res, { streams: torrentInfo });
 		}
 		if (type === "series") {
@@ -79,7 +81,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 				type: type,
 				season: getNum(id[1]),
 				episode: getNum(id[2]),
-			});
+			}, id[0], prioritizedQuality);
 			respond(res, { streams: torrentInfo });
 		}
 	} catch (e) {

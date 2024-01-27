@@ -117,6 +117,24 @@
                                         />
                                     </div>
 
+                                    <div class="form-outline form-white mb-4" id="prioQualityDiv">
+                                        <label class="form-label"
+                                            >Prioritize quality</label
+                                        >
+                                        <select
+                                            required
+                                            class="form-select"
+                                            aria-label=""
+                                            id="prioritizedQuality"
+                                            onchange="updateLink()"
+                                        >
+                                            <option value="4k">4k</option>
+                                            <option value="1080p">1080p</option>
+                                            <option value="720p">720p</option>
+                                            <option value="480p">480p</option>
+                                        </select>
+                                    </div>
+
                                     <div class="form-outline form-white mb-4">
                                         <label class="form-label">Jackett URL</label>
                                         <input
@@ -167,6 +185,7 @@
                 let maxResults = document.getElementById("maxResults").value;
                 let jackettUrl = document.getElementById("jackettUrl").value;
                 let jackettApi = document.getElementById("jackettApi").value;
+                let prioritizedQuality = document.getElementById("prioritizedQuality").value;
 
                 if (jackettUrl.at(-1) === "/") {
                     jackettUrl = jackettUrl.slice(0, -1);
@@ -177,6 +196,7 @@
                 if (serviceProvider === "torrent") {
                     document.getElementById("realDebridApiDiv").style.display = "none";
                     document.getElementById("allDebridApiDiv").style.display = "none";
+                    document.getElementById("prioQualityDiv").style.display = "none";
                     let dataJson = {
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
@@ -190,6 +210,7 @@
                     )}/manifest.json`;
                 } else if (serviceProvider === "realdebrid") {
                     document.getElementById("realDebridApiDiv").style.display = "block";
+                    document.getElementById("prioQualityDiv").style.display = "block";
                     document.getElementById("allDebridApiDiv").style.display = "none";
                     let dataJson = {
                         streamService: serviceProvider,
@@ -197,6 +218,7 @@
                         jackettApiKey: jackettApi,
                         debridApiKey: realDebridApi,
                         maxResults: maxResults,
+                        prioritizedQuality: prioritizedQuality,
                     };
                     dynamicLink.href = `stremio://${
                         window.location.host
@@ -206,12 +228,14 @@
                 } else if (serviceProvider === "alldebrid") {
                     document.getElementById("realDebridApiDiv").style.display = "none";
                     document.getElementById("allDebridApiDiv").style.display = "block";
+                    document.getElementById("prioQualityDiv").style.display = "block";
                     let dataJson = {
                         streamService: serviceProvider,
                         jackettUrl: jackettUrl,
                         jackettApiKey: jackettApi,
                         debridApiKey: allDebridApi,
                         maxResults: maxResults,
+                        prioritizedQuality: prioritizedQuality,
                     };
                     dynamicLink.href = `stremio://${
                         window.location.host
