@@ -1,17 +1,13 @@
 import { clamp } from "@hyoretsu/utils";
 import express, { Router } from "express";
 import { existsSync } from "fs";
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { getName } from "./helpers/getName.js";
-import { getNum } from "./helpers/getNum.js";
-import { subpath } from "./index.js";
-import fetchResults from "./jackett/index.js";
+import { getName } from "./helpers/getName";
+import { getNum } from "./helpers/getNum";
+import { subpath } from "./index";
+import fetchResults from "./jackett/index";
 
 const routes = Router();
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
 const noResults = { streams: [{ url: "#", title: "No results found" }] };
 function respond(res, data) {
 	res.setHeader("Access-Control-Allow-Origin", "*");
@@ -89,7 +85,7 @@ routes.get("/", (req, res) => {
 	res.redirect(`${subpath}/configure`);
 });
 
-routes.use("/", express.static(`${__dirname}/frontend`));
+routes.use("/", express.static(`${import.meta.dirname}/frontend`));
 
 routes.use((req, res, next) => {
 	if (!req.path.endsWith(".html")) {
@@ -98,12 +94,12 @@ routes.use((req, res, next) => {
 			return;
 		}
 
-		const isNamedFile = existsSync(`${__dirname}/frontend${req.path}.html`);
+		const isNamedFile = existsSync(`${import.meta.dirname}/frontend${req.path}.html`);
 
 		if (isNamedFile) {
-			res.sendFile(`${__dirname}/frontend${req.path}.html`);
+			res.sendFile(`${import.meta.dirname}/frontend${req.path}.html`);
 		} else {
-			res.sendFile(`${__dirname}/frontend${req.path}/index.html`);
+			res.sendFile(`${import.meta.dirname}/frontend${req.path}/index.html`);
 		}
 	}
 });

@@ -1,4 +1,4 @@
-import { selectBiggestFileSeason } from "./selectBiggestFileSeason.js";
+import { selectBiggestFileSeason } from "./selectBiggestFileSeason";
 
 function wait(ms) {
 	new Promise(resolve => setTimeout(resolve, ms));

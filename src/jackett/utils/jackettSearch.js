@@ -1,11 +1,11 @@
-import { getMovieRDLink } from "../../helpers/getMovieRDLink.js";
-import { getMovieADLink } from "../../helpers/getMovieADLink.js";
-import { getAvailabilityAD } from "../../helpers/getAvailabilityAD.js";
-import { getAvailabilityRD } from "../../helpers/getAvailabilityRD.js";
-import { selectBiggestFileSeasonTorrent } from "../../helpers/selectBiggestFileSeasonTorrent.js";
-import { toHumanReadable } from "../../helpers/toHumanReadable.js";
-import getTorrentInfo from "./getTorrentInfo.js";
-import processXML from "./processXML.js";
+import { getAvailabilityAD } from "helpers/getAvailabilityAD";
+import { getAvailabilityRD } from "helpers/getAvailabilityRD";
+import { getMovieADLink } from "helpers/getMovieADLink";
+import { getMovieRDLink } from "helpers/getMovieRDLink";
+import { selectBiggestFileSeasonTorrent } from "helpers/selectBiggestFileSeasonTorrent";
+import { toHumanReadable } from "helpers/toHumanReadable";
+import getTorrentInfo from "./getTorrentInfo";
+import processXML from "./processXML";
 
 async function getItemsFromUrl(url) {
 	const res = await fetch(url);
@@ -15,7 +15,14 @@ async function getItemsFromUrl(url) {
 	return items;
 }
 
-export default async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, maxResults, searchQuery) {
+export default async function jackettSearch(
+	debridApi,
+	jackettHost,
+	jackettApiKey,
+	addonType,
+	maxResults,
+	searchQuery,
+) {
 	try {
 		const { episode, name, season, type } = searchQuery;
 		const isSeries = type === "series";
@@ -35,7 +42,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 			if (index >= maxResults) {
 				break;
 			}
-			if (index >= 15 ) {
+			if (index >= 15) {
 				break;
 			}
 
@@ -68,8 +75,8 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 							url: downloadLink,
 						});
 					}
-
-				} if (addonType === "alldebrid") {
+				}
+				if (addonType === "alldebrid") {
 					if (maxResults === 1) {
 						const downloadLink = await getMovieADLink(torrentInfo.magnetLink, debridApi);
 						if (downloadLink === "blocked") {
@@ -105,7 +112,6 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 							url: downloadLink,
 						});
 					}
-
 				}
 			}
 
@@ -167,8 +173,8 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 								url,
 							});
 						}
-            
-					} if (addonType === "alldebrid") {
+					}
+					if (addonType === "alldebrid") {
 						if (maxResults === 1) {
 							console.log("Getting AD link...");
 							const url = await getMovieADLink(
