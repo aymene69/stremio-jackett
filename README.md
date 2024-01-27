@@ -4,6 +4,8 @@ Elevate your Stremio experience with seamless access to Jackett torrent links, e
 # Disclaimer
 I am not responsible for any content downloaded through this addon.
 
+# Support on Discord [here](https://discord.gg/7yZ5PzaPYb)
+
 # Prerequisites
 - A [Jackett](https://github.com/Jackett/Jackett) server running and reachable pubicly.
 - NodeJS, npm.
