@@ -2,17 +2,10 @@ import fs from 'fs/promises';
 import fetch from 'node-fetch';
 import { exec } from 'child_process';
 import os from 'os';
-
-async function getAppVersionLocal() {
-    const packageJsonPath = './package.json';
-    const packageJsonContent = await fs.readFile(packageJsonPath, 'utf-8');
-    const packageJson = JSON.parse(packageJsonContent);
-    const appVersion = packageJson.version;
-    return appVersion;
-}
+import { version as localVersion } from "../../package.json";
 
 async function getAppVersionGithub() {
-    const githubJson = await fetch('https://api.github.com/repos/aymene69/stremio-jackett/releases/latest');
+    const githubJson = await fetch('https://api.github.com/repos/aymene69/EventX/releases/latest');
     const githubJsonContent = await githubJson.json();
     // @ts-ignore
     const appVersion = githubJsonContent.tag_name;
@@ -20,7 +13,7 @@ async function getAppVersionGithub() {
 }
 
 export async function updateApp() {
-    const appVersionLocal = await getAppVersionLocal();
+    const appVersionLocal = localVersion
     const appVersionGithub = await getAppVersionGithub();
     if (appVersionLocal !== appVersionGithub) {
         console.log('A new update is available!');
@@ -38,5 +31,6 @@ export async function updateApp() {
     }
     else {
         console.log('App is up to date.');
+        console.log('Local version:', appVersionLocal, 'Github version:', appVersionGithub)
     }
 }
