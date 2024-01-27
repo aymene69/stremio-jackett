@@ -2,6 +2,19 @@ import cors from "cors";
 import express from "express";
 import http from "http";
 import routes from "./routes";
+import { updateApp } from "./helpers/updateApp";
+
+(async () => {
+	await updateApp();
+  
+	setInterval(async () => {
+	  try {
+		await updateApp();
+	  } catch (error) {
+		console.error('Une erreur s\'est produite :', error);
+	  }
+	}, 60000);
+})();
 
 const app = express();
 const port = process.env.PORT || 3000;
