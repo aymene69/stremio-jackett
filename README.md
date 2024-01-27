@@ -14,7 +14,6 @@ I am not responsible for any content downloaded through this addon.
 # Installation
 ## If you are a newbie, check this [guide](https://github.com/aymene69/stremio-jackett/wiki/Selfhosting-the-addon-(for-FREE))
 
-
 ## Without Docker
 - On your computer, clone the repository
     ```sh
