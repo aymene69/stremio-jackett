@@ -1,5 +1,6 @@
 import { clamp } from "@hyoretsu/utils";
-import { Router } from "express";
+import express, { Router } from "express";
+import { existsSync } from "fs";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { getName } from "./helpers/getName.js";
@@ -84,12 +85,27 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 	}
 });
 
-routes.get("/configure", (req, res) => {
-	res.sendFile(`${__dirname}/index.html`);
-});
-
 routes.get("/", (req, res) => {
 	res.redirect(`${subpath}/configure`);
+});
+
+routes.use("/", express.static(`${__dirname}/frontend`));
+
+routes.use((req, res, next) => {
+	if (!req.path.endsWith(".html")) {
+		if (req.path.match(/\..*$/g)) {
+			next();
+			return;
+		}
+
+		const isNamedFile = existsSync(`${__dirname}/frontend${req.path}.html`);
+
+		if (isNamedFile) {
+			res.sendFile(`${__dirname}/frontend${req.path}.html`);
+		} else {
+			res.sendFile(`${__dirname}/frontend${req.path}/index.html`);
+		}
+	}
 });
 
 export default routes;
