@@ -1,0 +1,32 @@
+name: Lint
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🏗 Checkout code
+        uses: actions/checkout@v4
+
+      - name: 🏗 Setup Node.js environment
+        uses: actions/setup-node@main
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: 🏗 Installing dependencies
+        run: npm ci
+
+      - name: 🚀 Run linters
+        uses: wearerequired/lint-action@v2
+        with:
+          eslint: true
+          prettier: true

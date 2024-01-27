@@ -14,6 +14,7 @@ async function addMagnetToRD(magnetLink, debridApi) {
 
 	const response = await fetch(apiUrl, { method: "POST", headers, body });
 	const responseJson = await response.json();
+	// @ts-ignore
 	return responseJson.id;
 }
 
@@ -27,12 +28,14 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 
 		const response = await fetch(apiUrl, { method: "GET", headers });
 		responseJson = await response.json();
+		// @ts-ignore
 		const file_status = responseJson.status;
 		if (file_status !== "magnet_conversion") {
 			break;
 		}
 		await wait(5000);
 	}
+	// @ts-ignore
 	const torrentFiles = responseJson.files;
 	let maxIndex;
 	if (seasonEpisode) {
@@ -85,6 +88,7 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 
 		const response = await fetch(apiUrl, { method: "GET", headers });
 		responseJson = await response.json();
+		// @ts-ignore
 		const links = responseJson.links;
 		if (links.length >= 1) {
 			console.log("RD link found.");
@@ -95,6 +99,7 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 		tries++;
 	}
 
+	// @ts-ignore
 	const downloadLink = responseJson.links[0];
 	const apiUrl = "https://api.real-debrid.com/rest/1.0/unrestrict/link";
 	const headers = {
@@ -104,6 +109,7 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 	body.append("link", downloadLink);
 	const response = await fetch(apiUrl, { method: "POST", headers, body });
 	responseJson = await response.json();
+	// @ts-ignore
 	const mediaLink = responseJson.download;
 	console.log(`RD link: ${mediaLink}`);
 	return mediaLink;
