@@ -1,7 +1,7 @@
 import { build } from "esbuild";
 import { readFileSync, rmSync } from "fs";
-import { dirname } from "path";
-import { pathToFileURL } from "url";
+import path from "path";
+import url from "url";
 import packageJson from "./package.json" with { type: "json" };
 
 const { devDependencies } = packageJson;
@@ -34,12 +34,21 @@ try {
 				name: "populate-import-meta",
 				setup: ({ onLoad }) => {
 					onLoad({ filter: new RegExp(`${import.meta.dirname}/src/.*\.(js|ts)$`) }, args => {
-						console.log(args.path);
 						const contents = readFileSync(args.path, "utf8");
 
+						const dirname = JSON.stringify(path.dirname(args.path));
+						const filename = JSON.stringify(url.pathToFileURL(args.path));
+
 						const transformedContents = contents
-							.replace(/import\.meta\.filename/g, JSON.stringify(pathToFileURL(args.path)))
-							.replace(/import\.meta\.dirname/g, JSON.stringify(dirname(args.path)));
+							.replace(
+								/import\.meta/g,
+								JSON.stringify({
+									dirname,
+									filename,
+								}),
+							)
+							.replace(/import\.meta\.filename/g, filename)
+							.replace(/import\.meta\.dirname/g, dirname);
 
 						return { contents: transformedContents, loader: "default" };
 					});

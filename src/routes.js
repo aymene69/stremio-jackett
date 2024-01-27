@@ -85,7 +85,9 @@ routes.get("/", (req, res) => {
 	res.redirect(`${subpath}/configure`);
 });
 
-routes.use("/", express.static(`${import.meta.dirname}/frontend`));
+const { dirname } = import.meta;
+
+routes.use("/", express.static(`${dirname}/frontend`));
 
 routes.use((req, res, next) => {
 	if (!req.path.endsWith(".html")) {
@@ -94,12 +96,12 @@ routes.use((req, res, next) => {
 			return;
 		}
 
-		const isNamedFile = existsSync(`${import.meta.dirname}/frontend${req.path}.html`);
+		const isNamedFile = existsSync(`${dirname}/frontend${req.path}.html`);
 
 		if (isNamedFile) {
-			res.sendFile(`${import.meta.dirname}/frontend${req.path}.html`);
+			res.sendFile(`${dirname}/frontend${req.path}.html`);
 		} else {
-			res.sendFile(`${import.meta.dirname}/frontend${req.path}/index.html`);
+			res.sendFile(`${dirname}/frontend${req.path}/index.html`);
 		}
 	}
 });

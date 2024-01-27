@@ -1,9 +1,9 @@
-import { getAvailabilityAD } from "helpers/getAvailabilityAD";
-import { getAvailabilityRD } from "helpers/getAvailabilityRD";
-import { getMovieADLink } from "helpers/getMovieADLink";
-import { getMovieRDLink } from "helpers/getMovieRDLink";
-import { selectBiggestFileSeasonTorrent } from "helpers/selectBiggestFileSeasonTorrent";
-import { toHumanReadable } from "helpers/toHumanReadable";
+import { getAvailabilityAD } from "../../helpers/getAvailabilityAD";
+import { getAvailabilityRD } from "../../helpers/getAvailabilityRD";
+import { getMovieADLink } from "../../helpers/getMovieADLink";
+import { getMovieRDLink } from "../../helpers/getMovieRDLink";
+import { selectBiggestFileSeasonTorrent } from "../../helpers/selectBiggestFileSeasonTorrent";
+import { toHumanReadable } from "../../helpers/toHumanReadable";
 import getTorrentInfo from "./getTorrentInfo";
 import processXML from "./processXML";
 
