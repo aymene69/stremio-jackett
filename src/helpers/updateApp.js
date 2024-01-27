@@ -5,7 +5,7 @@ import os from 'os';
 import { version as localVersion } from "../../package.json";
 
 async function getAppVersionGithub() {
-    const githubJson = await fetch('https://api.github.com/repos/aymene69/EventX/releases/latest');
+    const githubJson = await fetch('https://api.github.com/repos/aymene69/stremio-jackett/releases/latest');
     const githubJsonContent = await githubJson.json();
     // @ts-ignore
     const appVersion = githubJsonContent.tag_name;
