@@ -12,7 +12,6 @@
 		"@hyoretsu/utils": "^1.10.1",
 		"buffer": "^6.0.3",
 		"cors": "^2.8.5",
-		"eslint": "^8.56.0",
 		"express": "^4.18.2",
 		"http": "^0.0.1-security",
 		"node-fetch": "^3.3.2",
@@ -24,7 +23,14 @@
 		"@biomejs/biome": "^1.5.2",
 		"@types/node": "^20.11.6",
 		"@types/stremio-addon-sdk": "^1.6.10",
+		"@typescript-eslint/eslint-plugin": "^6.19.1",
 		"esbuild": "^0.19.12",
-		"tsx": "^4.7.0"
+		"eslint": "^8.56.0",
+		"eslint-config-standard-with-typescript": "^43.0.1",
+		"eslint-plugin-import": "^2.29.1",
+		"eslint-plugin-n": "^16.6.2",
+		"eslint-plugin-promise": "^6.1.1",
+		"tsx": "^4.7.0",
+		"typescript": "^5.3.3"
 	}
 }
