@@ -63,7 +63,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 			console.log(`Movie request. ID: ${id[0]} Name: ${mediaName}`);
 			const torrentInfo = await fetchResults(host, debridApi, jackettUrl, jackettApi, service, maxResults, {
 				name: mediaName,
-				type: type,
+				type: type
 			});
 			respond(res, { streams: torrentInfo });
 		}
@@ -77,7 +77,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 				name: mediaName,
 				type: type,
 				season: getNum(id[1]),
-				episode: getNum(id[2]),
+				episode: getNum(id[2])
 			});
 			respond(res, { streams: torrentInfo });
 		}

@@ -20,14 +20,10 @@ async function searchOnJackett(jackettHost, jackettApiKey, isSeries, name, seaso
 	return items;
 }
 
-async function getTorrentsInfo(item, isSeries) {
+async function getTorrentsInfo(item) {
 	const torrentInfo = await getTorrentInfo(item.link);
 	console.log(`Torrent info: ${item.title}`);
-	torrentInfo.seeders = item.seeders;
-	torrentInfo.title = `${item.title}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
-	if (!isSeries) {
-		torrentInfo.fileIdx = undefined;
-	}
+	torrentInfo.name = `${item.title}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
 	return torrentInfo;
 }
 
@@ -42,11 +38,11 @@ async function getAvailabilityLink(torrentInfo, addonType, debridApi) {
 }
 
 function convertToStream(host, item, torrentInfo, addonType, debridApi) {
-	const base = { type: addonType, debridApi: debridApi, magnet: torrentInfo.magnetLink };
 	let url;
 	if (addonType === "torrent") {
 		url = torrentInfo.magnetLink;
 	} else {
+		const base = { type: addonType, debridApi: debridApi, magnet: torrentInfo.magnetLink };
 		url = host + "/stream/" + encodeURIComponent(btoa(JSON.stringify(base)));
 	}
 	return {
@@ -62,21 +58,12 @@ async function jackettSearch(host, debridApi, jackettHost, jackettApiKey, addonT
 		const isSeries = type === "series";
 		const torrentAddon = addonType === "torrent";
 
-		console.log(`Searching on Jackett for ${name} ${isSeries ? `S${season}E${episode}` : ""}... ${torrentAddon ? "Torrents" : "Debrid links"} max ${maxResults} results.	`);
+		console.log(`Searching on Jackett for ${name} ${isSeries ? `S${season}E${episode}` : ""}... ${torrentAddon ? "Torrents" : "Debrid links"} max ${maxResults} results.`);
+
 		console.log(`Will return ${!torrentAddon ? "Debrid link" : "Torrents"}.`);
 
 		const items = await searchOnJackett(jackettHost, jackettApiKey, isSeries, name, season, episode);
-		const results = await processItems(host, items, isSeries, addonType, debridApi, maxResults);
-
-		// Try again without episode
-		if (results.length == 0 && isSeries) {
-			console.log(`No results found for ${name} S${season}E${episode}. Trying without episode...`);
-			const items = await searchOnJackett(jackettHost, jackettApiKey, isSeries, name, season);
-			const results = await processItems(host, items, isSeries, addonType, debridApi, maxResults);
-			if (results.length > 0) {
-				return results;
-			}
-		}
+		const results = await processItems(host, items, addonType, debridApi, maxResults);
 
 		if (results.length === 0) {
 			console.log("No results found.");
@@ -89,11 +76,11 @@ async function jackettSearch(host, debridApi, jackettHost, jackettApiKey, addonT
 	}
 }
 
-async function processItems(host, items, isSeries, addonType, debridApi, maxResults) {
+async function processItems(host, items, addonType, debridApi, maxResults) {
 	const results = [];
 	for (const [index, item] of items.entries()) {
 		try {
-			const torrentInfo = await getTorrentsInfo(item, isSeries);
+			const torrentInfo = await getTorrentsInfo(item);
 			const isAvailable = await getAvailabilityLink(torrentInfo, addonType, debridApi);
 			if (isAvailable) {
 				console.log(`Found ${item.title} in ${addonType}`);

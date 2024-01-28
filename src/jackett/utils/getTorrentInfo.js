@@ -43,25 +43,10 @@ export default async function getTorrentInfo(torrentLink) {
 			return null;
 		}
 	}
-
-	// @ts-ignore
-	if (torrentParsed.files == undefined) {
-		throw new Error("No files found in torrent");
-	}
 	const torrentInfo = {
-		name: "Jackett",
+		name: torrentParsed.name,
 		infoHash: torrentParsed.infoHash,
 		magnetLink,
-		seeders: "1",
-		fileIdx: 0,
-		sources: torrentParsed.announce.map((element) => `tracker:${element}`),
-		files: !torrentLink.startsWith("magnet:") &&
-			// @ts-ignore
-			torrentParsed.files.map(file => ({
-				name: file.name,
-				length: file.length,
-			})),
-
 	};
 
 	return torrentInfo;
