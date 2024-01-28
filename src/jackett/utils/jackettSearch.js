@@ -1,6 +1,8 @@
 import { getAvailabilityAD } from "../../helpers/getAvailabilityAD";
+import { getAvailabilityPM } from "../../helpers/getAvailabilityPM";
 import { getAvailabilityRD } from "../../helpers/getAvailabilityRD";
 import { getMovieADLink } from "../../helpers/getMovieADLink";
+import { getMoviePMLink } from "../../helpers/getMoviePMLink";
 import { getMovieRDLink } from "../../helpers/getMovieRDLink";
 import { selectBiggestFileSeasonTorrent } from "../../helpers/selectBiggestFileSeasonTorrent";
 import { toHumanReadable } from "../../helpers/toHumanReadable";
@@ -85,6 +87,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 						}
 					}
 				}
+
 				if (addonType === "alldebrid") {
 					if (maxResults === 1) {
 						const downloadLink = await getMovieADLink(torrentInfo.magnetLink, debridApi);
@@ -120,6 +123,48 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
 							url: downloadLink,
 						});
+					}
+				}
+
+				if (addonType === "premiumize") {
+					if (maxResults === 1) {
+						const downloadLink = await getMoviePMLink(torrentInfo.magnetLink, debridApi);
+						if (downloadLink === null) {
+							results.push({
+								name: "Jackett Debrid",
+								title: "RD link not found.",
+								url: "#",
+							});
+							break;
+						}
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+							url: downloadLink,
+						});
+						break;
+					}
+					console.log("Getting RD link...");
+					const availability = await getAvailabilityPM(torrentInfo.infoHash, debridApi);
+					if (!availability) {
+						console.log("No RD link found. Skipping...");
+						continue;
+					}
+					if (availability) {
+						const downloadLink = await getMoviePMLink(torrentInfo.magnetLink, debridApi);
+						if (downloadLink === null) {
+							results.push({
+								name: "Jackett Debrid",
+								title: "RD link not found.",
+								url: "#",
+							});
+						} else {
+							results.push({
+								name: "Jackett Debrid",
+								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								url: downloadLink,
+							});
+						}
 					}
 				}
 			}
@@ -194,6 +239,7 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 							});
 						}
 					}
+
 					if (addonType === "alldebrid") {
 						if (maxResults === 1) {
 							console.log("Getting AD link...");
@@ -232,6 +278,51 @@ export default async function jackettSearch(debridApi, jackettHost, jackettApiKe
 							if (url === "blocked") {
 								console.log("Error: AllDebrid blocked for this IP. Please check your email.");
 								return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
+							}
+							results.push({
+								name: "Jackett Debrid",
+								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								url,
+							});
+						}
+					}
+
+					if (addonType === "premiumize") {
+						if (maxResults === 1) {
+							const url = await getMoviePMLink(
+								torrentInfo.magnetLink,
+								debridApi,
+								`S${searchQuery.season}E${searchQuery.episode}`,
+							);
+							if (url === null) {
+								results.push({
+									name: "Jackett Debrid",
+									title: "RD link not found.",
+									url: "#",
+								});
+								break;
+							}
+							results.push({
+								name: "Jackett Debrid",
+								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
+								url,
+							});
+							break;
+						}
+						console.log("Getting RD link...");
+						const availability = await getAvailabilityPM(torrentInfo.infoHash, debridApi);
+						if (!availability) {
+							console.log("No RD link found. Skipping...");
+							continue;
+						}
+						if (availability) {
+							const url = await getMoviePMLink(
+								torrentInfo.magnetLink,
+								debridApi,
+								`S${searchQuery.season}E${searchQuery.episode}`,
+							);
+							if (url === null) {
+								continue;
 							}
 							results.push({
 								name: "Jackett Debrid",
