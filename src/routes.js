@@ -53,6 +53,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const jackettUrl = paramsJson.jackettUrl;
 		const jackettApi = paramsJson.jackettApiKey;
 		const debridApi = paramsJson.debridApiKey;
+		const prioritizedQuality = paramsJson.prioritizedQuality || "1080p";
 		const maxResults = clamp(1, paramsJson.maxResults || 5, 15);
 
 		const mediaName = await getName(id[0], type);
