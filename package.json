@@ -10,7 +10,7 @@
 		"start": "node dist/index.cjs"
 	},
 	"lint-staged": {
-		"**/*.(ts|tsx)": [
+		"**/*.js": [
 			"eslint --fix"
 		]
 	},
