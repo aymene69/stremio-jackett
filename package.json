@@ -6,7 +6,13 @@
 	"scripts": {
 		"build": "node esbuild.js",
 		"dev": "tsx watch --ignore node_modules src/index.js",
+		"prepare": "husky",
 		"start": "node dist/index.cjs"
+	},
+	"lint-staged": {
+		"**/*.(ts|tsx)": [
+			"eslint --fix"
+		]
 	},
 	"dependencies": {
 		"@hyoretsu/utils": "^1.10.1",
@@ -27,6 +33,8 @@
 		"eslint-plugin-import": "^2.29.1",
 		"eslint-plugin-import-helpers": "^1.3.1",
 		"eslint-plugin-prettier": "^5.1.3",
+		"husky": "^9.0.6",
+		"lint-staged": "^15.2.0",
 		"prettier": "^3.2.4",
 		"tsx": "^4.7.0"
 	}
