@@ -54,7 +54,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 
 		const mediaName = await getName(id[0], type);
 		if (type === "movie") {
-			console.log(`Movie request. ID: ${id[0]} Name: ${mediaName}`);
+			console.log(`Movie request.\nID: ${id[0]}\nName: ${mediaName}`);
 			const torrentInfo = await fetchResults(debridApi, jackettUrl, jackettApi, service, maxResults, {
 				name: mediaName,
 				type: type,
@@ -63,7 +63,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		}
 		if (type === "series") {
 			console.log(
-				`Series request. ID: ${id[0]} Name: "${mediaName}" Season: ${getNum(id[1])} Episode: ${getNum(
+				`Series request. ID: ${id[0]}\nName: "${mediaName}"\nSeason: ${getNum(id[1])} Episode: ${getNum(
 					id[2],
 				)}`,
 			);

@@ -28,12 +28,13 @@ export default async function jackettSearch(
 		const isSeries = type === "series";
 		const torrentAddon = addonType === "torrent";
 
-		console.log("Searching on Jackett...");
-		console.log(`Will return ${!torrentAddon ? "Debrid link" : "Torrents"}.`);
+		console.log(`Searching on Jackett, will return ${!torrentAddon ? "debrid links" : "torrents"}...`);
 
 		let searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&cat=${
 			isSeries ? 5000 : 2000
 		}&q=${encodeURIComponent(name)}${isSeries ? `+S${season}E${episode}` : ""}`;
+
+		console.log(searchUrl.replace(/apikey=.*&/g, "apikey=<private>&"));
 
 		const results = [];
 
@@ -46,7 +47,6 @@ export default async function jackettSearch(
 				break;
 			}
 
-			console.log("Getting torrent info...");
 			const torrentInfo = await getTorrentInfo(item.link);
 			console.log(`Torrent info: ${item.title}`);
 
