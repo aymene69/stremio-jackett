@@ -3,8 +3,8 @@ import express, { Router } from "express";
 import { existsSync } from "fs";
 import { getName } from "./helpers/getName";
 import { getNum } from "./helpers/getNum";
-import { subpath } from "./index";
 import fetchResults from "./jackett/index";
+import { subpath } from "./index";
 
 const routes = Router();
 
@@ -44,10 +44,10 @@ routes.use((err, req, res, next) => {
 routes.get("/:params/stream/:type/:id", async (req, res) => {
 	try {
 		const paramsJson = JSON.parse(atob(req.params.params));
-		const type = req.params.type;
+		const { type } = req.params;
 		const id = req.params.id.replace(".json", "").split(":");
 		const service = paramsJson.streamService;
-		const jackettUrl = paramsJson.jackettUrl;
+		const { jackettUrl } = paramsJson;
 		const jackettApi = paramsJson.jackettApiKey;
 		const debridApi = paramsJson.debridApiKey;
 		const maxResults = clamp(1, paramsJson.maxResults || 5, 15);

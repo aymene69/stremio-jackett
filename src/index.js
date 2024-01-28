@@ -1,18 +1,18 @@
 import cors from "cors";
 import express from "express";
 import http from "http";
-import routes from "./routes";
 import { updateApp } from "./helpers/updateApp";
+import routes from "./routes";
 
 (async () => {
 	await updateApp();
-  
+
 	setInterval(async () => {
-	  try {
-		await updateApp();
-	  } catch (error) {
-		console.error('Une erreur s\'est produite :', error);
-	  }
+		try {
+			await updateApp();
+		} catch (error) {
+			console.error("Une erreur s'est produite :", error);
+		}
 	}, 60000);
 })();
 

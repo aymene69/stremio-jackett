@@ -59,7 +59,7 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 	};
 	const body = new URLSearchParams();
 	body.append("files", torrentFileId);
-	const response = await fetch(apiUrl, { method: "POST", headers, body });
+	await fetch(apiUrl, { method: "POST", headers, body });
 }
 
 export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
@@ -89,18 +89,18 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 		const response = await fetch(apiUrl, { method: "GET", headers });
 		responseJson = await response.json();
 		// @ts-ignore
-		const links = responseJson.links;
+		const { links } = responseJson;
 		if (links.length >= 1) {
 			console.log("RD link found.");
 			break;
 		}
 		await wait(5000);
 		console.log("RD link isn't ready. Retrying...");
-		tries++;
+		tries += 1;
 	}
 
 	// @ts-ignore
-	const downloadLink = responseJson.links[0];
+	const [downloadLink] = responseJson.links;
 	const apiUrl = "https://api.real-debrid.com/rest/1.0/unrestrict/link";
 	const headers = {
 		Authorization: `Bearer ${debridApi}`,

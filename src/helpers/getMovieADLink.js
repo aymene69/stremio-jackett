@@ -10,6 +10,7 @@ async function addMagnetToAD(magnetLink, debridApi) {
 	)}&method=add_magnet`;
 
 	const response = await fetch(apiUrl, { method: "POST" });
+	/** @type {any} */
 	const responseJson = await response.json();
 	if (responseJson.status === "error" && responseJson.error.code === "AUTH_BLOCKED") {
 		return "blocked";
@@ -24,6 +25,7 @@ export async function getMovieADLink(torrentLink, debridApi, seasonEpisode) {
 		return "blocked";
 	}
 	console.log(`Magnet added to AD. ID: ${torrentId}`);
+	/** @type {any} */
 	let responseJson;
 	while (true) {
 		const apiUrl = `https://api.alldebrid.com/v4/magnet/status?agent=jackett&apikey=${debridApi}&id=${torrentId}`;

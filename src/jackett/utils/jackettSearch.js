@@ -15,14 +15,7 @@ async function getItemsFromUrl(url) {
 	return items;
 }
 
-export default async function jackettSearch(
-	debridApi,
-	jackettHost,
-	jackettApiKey,
-	addonType,
-	maxResults,
-	searchQuery,
-) {
+export default async function jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, maxResults, searchQuery) {
 	try {
 		const { episode, name, season, type } = searchQuery;
 		const isSeries = type === "series";
@@ -83,8 +76,7 @@ export default async function jackettSearch(
 								title: "RD link not found.",
 								url: "#",
 							});
-						}
-						else {
+						} else {
 							results.push({
 								name: "Jackett Debrid",
 								title: `${item.title}\r\n📁${toHumanReadable(item.size)}`,
@@ -193,7 +185,7 @@ export default async function jackettSearch(
 								`S${searchQuery.season}E${searchQuery.episode}`,
 							);
 							if (url === null) {
-								continue
+								continue;
 							}
 							results.push({
 								name: "Jackett Debrid",
