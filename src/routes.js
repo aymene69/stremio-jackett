@@ -6,6 +6,8 @@ import { getName } from "./helpers/getName.js";
 import { getNum } from "./helpers/getNum.js";
 import { subpath } from "./index.js";
 import fetchResults from "./jackett/index.js";
+import { getMovieRDLink } from "./helpers/getMovieRDLink.js";
+import { getMovieADLink } from "./helpers/getMovieADLink.js";
 
 const routes = Router();
 
@@ -54,11 +56,12 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const jackettApi = paramsJson.jackettApiKey;
 		const debridApi = paramsJson.debridApiKey;
 		const maxResults = clamp(1, paramsJson.maxResults || 5, 15);
+		const host = `${req.protocol}://${req.headers.host}`
 
 		const mediaName = await getName(id[0], type);
 		if (type === "movie") {
 			console.log(`Movie request. ID: ${id[0]} Name: ${mediaName}`);
-			const torrentInfo = await fetchResults(debridApi, jackettUrl, jackettApi, service, maxResults, {
+			const torrentInfo = await fetchResults(host, debridApi, jackettUrl, jackettApi, service, maxResults, {
 				name: mediaName,
 				type: type,
 			});
@@ -70,7 +73,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 					id[2],
 				)}`,
 			);
-			const torrentInfo = await fetchResults(debridApi, jackettUrl, jackettApi, service, maxResults, {
+			const torrentInfo = await fetchResults(host, debridApi, jackettUrl, jackettApi, service, maxResults, {
 				name: mediaName,
 				type: type,
 				season: getNum(id[1]),
@@ -83,6 +86,31 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		respond(res, noResults);
 	}
 });
+
+routes.get('/stream/:configs', async (req, res) => {
+	try {
+		const paramsJson = JSON.parse(atob(req.params.configs));
+		const addonType = paramsJson.type;
+		const debridApi = paramsJson.debridApi;
+		const magnet = paramsJson.magnet;
+
+		let downloadLink;
+		if (addonType === "realdebrid") {
+			downloadLink = await getMovieRDLink(magnet, debridApi);
+		} else if (addonType === "alldebrid") {
+			downloadLink = await getMovieADLink(magnet, debridApi);
+			if (downloadLink === "blocked") {
+				throw new Error("AllDebrid blocked for this IP. Please check your email.");
+			}
+		}
+		res.writeHead(302, { Location: downloadLink });
+		res.end();
+	} catch (e) {
+		console.log(e);
+		respond(res, noResults);
+	}
+});
+
 
 routes.get("/configure", (req, res) => {
 	res.sendFile(`${__dirname}/index.html`);

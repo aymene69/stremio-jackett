@@ -3,11 +3,11 @@ export async function getAvailabilityAD(magnet, debridApi) {
     const response = await fetch(url);
     const json = await response.json();
     if (json.status === "error") {
-        return "error";
+        return false;
     }
     const instant = json.data.magnets[0].instant;
     if (instant === true) {
         return true;
     }
-        return false;
+    return false;
 }
