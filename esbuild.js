@@ -2,9 +2,8 @@ import { build } from "esbuild";
 import { readFileSync, rmSync } from "fs";
 import path from "path";
 import url from "url";
-import packageJson from "./package.json" with { type: "json" };
 
-const { devDependencies } = packageJson;
+const { devDependencies } = JSON.parse(readFileSync("./package.json", "utf8"));
 
 const start = Date.now();
 
