@@ -1,12 +1,13 @@
 {
 	"type": "module",
 	"name": "stremio-addon-jackett",
-	"version": "1.0.0",
+	"version": "1.1.6",
 	"description": "Stremio Jackett Addon",
 	"scripts": {
 		"start": "node src/index.js"
 	},
 	"dependencies": {
+		"@hyoretsu/utils": "^1.10.1",
 		"buffer": "^6.0.3",
 		"cors": "^2.8.5",
 		"express": "^4.18.2",
@@ -16,6 +17,7 @@
 		"xml2js": "^0.6.2"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "^1.5.2"
+		"@biomejs/biome": "^1.5.2",
+		"@types/stremio-addon-sdk": "^1.6.10"
 	}
 }
