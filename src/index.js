@@ -4,17 +4,15 @@ import http from "http";
 import { updateApp } from "./helpers/updateApp";
 import routes from "./routes";
 
-(async () => {
-	await updateApp();
-
+if (process.env.NODE_ENV === "production") {
 	setInterval(async () => {
 		try {
 			await updateApp();
 		} catch (error) {
-			console.error("Une erreur s'est produite :", error);
+			console.error("An error has occurred :", error);
 		}
 	}, 60000);
-})();
+}
 
 const app = express();
 const port = process.env.PORT || 3000;
