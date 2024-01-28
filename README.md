@@ -1,3 +1,5 @@
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/P5P2TUSN3)
+
 # Stremio Jackett Addon
 Elevate your Stremio experience with seamless access to Jackett torrent links, effortlessly fetching torrents for your selected movies within the Stremio interface.
 
@@ -12,7 +14,7 @@ I am not responsible for any content downloaded through this addon.
 - *(optionnal)* A Real-Debrid or All-Debrid account.
 
 # Installation
-## If you are a newbie, check this [guide](https://github.com/aymene69/stremio-jackett/wiki/Selfhosting-the-addon-(for-FREE))
+## If you are a newbie, check the [wiki](https://github.com/aymene69/stremio-jackett/wiki)
 
 ## Without Docker
 - On your computer, clone the repository
