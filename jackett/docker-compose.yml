@@ -1,0 +1,45 @@
+version: '3'
+
+services:
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - AUTO_UPDATE=true
+    volumes:
+      - ./data:/config
+      - ./blackhole:/downloads
+    networks:
+      - traefik_default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.http.routers.jackett.entrypoints=web,websecure"
+      - "traefik.http.routers.jackett.rule=Host(`YOURADDON.COM`) && HostHeader(`YOURADDON.COM`) && PathPrefix(`/jackett`)"
+      - "traefik.http.services.jackett.loadbalancer.server.port=9117"
+      - "traefik.http.routers.jackett.tls=true"
+      - "traefik.http.routers.jackett.tls.certresolver=production"
+    restart: unless-stopped
+    
+
+  flaresolverr:
+    image: flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    networks:
+      - traefik_default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.http.routers.flaresolverr.entrypoints=web,websecure"
+      - "traefik.http.routers.flaresolverr.rule=Host(`YOURADDON.COM`)"
+      - "traefik.http.services.flaresolverr.loadbalancer.server.port=8191"
+      - "traefik.http.routers.flaresolverr.tls=true"
+      - "traefik.http.routers.flaresolverr.tls.certresolver=production"
+    restart: unless-stopped
+    
+networks:
+  traefik_default:
+    external: true
