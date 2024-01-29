@@ -25,6 +25,7 @@ jobs:
           cache: 'npm'
 
       - name: 🏗 Build app
+        run: npm install
         run: npm run build
 
       - name: 🔒 Login to Docker Hub
