@@ -1,7 +1,5 @@
 import { build } from "esbuild";
 import { readFileSync, rmSync } from "fs";
-import path from "path";
-import url from "url";
 
 const { devDependencies } = JSON.parse(readFileSync("./package.json", "utf8"));
 
@@ -14,11 +12,17 @@ try {
 
 	build({
 		bundle: true,
-		entryPoints: ["./src/index.js", "./src/**/*.css", "./src/**/*.html"],
+		entryPoints: [
+			"./src/index.js",
+			"./src/**/*.css",
+			"./src/**/*.hbs",
+			// "./src/**/*.html"
+		],
 		external: [...(devDependencies && Object.keys(devDependencies))],
 		keepNames: true,
 		loader: {
 			".css": "copy",
+			".hbs": "copy",
 			".html": "copy",
 		},
 		minify: true,
@@ -35,19 +39,10 @@ try {
 					onLoad({ filter: new RegExp(`${import.meta.dirname}/src/.*\.(js|ts)$`) }, args => {
 						const contents = readFileSync(args.path, "utf8");
 
-						const dirname = JSON.stringify(path.dirname(args.path));
-						const filename = JSON.stringify(url.pathToFileURL(args.path));
-
 						const transformedContents = contents
-							.replace(
-								/import\.meta/g,
-								JSON.stringify({
-									dirname,
-									filename,
-								}),
-							)
-							.replace(/import\.meta\.filename/g, filename)
-							.replace(/import\.meta\.dirname/g, dirname);
+							.replace(/import\.meta/g, `{dirname: __dirname,filename: __filename}`)
+							.replace(/import\.meta\.filename/g, "__filename")
+							.replace(/import\.meta\.dirname/g, "__dirname");
 
 						return { contents: transformedContents, loader: "default" };
 					});
