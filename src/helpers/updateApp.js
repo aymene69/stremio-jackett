@@ -27,7 +27,6 @@ export async function updateApp() {
 	console.log("Updating app...");
 	const release = "https://api.github.com/repos/aymene69/stremio-jackett/releases/latest";
 	const releaseJson = await (await fetch(release)).json();
-	console.log(releaseJson);
 	const asset = releaseJson.assets[0].browser_download_url;
 	const response = await fetch(asset);
 	const buffer = await response.buffer();
