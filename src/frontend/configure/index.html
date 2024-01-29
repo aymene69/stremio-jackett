@@ -28,7 +28,7 @@
 										height="100"
 									/>
 									<h2 class="fw-bold mb-2 text-uppercase">Stremio-Jackett</h2>
-									<p class="text-white-50 mb-5">1.1.3</p>
+									<p class="text-white-50 mb-5">1.1.7</p>
 									<h3 class="text-white mb-5">Configuration page</h3>
 									<p class="text-white-50 mb-5">
 										Please fill in the following fields to install Stremio-Jackett
@@ -109,6 +109,36 @@
 										/>
 									</div>
 
+									<div class="form-outline form-white mb-4" id="sortingDiv">
+										<label class="form-label">Sorting</label>
+										<fieldset>
+											<input
+												type="radio"
+												id="quality"
+												name="sorting"
+												value="quality"
+												oninput="updateLink()"
+												checked
+											/>
+											<label for="sorting1">Quality</label>
+											<input
+												type="radio"
+												id="sizeasc"
+												name="sorting"
+												value="sizeasc"
+												oninput="updateLink()"
+											/>
+											<label for="sorting2">Size (asc)</label>
+											<input
+												type="radio"
+												id="sizedesc"
+												name="sorting"
+												value="sizedesc"
+												oninput="updateLink()"
+											/>
+											<label for="sorting3">Size (desc)</label>
+									</div>
+
 									<div class="form-outline form-white mb-4">
 										<label class="form-label">Jackett URL</label>
 										<input
@@ -143,6 +173,7 @@
 			document.getElementById("realDebridApiDiv").style.display = "none";
 			document.getElementById("allDebridApiDiv").style.display = "none";
 			document.getElementById("premiumizeApiDiv").style.display = "none";
+			document.getElementById("sortingDiv").style.display = "none";
 
 			function onChangeMaxResults() {
 				let addonType = document.getElementById("serviceProvider").value;
@@ -161,7 +192,17 @@
 				let maxResults = document.getElementById("maxResults").value;
 				let jackettUrl = document.getElementById("jackettUrl").value;
 				let jackettApi = document.getElementById("jackettApi").value;
+				let sorting = document.querySelector('input[name="sorting"]:checked').value;
+				let ascOrDesc
+				if (sorting === "sizeasc") {
+					ascOrDesc = "asc"
+				} else if (sorting === "sizedesc") {
+					ascOrDesc = "desc"
+				} else {
+					ascOrDesc = null
+				}
 
+				console.log(sorting);
 				if (jackettUrl.at(-1) === "/") {
 					jackettUrl = jackettUrl.slice(0, -1);
 				}
@@ -172,11 +213,14 @@
 					document.getElementById("realDebridApiDiv").style.display = "none";
 					document.getElementById("allDebridApiDiv").style.display = "none";
 					document.getElementById("premiumizeApiDiv").style.display = "none";
+					document.getElementById("sortingDiv").style.display = "none";
 					let dataJson = {
 						streamService: serviceProvider,
 						jackettUrl: jackettUrl,
 						jackettApiKey: jackettApi,
 						maxResults: maxResults,
+						sorting: sorting,
+						ascOrDesc: ascOrDesc
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -187,12 +231,15 @@
 					document.getElementById("realDebridApiDiv").style.display = "block";
 					document.getElementById("allDebridApiDiv").style.display = "none";
 					document.getElementById("premiumizeApiDiv").style.display = "none";
+					document.getElementById("sortingDiv").style.display = "block";
 					let dataJson = {
 						streamService: serviceProvider,
 						jackettUrl: jackettUrl,
 						jackettApiKey: jackettApi,
 						debridApiKey: realDebridApi,
 						maxResults: maxResults,
+						sorting: sorting,
+						ascOrDesc: ascOrDesc
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -203,12 +250,16 @@
 					document.getElementById("realDebridApiDiv").style.display = "none";
 					document.getElementById("premiumizeApiDiv").style.display = "none";
 					document.getElementById("allDebridApiDiv").style.display = "block";
+					document.getElementById("sortingDiv").style.display = "block";
+					
 					let dataJson = {
 						streamService: serviceProvider,
 						jackettUrl: jackettUrl,
 						jackettApiKey: jackettApi,
 						debridApiKey: allDebridApi,
 						maxResults: maxResults,
+						sorting: sorting,
+						ascOrDesc: ascOrDesc
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -219,12 +270,16 @@
 					document.getElementById("realDebridApiDiv").style.display = "none";
 					document.getElementById("allDebridApiDiv").style.display = "none";
 					document.getElementById("premiumizeApiDiv").style.display = "block";
+					document.getElementById("sortingDiv").style.display = "block";
+
 					let dataJson = {
 						streamService: serviceProvider,
 						jackettUrl: jackettUrl,
 						jackettApiKey: jackettApi,
 						debridApiKey: premiumizeApi,
 						maxResults: maxResults,
+						sorting: sorting,
+						ascOrDesc: ascOrDesc
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host

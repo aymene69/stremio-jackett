@@ -20,7 +20,7 @@ routes.get("/:params/manifest.json", (req, res) => {
 	const manifest = {
 		id: "community.aymene69.jackett",
 		icon: "https://i.imgur.com/tVjqEJP.png",
-		version: "1.1.3",
+		version: "1.1.7",
 		catalogs: [],
 		resources: ["stream"],
 		types: ["movie", "series"],
@@ -51,11 +51,32 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const jackettApi = paramsJson.jackettApiKey;
 		const debridApi = paramsJson.debridApiKey;
 		const maxResults = clamp(1, paramsJson.maxResults || 5, 15);
+		const { sortingSize } = paramsJson;
+		const sortingQuality = paramsJson.sortingSize;
+		const { ascOrDesc } = paramsJson;
+		let sort;
+		if (sortingSize) {
+			sort = {
+				sorting: "size",
+				ascOrDesc: ascOrDesc,
+			};
+		}
+		if (sortingQuality) {
+			sort = {
+				sorting: "quality",
+				ascOrDesc: ascOrDesc,
+			};
+		} else {
+			sort = {
+				sorting: "quality",
+				ascOrDesc: "desc",
+			};
+		}
 
 		const mediaName = await getName(id[0], type);
 		if (type === "movie") {
 			console.log(`Movie request.\nID: ${id[0]}\nName: ${mediaName}`);
-			const torrentInfo = await fetchResults(debridApi, jackettUrl, jackettApi, service, maxResults, {
+			const torrentInfo = await fetchResults(debridApi, jackettUrl, jackettApi, service, maxResults, sort, {
 				name: mediaName,
 				type: type,
 			});
@@ -67,7 +88,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 					id[2],
 				)}`,
 			);
-			const torrentInfo = await fetchResults(debridApi, jackettUrl, jackettApi, service, maxResults, {
+			const torrentInfo = await fetchResults(debridApi, jackettUrl, jackettApi, service, maxResults, sort, {
 				name: mediaName,
 				type: type,
 				season: getNum(id[1]),
