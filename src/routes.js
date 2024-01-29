@@ -35,14 +35,6 @@ routes.get("/:params/manifest.json", (req, res) => {
 	respond(res, manifest);
 });
 
-routes.use((err, req, res, next) => {
-	if (req.path.startsWith("/jackett")) {
-		next();
-	} else {
-		respond(res, noResults);
-	}
-});
-
 routes.get("/:params/stream/:type/:id", async (req, res) => {
 	try {
 		const paramsJson = JSON.parse(atob(req.params.params));
