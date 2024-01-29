@@ -1,6 +1,6 @@
-import { exec } from "child_process";
+import decompress from "decompress";
+import fs from "fs/promises";
 import fetch from "node-fetch";
-import os from "os";
 import { version as localVersion } from "../../package.json";
 
 async function getAppVersionGithub() {
@@ -25,16 +25,14 @@ export async function updateApp() {
 	console.log("A new update is available!");
 	console.log("Local version:", localVersion, "GitHub version:", latestVersion);
 	console.log("Updating app...");
-
-	let updateCmd = "git clone https://github.com/aymene69/stremio-jackett temp";
-	if (os.platform() === "win32") {
-		updateCmd += " & xcopy temp\\* .\\ /E /I /Q & rmdir /S /Q temp & ";
-	} else {
-		updateCmd += " && sudo rsync -a temp/ ./ && sudo rm -r temp && ";
-	}
-	updateCmd += "npm install";
-
-	exec(updateCmd);
-
+	const release = "https://api.github.com/repos/aymene69/stremio-jackett/releases/latest";
+	const releaseJson = await (await fetch(release)).json();
+	console.log(releaseJson);
+	const asset = releaseJson.assets[0].browser_download_url;
+	const response = await fetch(asset);
+	const buffer = await response.buffer();
+	await fs.writeFile("update.zip", buffer);
+	await decompress("update.zip", "dist");
+	await fs.unlink("update.zip");
 	console.log("App updated.");
 }
