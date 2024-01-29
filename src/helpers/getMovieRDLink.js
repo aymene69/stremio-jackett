@@ -1,4 +1,4 @@
-import { selectBiggestFileSeason } from "./selectBiggestFileSeason.js";
+import { selectBiggestFileSeason } from "./selectBiggestFileSeason";
 
 function wait(ms) {
 	new Promise(resolve => setTimeout(resolve, ms));
@@ -14,6 +14,7 @@ async function addMagnetToRD(magnetLink, debridApi) {
 
 	const response = await fetch(apiUrl, { method: "POST", headers, body });
 	const responseJson = await response.json();
+	// @ts-ignore
 	return responseJson.id;
 }
 
@@ -27,12 +28,14 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 
 		const response = await fetch(apiUrl, { method: "GET", headers });
 		responseJson = await response.json();
+		// @ts-ignore
 		const file_status = responseJson.status;
 		if (file_status !== "magnet_conversion") {
 			break;
 		}
 		await wait(5000);
 	}
+	// @ts-ignore
 	const torrentFiles = responseJson.files;
 	let maxIndex;
 	if (seasonEpisode) {
@@ -56,7 +59,7 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 	};
 	const body = new URLSearchParams();
 	body.append("files", torrentFileId);
-	const response = await fetch(apiUrl, { method: "POST", headers, body });
+	await fetch(apiUrl, { method: "POST", headers, body });
 }
 
 export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
@@ -71,7 +74,12 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 	}
 	let responseJson;
 	console.log("Getting RD link...");
+	let tries = 0;
 	while (true) {
+		if (tries >= 10) {
+			console.log("RD link not found.");
+			return null;
+		}
 		console.log("Waiting for RD link...");
 		const apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/info/${torrentId}`;
 		const headers = {
@@ -80,16 +88,19 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 
 		const response = await fetch(apiUrl, { method: "GET", headers });
 		responseJson = await response.json();
-		const links = responseJson.links;
+		// @ts-ignore
+		const { links } = responseJson;
 		if (links.length >= 1) {
 			console.log("RD link found.");
 			break;
 		}
 		await wait(5000);
 		console.log("RD link isn't ready. Retrying...");
+		tries += 1;
 	}
 
-	const downloadLink = responseJson.links[0];
+	// @ts-ignore
+	const [downloadLink] = responseJson.links;
 	const apiUrl = "https://api.real-debrid.com/rest/1.0/unrestrict/link";
 	const headers = {
 		Authorization: `Bearer ${debridApi}`,
@@ -98,6 +109,7 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 	body.append("link", downloadLink);
 	const response = await fetch(apiUrl, { method: "POST", headers, body });
 	responseJson = await response.json();
+	// @ts-ignore
 	const mediaLink = responseJson.download;
 	console.log(`RD link: ${mediaLink}`);
 	return mediaLink;

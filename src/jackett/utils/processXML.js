@@ -29,7 +29,7 @@ export default async function processXML(xml) {
 							seeders: item["torznab:attr"]
 								? item["torznab:attr"].find(attr => attr.$.name === "seeders")?.$.value
 								: undefined,
-					  }))
+						}))
 					: [
 							{
 								title: items.title,
@@ -39,7 +39,7 @@ export default async function processXML(xml) {
 									? items["torznab:attr"].find(attr => attr.$.name === "seeders")?.$.value
 									: undefined,
 							},
-					  ];
+						];
 
 				// Trier par ordre décroissant du nombre de seeders
 				const sortedData = extractedDataArray.sort((a, b) => (b.seeders || 0) - (a.seeders || 0));

@@ -1,0 +1,16 @@
+{
+	"[handlebars]": {
+		"editor.defaultFormatter": null
+	},
+	"[javascript][javascriptreact][typescript][typescriptreact]": {
+		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
+	},
+	"[json][jsonc]": {
+		"editor.defaultFormatter": "esbenp.prettier-vscode"
+	},
+	"editor.codeActionsOnSave": {
+		"source.fixAll": "always",
+		"source.organizeImports": "never"
+	},
+	"editor.insertSpaces": false
+}

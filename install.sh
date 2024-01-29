@@ -44,6 +44,7 @@ sleep 5
 sudo docker compose down
 sudo sed -i 's/"BasePathOverride": null/"BasePathOverride": "\/jackett"/g' ./data/Jackett/ServerConfig.json
 sudo sed -i 's/"FlareSolverrUrl": null/"FlareSolverrUrl": "https:\/\/'"$domainName"'\/"/g' ./data/Jackett/ServerConfig.json
+
 sudo docker compose up -d
 cd ../addon
 sudo curl -fsSL https://raw.githubusercontent.com/aymene69/stremio-jackett/main/docker-compose-traefik.yml -o ./docker-compose.yml

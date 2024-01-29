@@ -1,43 +1,20 @@
-<!DOCTYPE html>
 <html lang="en">
 	<head>
+		<title>Stremio-Jackett</title>
 		<meta charset="UTF-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<style>
-			body {
-				background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
-					url("https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Flag_of_Palestine.svg/1280px-Flag_of_Palestine.svg.png")
-						no-repeat center center fixed;
-				-webkit-background-size: cover;
-				-moz-background-size: cover;
-				-o-background-size: cover;
-				background-size: cover;
-				font-family: "Roboto", sans-serif;
-			}
-		</style>
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link
-			href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap"
-			rel="stylesheet"
-		/>
+		<link href="styles.css" rel="stylesheet" />
 		<link
 			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
 			rel="stylesheet"
 			integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
 			crossorigin="anonymous"
 		/>
-		<script
-			src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
-			integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
-			crossorigin="anonymous"
-		></script>
-		<title>Stremio-Jackett</title>
 	</head>
 	<body>
 		<section class="vh-100">
-			<div class="container py-5 h-100">
-				<div class="row d-flex justify-content-center align-items-center h-100">
+			<div class="container py-5">
+				<div class="row d-flex justify-content-center align-items-center">
 					<div class="col-12 col-md-8 col-lg-6 col-xl-5">
 						<div class="card bg-dark text-white" style="border-radius: 1rem">
 							<div class="card-body p-5 text-center">
@@ -50,7 +27,7 @@
 										height="100"
 									/>
 									<h2 class="fw-bold mb-2 text-uppercase">Stremio-Jackett</h2>
-									<p class="text-white-50 mb-5">1.1.3</p>
+									<p class="text-white-50 mb-5">v{{version}}</p>
 									<h3 class="text-white mb-5">Configuration page</h3>
 									<p class="text-white-50 mb-5">
 										Please fill in the following fields to install Stremio-Jackett
@@ -70,6 +47,7 @@
 											<option value="torrent">torrent</option>
 											<option value="realdebrid">realdebrid</option>
 											<option value="alldebrid">alldebrid</option>
+											<option value="premiumize">premiumize</option>
 										</select>
 									</div>
 
@@ -105,6 +83,19 @@
 										/>
 									</div>
 
+									<div class="form-outline form-white mb-4" id="premiumizeApiDiv">
+										<label class="form-label"
+											>Premiumize API key</label
+										>
+										<input
+											required
+											class="form-control form-control-lg"
+											placeholder="Enter your All-Debrid service API key"
+											id="premiumizeApi"
+											oninput="updateLink()"
+										/>
+									</div>
+
 									<div class="form-outline form-white mb-4" id="maxResultDiv">
 										<label class="form-label">Number of results per search </label>
 										<input
@@ -115,6 +106,36 @@
 											onchange="onChangeMaxResults()"
 											id="maxResults"
 										/>
+									</div>
+
+									<div class="form-outline form-white mb-4" id="sortingDiv">
+										<label class="form-label">Sorting</label>
+										<fieldset>
+											<input
+												type="radio"
+												id="quality"
+												name="sorting"
+												value="quality"
+												oninput="updateLink()"
+												checked
+											/>
+											<label for="sorting1">Quality</label>
+											<input
+												type="radio"
+												id="sizeasc"
+												name="sorting"
+												value="sizeasc"
+												oninput="updateLink()"
+											/>
+											<label for="sorting2">Size (asc)</label>
+											<input
+												type="radio"
+												id="sizedesc"
+												name="sorting"
+												value="sizedesc"
+												oninput="updateLink()"
+											/>
+											<label for="sorting3">Size (desc)</label>
 									</div>
 
 									<div class="form-outline form-white mb-4">
@@ -150,17 +171,15 @@
 		<script>
 			document.getElementById("realDebridApiDiv").style.display = "none";
 			document.getElementById("allDebridApiDiv").style.display = "none";
+			document.getElementById("premiumizeApiDiv").style.display = "none";
+			document.getElementById("sortingDiv").style.display = "none";
 
 			function onChangeMaxResults() {
 				let addonType = document.getElementById("serviceProvider").value;
 				let maxResultsInput = document.getElementById("maxResults");
 
-				if (addonType !== "torrent") {
-					if (Number(maxResultsInput.value) < 1) {
-						maxResultsInput.value = String(1);
-					} else if (Number(maxResultsInput.value) > 15) {
-						maxResultsInput.value = String(15);
-					}
+				if (addonType !== "torrent" && Number(maxResultsInput.value) > 15) {
+					maxResultsInput.value = String(15);
 				}
 			}
 
@@ -168,10 +187,21 @@
 				let serviceProvider = document.getElementById("serviceProvider").value;
 				let realDebridApi = document.getElementById("realDebridApi").value;
 				let allDebridApi = document.getElementById("allDebridApi").value;
+				let premiumizeApi = document.getElementById("premiumizeApi").value;
 				let maxResults = document.getElementById("maxResults").value;
 				let jackettUrl = document.getElementById("jackettUrl").value;
 				let jackettApi = document.getElementById("jackettApi").value;
+				let sorting = document.querySelector('input[name="sorting"]:checked').value;
+				let ascOrDesc
+				if (sorting === "sizeasc") {
+					ascOrDesc = "asc"
+				} else if (sorting === "sizedesc") {
+					ascOrDesc = "desc"
+				} else {
+					ascOrDesc = null
+				}
 
+				console.log(sorting);
 				if (jackettUrl.at(-1) === "/") {
 					jackettUrl = jackettUrl.slice(0, -1);
 				}
@@ -181,11 +211,15 @@
 				if (serviceProvider === "torrent") {
 					document.getElementById("realDebridApiDiv").style.display = "none";
 					document.getElementById("allDebridApiDiv").style.display = "none";
+					document.getElementById("premiumizeApiDiv").style.display = "none";
+					document.getElementById("sortingDiv").style.display = "none";
 					let dataJson = {
 						streamService: serviceProvider,
 						jackettUrl: jackettUrl,
 						jackettApiKey: jackettApi,
 						maxResults: maxResults,
+						sorting: sorting,
+						ascOrDesc: ascOrDesc
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -195,12 +229,16 @@
 				} else if (serviceProvider === "realdebrid") {
 					document.getElementById("realDebridApiDiv").style.display = "block";
 					document.getElementById("allDebridApiDiv").style.display = "none";
+					document.getElementById("premiumizeApiDiv").style.display = "none";
+					document.getElementById("sortingDiv").style.display = "block";
 					let dataJson = {
 						streamService: serviceProvider,
 						jackettUrl: jackettUrl,
 						jackettApiKey: jackettApi,
 						debridApiKey: realDebridApi,
 						maxResults: maxResults,
+						sorting: sorting,
+						ascOrDesc: ascOrDesc
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -209,13 +247,38 @@
 					)}/manifest.json`;
 				} else if (serviceProvider === "alldebrid") {
 					document.getElementById("realDebridApiDiv").style.display = "none";
+					document.getElementById("premiumizeApiDiv").style.display = "none";
 					document.getElementById("allDebridApiDiv").style.display = "block";
+					document.getElementById("sortingDiv").style.display = "block";
+
 					let dataJson = {
 						streamService: serviceProvider,
 						jackettUrl: jackettUrl,
 						jackettApiKey: jackettApi,
 						debridApiKey: allDebridApi,
 						maxResults: maxResults,
+						sorting: sorting,
+						ascOrDesc: ascOrDesc
+					};
+					dynamicLink.href = `stremio://${
+						window.location.host
+					}${window.location.pathname.replace("/configure", "")}/${btoa(
+						JSON.stringify(dataJson)
+					)}/manifest.json`;
+				} else if (serviceProvider === "premiumize") {
+					document.getElementById("realDebridApiDiv").style.display = "none";
+					document.getElementById("allDebridApiDiv").style.display = "none";
+					document.getElementById("premiumizeApiDiv").style.display = "block";
+					document.getElementById("sortingDiv").style.display = "block";
+
+					let dataJson = {
+						streamService: serviceProvider,
+						jackettUrl: jackettUrl,
+						jackettApiKey: jackettApi,
+						debridApiKey: premiumizeApi,
+						maxResults: maxResults,
+						sorting: sorting,
+						ascOrDesc: ascOrDesc
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host

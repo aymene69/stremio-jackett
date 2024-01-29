@@ -8,7 +8,7 @@ export function toHumanReadable(bytes) {
 	let i = -1;
 	do {
 		bytes /= 1024;
-		++i;
+		i += 1;
 	} while (Math.abs(bytes) >= 1024 && i < units.length - 1);
 
 	return `${bytes.toFixed(1)} ${units[i]}`;
