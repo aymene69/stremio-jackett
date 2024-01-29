@@ -24,6 +24,11 @@ jobs:
           node-version: 'lts/*'
           cache: 'npm'
 
+      - name: 🏗 Installing dependencies
+        run: npm install
+      - name: 🏗 Building app
+        run: npm run build
+
       - name: 🔒 Login to Docker Hub
         uses: docker/login-action@v3
         with:

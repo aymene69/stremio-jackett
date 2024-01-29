@@ -6,6 +6,8 @@ ENV NODE_ENV production
 
 COPY package*.json ./
 
+RUN npm install tsx -g
+
 COPY . .
 
 EXPOSE 3000
