@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="en">
 	<head>
 		<title>Stremio-Jackett</title>
@@ -14,7 +13,7 @@
 	</head>
 	<body>
 		<section class="vh-100">
-			<div class="container py-5 h-100">
+			<div class="container py-5">
 				<div class="row d-flex justify-content-center align-items-center h-100">
 					<div class="col-12 col-md-8 col-lg-6 col-xl-5">
 						<div class="card bg-dark text-white" style="border-radius: 1rem">
@@ -28,7 +27,7 @@
 										height="100"
 									/>
 									<h2 class="fw-bold mb-2 text-uppercase">Stremio-Jackett</h2>
-									<p class="text-white-50 mb-5">1.2.0</p>
+									<p class="text-white-50 mb-5">v{{version}}</p>
 									<h3 class="text-white mb-5">Configuration page</h3>
 									<p class="text-white-50 mb-5">
 										Please fill in the following fields to install Stremio-Jackett
@@ -251,7 +250,7 @@
 					document.getElementById("premiumizeApiDiv").style.display = "none";
 					document.getElementById("allDebridApiDiv").style.display = "block";
 					document.getElementById("sortingDiv").style.display = "block";
-					
+
 					let dataJson = {
 						streamService: serviceProvider,
 						jackettUrl: jackettUrl,

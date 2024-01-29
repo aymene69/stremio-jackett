@@ -1,4 +1,7 @@
 {
+	"[handlebars]": {
+		"editor.defaultFormatter": null
+	},
 	"[javascript][javascriptreact][typescript][typescriptreact]": {
 		"editor.defaultFormatter": "dbaeumer.vscode-eslint"
 	},
@@ -6,8 +9,8 @@
 		"editor.defaultFormatter": "esbenp.prettier-vscode"
 	},
 	"editor.codeActionsOnSave": {
-		"source.fixAll": true,
-		"source.organizeImports": false
+		"source.fixAll": "always",
+		"source.organizeImports": "never"
 	},
 	"editor.insertSpaces": false
 }

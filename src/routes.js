@@ -1,6 +1,8 @@
 import { clamp } from "@hyoretsu/utils";
 import express, { Router } from "express";
-import { existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
+import handlebars from "handlebars";
+import { version } from "../package.json";
 import { getName } from "./helpers/getName";
 import { getNum } from "./helpers/getNum";
 import fetchResults from "./jackett/index";
@@ -109,6 +111,12 @@ routes.get("/", (req, res) => {
 const { dirname } = import.meta;
 
 routes.use("/", express.static(`${dirname}/frontend`));
+
+routes.get("/configure", async (req, res) => {
+	const template = handlebars.compile(readFileSync(`${dirname}/frontend/configure/index.hbs`, "utf8"));
+
+	res.send(template({ version }));
+});
 
 routes.use((req, res, next) => {
 	if (!req.path.endsWith(".html")) {
