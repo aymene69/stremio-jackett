@@ -1,8 +1,12 @@
+[![ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/P5P2TUSN3)
+
 # Stremio Jackett Addon
 Elevate your Stremio experience with seamless access to Jackett torrent links, effortlessly fetching torrents for your selected movies within the Stremio interface.
 
 # Disclaimer
 I am not responsible for any content downloaded through this addon.
+
+# Support on Discord [here](https://discord.gg/7yZ5PzaPYb)
 
 # Prerequisites
 - A [Jackett](https://github.com/Jackett/Jackett) server running and reachable pubicly.
@@ -10,8 +14,7 @@ I am not responsible for any content downloaded through this addon.
 - *(optionnal)* A Real-Debrid or All-Debrid account.
 
 # Installation
-## If you are a newbie, check this [guide](https://github.com/aymene69/stremio-jackett/wiki/Selfhosting-the-addon-(for-FREE))
-
+## If you are a newbie, check the [wiki](https://github.com/aymene69/stremio-jackett/wiki)
 
 ## Without Docker
 - On your computer, clone the repository
@@ -34,3 +37,27 @@ I am not responsible for any content downloaded through this addon.
     ```
     And access it via `your_ip:3000`
 **WARNING** This will only work locally. If you want your addon to be reachable at any time, simply deploy it on [Beamup](https://github.com/Stremio/stremio-beamup-cli). Click [here](https://github.com/Stremio/stremio-beamup-cli) to visit their repository and see how you can deploy it.
+
+  - To update your container
+ 
+    - Find your existing container name
+    ```sh
+    docker ps
+    ```
+
+    - Stop your existing container
+    ```sh
+    docker stop <CONTAINER_ID>
+    ```
+    
+    - Remove your existing container
+    ```sh
+    docker rm <CONTAINER_ID>
+    ```
+
+    - Pull the latest version from docker hub
+    ```sh
+    docker pull belmeg/stremio-addon-jackett:latest
+    ```
+
+    - Finally, rerun your docker run command found in step one

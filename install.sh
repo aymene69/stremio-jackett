@@ -40,6 +40,7 @@ sudo mkdir data blackhole
 sudo curl -fsSL https://raw.githubusercontent.com/aymene69/stremio-jackett/main/jackett/docker-compose.yml -o ./docker-compose.yml
 sudo sed -i "s/YOURADDON.COM/$domainName/g" ./docker-compose.yml
 sudo docker compose up -d
+sleep 5
 sudo docker compose down
 sudo sed -i 's/"BasePathOverride": null/"BasePathOverride": "\/jackett"/g' ./data/Jackett/ServerConfig.json
 sudo sed -i 's/"FlareSolverrUrl": null/"FlareSolverrUrl": "https:\/\/'"$domainName"'\/"/g' ./data/Jackett/ServerConfig.json
