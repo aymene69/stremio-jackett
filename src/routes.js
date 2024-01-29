@@ -53,17 +53,15 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const jackettApi = paramsJson.jackettApiKey;
 		const debridApi = paramsJson.debridApiKey;
 		const maxResults = clamp(1, paramsJson.maxResults || 5, 15);
-		const { sortingSize } = paramsJson;
-		const sortingQuality = paramsJson.sortingSize;
+		const { sorting } = paramsJson;
 		const { ascOrDesc } = paramsJson;
 		let sort;
-		if (sortingSize) {
+		if (sorting === "sizedesc" || sorting === "sizeasc") {
 			sort = {
 				sorting: "size",
 				ascOrDesc: ascOrDesc,
 			};
-		}
-		if (sortingQuality) {
+		} else if (sorting === "quality") {
 			sort = {
 				sorting: "quality",
 				ascOrDesc: ascOrDesc,
@@ -74,7 +72,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 				ascOrDesc: "desc",
 			};
 		}
-
+		console.log(sort);
 		const mediaName = await getName(id[0], type);
 		if (type === "movie") {
 			console.log(`Movie request.\nID: ${id[0]}\nName: ${mediaName}`);
