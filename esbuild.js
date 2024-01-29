@@ -40,7 +40,7 @@ try {
 						const contents = readFileSync(args.path, "utf8");
 
 						const transformedContents = contents
-							.replace(/import\.meta/g, `{dirname: __dirname,filename: __filename}`)
+							.replace(/import\.meta/g, `{dirname:__dirname,filename:__filename}`)
 							.replace(/import\.meta\.filename/g, "__filename")
 							.replace(/import\.meta\.dirname/g, "__dirname");
 

@@ -1,19 +1,23 @@
 export function sortByQuality(files) {
 	const qualityOrder = ["2160p", "1080p", "720p", "480p", "360p"];
 
-	return files.sort((a, b) => {
-		const qualityIndexA = qualityOrder.indexOf(getQualityCode(a.quality.toUpperCase()));
-		const qualityIndexB = qualityOrder.indexOf(getQualityCode(b.quality.toUpperCase()));
+	try {
+		return files.sort((a, b) => {
+			const qualityIndexA = qualityOrder.indexOf(getQualityCode(a.quality.toUpperCase()));
+			const qualityIndexB = qualityOrder.indexOf(getQualityCode(b.quality.toUpperCase()));
 
-		if (qualityIndexA !== -1 && qualityIndexB !== -1) {
-			return qualityIndexA - qualityIndexB;
-		}
+			if (qualityIndexA !== -1 && qualityIndexB !== -1) {
+				return qualityIndexA - qualityIndexB;
+			}
 
-		if (qualityIndexA === -1) return 1;
-		if (qualityIndexB === -1) return -1;
+			if (qualityIndexA === -1) return 1;
+			if (qualityIndexB === -1) return -1;
 
-		return 0;
-	});
+			return 0;
+		});
+	} catch {
+		return files;
+	}
 }
 
 function getQualityCode(quality) {
