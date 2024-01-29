@@ -35,6 +35,12 @@ routes.get("/:params/manifest.json", (req, res) => {
 	respond(res, manifest);
 });
 
+routes.get("/:params/configure", (req, res) => {
+	const paramsJson = JSON.parse(atob(req.params.params));
+	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}`;
+	res.redirect(`${subpath}/configure${prefill}`);
+});
+
 routes.get("/:params/stream/:type/:id", async (req, res) => {
 	try {
 		const paramsJson = JSON.parse(atob(req.params.params));

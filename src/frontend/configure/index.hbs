@@ -287,6 +287,30 @@
 					)}/manifest.json`;
 				}
 			}
+
+			function prefillUrl() {
+				const urlParams = new URLSearchParams(window.location.search);
+				const serviceProvider = urlParams.get('serviceProvider');
+				const realDebridApi = urlParams.get('realDebridApi');
+				const allDebridApi = urlParams.get('allDebridApi');
+				const premiumizeApi = urlParams.get('premiumizeApi');
+				const jackettUrl = urlParams.get('jackettUrl');
+				const jackettApi = urlParams.get('jackettApi');
+				const maxResults = urlParams.get('maxResults');
+				const sorting = urlParams.get('sorting');
+				document.getElementById("serviceProvider").value = serviceProvider;
+				document.getElementById("realDebridApi").value = realDebridApi;
+				document.getElementById("allDebridApi").value = allDebridApi;
+				document.getElementById("premiumizeApi").value = premiumizeApi;
+				document.getElementById("jackettUrl").value = jackettUrl;
+				document.getElementById("jackettApi").value = jackettApi;
+				document.getElementById("maxResults").value = maxResults;
+				document.getElementById(sorting).checked = true;
+				updateLink();
+			}
+
+			// Appelle la fonction au chargement de la page
+			window.onload = prefillUrl;
 		</script>
 	</body>
 </html>
