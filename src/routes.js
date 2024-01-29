@@ -1,10 +1,10 @@
+import { clamp } from "@hyoretsu/utils";
 import { Router } from "express";
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { getName } from "./helpers/getName.js";
 import { getNum } from "./helpers/getNum.js";
 import { subpath } from "./index.js";
-import jackettSearch from "./jackett/index.js";
 import fetchResults from "./jackett/index.js";
 
 const routes = Router();
@@ -37,7 +37,11 @@ routes.get("/:params/manifest.json", (req, res) => {
 });
 
 routes.use((err, req, res, next) => {
-	respond(res, noResults);
+	if (req.path.startsWith("/jackett")) {
+		next();
+	} else {
+		respond(res, noResults);
+	}
 });
 
 routes.get("/:params/stream/:type/:id", async (req, res) => {
@@ -49,16 +53,8 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const jackettUrl = paramsJson.jackettUrl;
 		const jackettApi = paramsJson.jackettApiKey;
 		const debridApi = paramsJson.debridApiKey;
-		let maxResults
-		if (paramsJson.maxResults < 1) {
-			maxResults = 1
-		}
-		if (paramsJson.maxResults > 20) {
-			maxResults = 20
-		}
-		else {
-			maxResults = 1
-		}
+		const maxResults = clamp(1, paramsJson.maxResults || 5, 15);
+
 		const mediaName = await getName(id[0], type);
 		if (type === "movie") {
 			console.log(`Movie request. ID: ${id[0]} Name: ${mediaName}`);

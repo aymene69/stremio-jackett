@@ -1,8 +1,10 @@
 {
-    "compilerOptions": {
-        "checkJs": true,
-        "module": "Node16",
-        "target": "ES6"
-    },
-    "include": ["src/**/*"]
+	"compilerOptions": {
+		"checkJs": true,
+		"module": "NodeNext",
+		"resolveJsonModule": true,
+		"target": "ES6",
+        "typeRoots":["node_modules/@types", "src/@types"]
+	},
+	"include": ["src/**/*"]
 }
