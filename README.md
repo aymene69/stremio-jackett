@@ -62,7 +62,7 @@ I am not responsible for any content downloaded through this addon.
 
   - Finally, rerun your docker run command found in step one
 
-## With Docker compose (Recommended)
+## With Docker compose (Recommended) (includes Jackett and Flaresolverr)
   - Use the docker-compose.yml from the repo
     
   - To start the stack
