@@ -7,6 +7,7 @@ import { getMoviePMLink } from "../../helpers/getMoviePMLink";
 import { getMovieRDLink } from "../../helpers/getMovieRDLink";
 import { detectQuality } from "../../helpers/getQuality";
 import { selectBiggestFileSeasonTorrent } from "../../helpers/selectBiggestFileSeasonTorrent";
+import { sortByLocale } from "../../helpers/sortByLocale";
 import { sortByQuality } from "../../helpers/sortByQuality";
 import { sortBySize } from "../../helpers/sortBySize";
 import { toHumanReadable } from "../../helpers/toHumanReadable";
@@ -53,9 +54,6 @@ export default async function jackettSearch(
 			if (index >= maxResults) {
 				break;
 			}
-			if (index >= 15) {
-				break;
-			}
 
 			const torrentInfo = await getTorrentInfo(item.link);
 			console.log(`Torrent info: ${item.title}`);
@@ -65,12 +63,7 @@ export default async function jackettSearch(
 					if (maxResults === 1) {
 						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
 						if (downloadLink === null) {
-							results.push({
-								name: "Jackett Debrid",
-								title: "RD link not found.",
-								url: "#",
-							});
-							break;
+							return [{ name: "Jackett", title: "No results found", url: "#" }];
 						}
 						results.push({
 							name: "Jackett Debrid",
@@ -78,6 +71,7 @@ export default async function jackettSearch(
 							url: downloadLink,
 							quality: detectQuality(item.title),
 							size: item.size,
+							locale: detectLanguageEmoji(item.title),
 						});
 						break;
 					}
@@ -90,20 +84,16 @@ export default async function jackettSearch(
 					if (availability) {
 						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
 						if (downloadLink === null) {
-							results.push({
-								name: "Jackett Debrid",
-								title: "RD link not found.",
-								url: "#",
-							});
-						} else {
-							results.push({
-								name: "Jackett Debrid",
-								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url: downloadLink,
-								quality: detectQuality(item.title),
-								size: item.size,
-							});
+							return [{ name: "Jackett", title: "No results found", url: "#" }];
 						}
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+							url: downloadLink,
+							quality: detectQuality(item.title),
+							size: item.size,
+							locale: detectLanguageEmoji(item.title),
+						});
 					}
 				}
 
@@ -120,6 +110,7 @@ export default async function jackettSearch(
 							url: downloadLink,
 							quality: detectQuality(item.title),
 							size: item.size,
+							locale: detectLanguageEmoji(item.title),
 						});
 						break;
 					}
@@ -145,6 +136,7 @@ export default async function jackettSearch(
 							url: downloadLink,
 							quality: detectQuality(item.title),
 							size: item.size,
+							locale: detectLanguageEmoji(item.title),
 						});
 					}
 				}
@@ -153,12 +145,7 @@ export default async function jackettSearch(
 					if (maxResults === 1) {
 						const downloadLink = await getMoviePMLink(torrentInfo.magnetLink, debridApi);
 						if (downloadLink === null) {
-							results.push({
-								name: "Jackett Debrid",
-								title: "RD link not found.",
-								url: "#",
-							});
-							break;
+							return [{ name: "Jackett", title: "No results found", url: "#" }];
 						}
 						results.push({
 							name: "Jackett Debrid",
@@ -166,6 +153,7 @@ export default async function jackettSearch(
 							url: downloadLink,
 							quality: detectQuality(item.title),
 							size: item.size,
+							locale: detectLanguageEmoji(item.title),
 						});
 						break;
 					}
@@ -178,20 +166,16 @@ export default async function jackettSearch(
 					if (availability) {
 						const downloadLink = await getMoviePMLink(torrentInfo.magnetLink, debridApi);
 						if (downloadLink === null) {
-							results.push({
-								name: "Jackett Debrid",
-								title: "RD link not found.",
-								url: "#",
-							});
-						} else {
-							results.push({
-								name: "Jackett Debrid",
-								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url: downloadLink,
-								quality: detectQuality(item.title),
-								size: item.size,
-							});
+							return [{ name: "Jackett", title: "No results found", url: "#" }];
 						}
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+							url: downloadLink,
+							quality: detectQuality(item.title),
+							size: item.size,
+							locale: detectLanguageEmoji(item.title),
+						});
 					}
 				}
 			}
@@ -206,7 +190,6 @@ export default async function jackettSearch(
 			console.log(`Added torrent to results: ${item.title}`);
 		}
 
-		// Try again without episode
 		if (isSeries && results.length === 0) {
 			if (torrentAddon) {
 				console.log("No results found with season/episode. Trying without...");
@@ -214,9 +197,10 @@ export default async function jackettSearch(
 			}
 
 			searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&cat=5000&q=${encodeURIComponent(
-				searchQuery.name,
+				searchQuery.name.name,
 			)}+S${searchQuery.season}`;
 
+			console.log(searchUrl.replace(/(apikey=)[^&]+(&t)/, "$1<private>$2"));
 			items = await getItemsFromUrl(searchUrl);
 			for (const item of items) {
 				const torrentInfo = await getTorrentInfo(item.link);
@@ -230,12 +214,7 @@ export default async function jackettSearch(
 								`S${searchQuery.season}E${searchQuery.episode}`,
 							);
 							if (url === null) {
-								results.push({
-									name: "Jackett Debrid",
-									title: "RD link not found.",
-									url: "#",
-								});
-								break;
+								return [{ name: "Jackett", title: "No results found", url: "#" }];
 							}
 							results.push({
 								name: "Jackett Debrid",
@@ -243,6 +222,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 							break;
 						}
@@ -267,6 +247,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 						}
 					}
@@ -289,6 +270,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 							break;
 						}
@@ -318,6 +300,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 						}
 					}
@@ -343,6 +326,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 							break;
 						}
@@ -367,6 +351,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 						}
 					}
@@ -389,13 +374,32 @@ export default async function jackettSearch(
 				console.log(`Added torrent to results: ${item.title}`);
 			}
 		}
+		console.log(detectLanguageEmoji(searchQuery.locale));
 		if (sorting.sorting === "quality") {
-			return sortByQuality(results);
+			if (searchQuery.locale === "undefined") {
+				console.log("Sorting by quality");
+				return sortByQuality(results);
+			}
+			let sorted = sortByQuality(results);
+			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
+			console.log("Sorting by locale + quality...");
+			return sorted;
 		}
 		if (sorting.sorting === "size") {
-			return sortBySize(results, sorting.ascOrDesc);
+			if (searchQuery.locale === "undefined") {
+				console.log(`Sorting by size ${sorting.ascOrDesc}`);
+				return sortBySize(results, sorting.ascOrDesc);
+			}
+			let sorted = sortBySize(results, sorting.ascOrDesc);
+			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
+			console.log("Sorting by locale + size...");
+			return sorted;
 		}
-		return results;
+		if (searchQuery.locale === "undefined") {
+			return results;
+		}
+		console.log("Sorting by locale...");
+		return results.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
 	} catch (e) {
 		console.error(e);
 
