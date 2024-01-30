@@ -10,6 +10,8 @@ RUN npm install tsx -g
 
 COPY . .
 
+COPY .env.example .env
+
 EXPOSE 3000
 
 CMD ["npm", "start"]
