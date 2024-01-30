@@ -11,8 +11,11 @@ async function getAppVersionGithub() {
 	).json();
 
 	const appVersion = latestRelease.tag_name;
-
-	return appVersion.replace("v", "");
+	try {
+		return appVersion.replace("v", "");
+	} catch (e) {
+		return localVersion;
+	}
 }
 
 export async function updateApp() {
