@@ -22,7 +22,7 @@ routes.get("/:params/manifest.json", (req, res) => {
 	const manifest = {
 		id: "community.aymene69.jackett",
 		icon: "https://i.imgur.com/tVjqEJP.png",
-		version: "1.2.2",
+		version: "1.2.3",
 		catalogs: [],
 		resources: ["stream"],
 		types: ["movie", "series"],
@@ -73,9 +73,10 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		console.log(sort);
 		const mediaName = await getName(id[0], type);
 		if (type === "movie") {
-			console.log(`Movie request.\nID: ${id[0]}\nName: ${mediaName}`);
+			console.log(`Movie request.\nID: ${id[0]}\nName: ${mediaName.name}`);
 			const torrentInfo = await fetchResults(debridApi, jackettUrl, jackettApi, service, maxResults, sort, {
-				name: mediaName,
+				name: mediaName.name,
+				year: mediaName.year,
 				type: type,
 			});
 			respond(res, { streams: torrentInfo });

@@ -5,7 +5,13 @@ export async function getName(id, type) {
 
 	const res = await fetch(`https://v3-cinemeta.strem.io/meta/${type}/${id}.json`);
 	// @ts-ignore
-	const { name } = (await res.json()).meta;
+	const { meta } = await res.json();
+	const { name } = meta;
+	// @ts-ignore
+	const { releaseInfo } = meta;
 
-	return name;
+	return {
+		name: name,
+		year: releaseInfo,
+	};
 }

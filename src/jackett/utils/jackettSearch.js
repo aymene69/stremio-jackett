@@ -31,17 +31,20 @@ export default async function jackettSearch(
 	searchQuery,
 ) {
 	try {
-		const { episode, name, season, type } = searchQuery;
+		const { episode, name, season, type, year } = searchQuery;
 		const isSeries = type === "series";
 		const torrentAddon = addonType === "torrent";
 
 		console.log(`Searching on Jackett, will return ${!torrentAddon ? "debrid links" : "torrents"}...`);
 
-		let searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&cat=${
-			isSeries ? 5000 : 2000
-		}&q=${encodeURIComponent(name)}${isSeries ? `+S${season}E${episode}` : ""}`;
+		let searchUrl;
+		if (isSeries) {
+			searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=search&cat=5000&q=${encodeURIComponent(name.name)}+S${season}E${episode}`;
+		} else {
+			searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=movie&cat=2000&q=${encodeURIComponent(name)}&year=${year}`;
+		}
 
-		console.log(searchUrl.replace(/apikey=.*&/g, "apikey=<private>&"));
+		console.log(searchUrl.replace(/(apikey=)[^&]+(&t)/, "$1<private>$2"));
 
 		const results = [];
 
