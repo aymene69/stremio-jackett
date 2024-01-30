@@ -22,7 +22,7 @@ routes.get("/:params/manifest.json", (req, res) => {
 	const manifest = {
 		id: "community.aymene69.jackett",
 		icon: "https://i.imgur.com/tVjqEJP.png",
-		version: "1.2.5",
+		version,
 		catalogs: [],
 		resources: ["stream"],
 		types: ["movie", "series"],
