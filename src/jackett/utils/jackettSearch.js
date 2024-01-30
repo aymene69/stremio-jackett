@@ -53,9 +53,6 @@ export default async function jackettSearch(
 			if (index >= maxResults) {
 				break;
 			}
-			if (index >= 15) {
-				break;
-			}
 
 			const torrentInfo = await getTorrentInfo(item.link);
 			console.log(`Torrent info: ${item.title}`);
@@ -65,12 +62,7 @@ export default async function jackettSearch(
 					if (maxResults === 1) {
 						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
 						if (downloadLink === null) {
-							results.push({
-								name: "Jackett Debrid",
-								title: "RD link not found.",
-								url: "#",
-							});
-							break;
+							return [{ name: "Jackett", title: "No results found", url: "#" }];
 						}
 						results.push({
 							name: "Jackett Debrid",
@@ -90,20 +82,15 @@ export default async function jackettSearch(
 					if (availability) {
 						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
 						if (downloadLink === null) {
-							results.push({
-								name: "Jackett Debrid",
-								title: "RD link not found.",
-								url: "#",
-							});
-						} else {
-							results.push({
-								name: "Jackett Debrid",
-								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url: downloadLink,
-								quality: detectQuality(item.title),
-								size: item.size,
-							});
+							return [{ name: "Jackett", title: "No results found", url: "#" }];
 						}
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+							url: downloadLink,
+							quality: detectQuality(item.title),
+							size: item.size,
+						});
 					}
 				}
 
@@ -153,12 +140,7 @@ export default async function jackettSearch(
 					if (maxResults === 1) {
 						const downloadLink = await getMoviePMLink(torrentInfo.magnetLink, debridApi);
 						if (downloadLink === null) {
-							results.push({
-								name: "Jackett Debrid",
-								title: "RD link not found.",
-								url: "#",
-							});
-							break;
+							return [{ name: "Jackett", title: "No results found", url: "#" }];
 						}
 						results.push({
 							name: "Jackett Debrid",
@@ -178,20 +160,15 @@ export default async function jackettSearch(
 					if (availability) {
 						const downloadLink = await getMoviePMLink(torrentInfo.magnetLink, debridApi);
 						if (downloadLink === null) {
-							results.push({
-								name: "Jackett Debrid",
-								title: "RD link not found.",
-								url: "#",
-							});
-						} else {
-							results.push({
-								name: "Jackett Debrid",
-								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url: downloadLink,
-								quality: detectQuality(item.title),
-								size: item.size,
-							});
+							return [{ name: "Jackett", title: "No results found", url: "#" }];
 						}
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+							url: downloadLink,
+							quality: detectQuality(item.title),
+							size: item.size,
+						});
 					}
 				}
 			}
@@ -206,7 +183,6 @@ export default async function jackettSearch(
 			console.log(`Added torrent to results: ${item.title}`);
 		}
 
-		// Try again without episode
 		if (isSeries && results.length === 0) {
 			if (torrentAddon) {
 				console.log("No results found with season/episode. Trying without...");
@@ -214,9 +190,10 @@ export default async function jackettSearch(
 			}
 
 			searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&cat=5000&q=${encodeURIComponent(
-				searchQuery.name,
+				searchQuery.name.name,
 			)}+S${searchQuery.season}`;
 
+			console.log(searchUrl.replace(/(apikey=)[^&]+(&t)/, "$1<private>$2"));
 			items = await getItemsFromUrl(searchUrl);
 			for (const item of items) {
 				const torrentInfo = await getTorrentInfo(item.link);
@@ -230,12 +207,7 @@ export default async function jackettSearch(
 								`S${searchQuery.season}E${searchQuery.episode}`,
 							);
 							if (url === null) {
-								results.push({
-									name: "Jackett Debrid",
-									title: "RD link not found.",
-									url: "#",
-								});
-								break;
+								return [{ name: "Jackett", title: "No results found", url: "#" }];
 							}
 							results.push({
 								name: "Jackett Debrid",
