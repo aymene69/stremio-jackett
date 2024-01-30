@@ -1,13 +1,13 @@
 {
 	"type": "module",
 	"name": "stremio-addon-jackett",
-	"version": "1.2.0",
+	"version": "1.2.1",
 	"description": "Stremio Jackett Addon",
 	"scripts": {
 		"build": "node esbuild.js",
-		"dev": "tsx watch --ignore node_modules src/index.js",
+		"dev": "tsx watch --env-file=.env --ignore node_modules src/index.js",
 		"prepare": "husky",
-		"start": "tsx watch dist/index.cjs"
+		"start": "tsx watch --env-file=.env dist/index.cjs"
 	},
 	"lint-staged": {
 		"**/*.js": [
