@@ -23,7 +23,7 @@ I am not responsible for any content downloaded through this addon.
     ```
 - Once done, install dependencies
     ```sh
-    npm install
+    npm install && npm run build
     ````
 - Now just run your addon, access to the link and add it to your Stremio app!
     ```
