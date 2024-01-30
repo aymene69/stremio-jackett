@@ -2,6 +2,7 @@ import { clamp } from "@hyoretsu/utils";
 import express, { Router } from "express";
 import { existsSync, readFileSync } from "fs";
 import handlebars from "handlebars";
+import path from "path";
 import { version } from "../package.json";
 import { getName } from "./helpers/getName";
 import { getNum } from "./helpers/getNum";
@@ -104,7 +105,7 @@ routes.get("/", (req, res) => {
 	res.redirect(`${subpath}/configure`);
 });
 
-const { dirname } = import.meta;
+const dirname = path.join(process.cwd(), process.env.NODE_ENV === "production" ? "dist" : "src");
 
 routes.use("/", express.static(`${dirname}/frontend`));
 
