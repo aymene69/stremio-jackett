@@ -62,7 +62,7 @@ I am not responsible for any content downloaded through this addon.
 
   - Finally, rerun your docker run command found in step one
 
-- With docker compose (Recommended)
+## With Docker compose (Recommended)
 
     - Create a docker-compose.yml file with the following contents
 
