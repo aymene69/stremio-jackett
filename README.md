@@ -11,7 +11,7 @@ I am not responsible for any content downloaded through this addon.
 # Prerequisites
 - A [Jackett](https://github.com/Jackett/Jackett) server running and reachable pubicly.
 - NodeJS, npm.
-- *(optionnal)* A Real-Debrid or All-Debrid account.
+- *(optionnal)* A Real-Debrid, All-Debrid or Premiumize account.
 
 # Installation
 ## If you are a newbie, check the [wiki](https://github.com/aymene69/stremio-jackett/wiki)
@@ -23,7 +23,7 @@ I am not responsible for any content downloaded through this addon.
     ```
 - Once done, install dependencies
     ```sh
-    npm install
+    npm install && npm run build
     ````
 - Now just run your addon, access to the link and add it to your Stremio app!
     ```
@@ -60,4 +60,23 @@ I am not responsible for any content downloaded through this addon.
     docker pull belmeg/stremio-addon-jackett:latest
     ```
 
-    - Finally, rerun your docker run command found in step one
+  - Finally, rerun your docker run command found in step one
+
+## With Docker compose (Recommended) (includes Jackett and Flaresolverr)
+  - Use the docker-compose.yml from the repo
+    
+  - To start the stack
+   ```sh
+      docker compose up -d
+   ```
+  - To stop the stack
+   ```sh
+      docker compose down
+   ```
+  - To pull the latest image.
+   ```sh
+      docker pull belmeg/stremio-addon-jackett:latest
+   ```
+And access it via `your_ip:3000`
+
+I recommend also deploying Nginx Proxy Manager and securing your network with SSL.
