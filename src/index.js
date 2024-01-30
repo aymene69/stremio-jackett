@@ -3,6 +3,7 @@ import express from "express";
 import http from "http";
 import { updateApp } from "./helpers/updateApp";
 import routes from "./routes";
+import "dotenv/config";
 
 if (process.env.NODE_ENV === "production") {
 	setInterval(async () => {
