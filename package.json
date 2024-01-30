@@ -1,7 +1,7 @@
 {
 	"type": "module",
 	"name": "stremio-addon-jackett",
-	"version": "1.2.4",
+	"version": "1.2.5",
 	"description": "Stremio Jackett Addon",
 	"scripts": {
 		"build": "node esbuild.js",

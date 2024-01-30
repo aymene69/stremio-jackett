@@ -138,6 +138,47 @@
 											<label for="sorting3">Size (desc)</label>
 									</div>
 
+									<div class="form-outline form-white mb-4" id="useTmdb">
+										<label class="form-label">Use TMDB (gives more accurate results)</label>
+										<input
+											required
+											type="checkbox"
+											oninput="updateLink()"
+											id="checkedTmdb"
+										/>
+									</div>
+
+									<div class="form-outline form-white mb-4" id="tmdbApi">
+										<label class="form-label">TMDB API Key (get your own <a href="https://www.themoviedb.org/signup" target="_blank">here</a> (findable in "Parameters"))</label>
+										<input
+											required
+											class="form-control form-control-lg"
+											placeholder="Enter your TMDB API key"
+											oninput="updateLink()"
+											id="tmdbApiKey"
+										/>
+									</div>
+									
+									<div class="form-outline form-white mb-4">
+										<label class="form-label"
+											>Language (will only show this language and MULTI)</label
+										>
+										<select
+											required
+											class="form-select"
+											aria-label=""
+											id="languageException"
+											onchange="updateLink()"
+										>
+											<option value="en">🇬🇧</option>
+											<option value="fr">🇫🇷</option>
+											<option value="de">🇩🇪</option>
+											<option value="es">🇪🇸</option>
+											<option value="pt">🇵🇹</option>
+											<option value="it">🇮🇹</option>
+										</select>
+									</div>
+
 									<div class="form-outline form-white mb-4">
 										<label class="form-label">Jackett URL</label>
 										<input
@@ -173,6 +214,7 @@
 			document.getElementById("allDebridApiDiv").style.display = "none";
 			document.getElementById("premiumizeApiDiv").style.display = "none";
 			document.getElementById("sortingDiv").style.display = "none";
+			document.getElementById("tmdbApi").style.display = "none";
 
 			function onChangeMaxResults() {
 				let addonType = document.getElementById("serviceProvider").value;
@@ -192,6 +234,14 @@
 				let jackettUrl = document.getElementById("jackettUrl").value;
 				let jackettApi = document.getElementById("jackettApi").value;
 				let sorting = document.querySelector('input[name="sorting"]:checked').value;
+				let tmdbChecked = document.getElementById("checkedTmdb").checked;
+				let tmdbApiKey = document.getElementById("tmdbApiKey").value;
+				let languageException = document.getElementById("languageException").value;
+				if (tmdbChecked) {
+					document.getElementById("tmdbApi").style.display = "block";
+				} else {
+					document.getElementById("tmdbApi").style.display = "none";
+				}
 				let ascOrDesc
 				if (sorting === "sizeasc") {
 					ascOrDesc = "asc"
@@ -201,7 +251,6 @@
 					ascOrDesc = null
 				}
 
-				console.log(sorting);
 				if (jackettUrl.at(-1) === "/") {
 					jackettUrl = jackettUrl.slice(0, -1);
 				}
@@ -219,7 +268,9 @@
 						jackettApiKey: jackettApi,
 						maxResults: maxResults,
 						sorting: sorting,
-						ascOrDesc: ascOrDesc
+						ascOrDesc: ascOrDesc,
+						tmdbApiKey: tmdbApiKey,
+						locale: languageException
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -238,7 +289,9 @@
 						debridApiKey: realDebridApi,
 						maxResults: maxResults,
 						sorting: sorting,
-						ascOrDesc: ascOrDesc
+						ascOrDesc: ascOrDesc,
+						tmdbApiKey: tmdbApiKey,
+						locale: languageException
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -258,7 +311,9 @@
 						debridApiKey: allDebridApi,
 						maxResults: maxResults,
 						sorting: sorting,
-						ascOrDesc: ascOrDesc
+						ascOrDesc: ascOrDesc,
+						tmdbApiKey: tmdbApiKey,
+						locale: languageException
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -278,7 +333,9 @@
 						debridApiKey: premiumizeApi,
 						maxResults: maxResults,
 						sorting: sorting,
-						ascOrDesc: ascOrDesc
+						ascOrDesc: ascOrDesc,
+						tmdbApiKey: tmdbApiKey,
+						locale: languageException
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -290,23 +347,30 @@
 
 			function prefillUrl() {
 				const urlParams = new URLSearchParams(window.location.search);
-				const serviceProvider = urlParams.get('serviceProvider');
-				const realDebridApi = urlParams.get('realDebridApi');
-				const allDebridApi = urlParams.get('allDebridApi');
-				const premiumizeApi = urlParams.get('premiumizeApi');
-				const jackettUrl = urlParams.get('jackettUrl');
-				const jackettApi = urlParams.get('jackettApi');
-				const maxResults = urlParams.get('maxResults');
-				const sorting = urlParams.get('sorting');
-				document.getElementById("serviceProvider").value = serviceProvider;
-				document.getElementById("realDebridApi").value = realDebridApi;
-				document.getElementById("allDebridApi").value = allDebridApi;
-				document.getElementById("premiumizeApi").value = premiumizeApi;
-				document.getElementById("jackettUrl").value = jackettUrl;
-				document.getElementById("jackettApi").value = jackettApi;
-				document.getElementById("maxResults").value = maxResults;
-				document.getElementById(sorting).checked = true;
-				updateLink();
+				if (urlParams.get('serviceProvider') === null) {
+					return
+				} else {
+					const serviceProvider = urlParams.get('serviceProvider');
+					const realDebridApi = urlParams.get('realDebridApi');
+					const allDebridApi = urlParams.get('allDebridApi');
+					const premiumizeApi = urlParams.get('premiumizeApi');
+					const jackettUrl = urlParams.get('jackettUrl');
+					const jackettApi = urlParams.get('jackettApi');
+					const maxResults = urlParams.get('maxResults');
+					const sorting = urlParams.get('sorting');
+					const tmdbApiKey = urlParams.get('tmdbApiKey');
+					const checkedTmdb = urlParams.get('checkedTmdb');
+					document.getElementById("serviceProvider").value = serviceProvider;
+					document.getElementById("realDebridApi").value = realDebridApi;
+					document.getElementById("allDebridApi").value = allDebridApi;
+					document.getElementById("premiumizeApi").value = premiumizeApi;
+					document.getElementById("jackettUrl").value = jackettUrl;
+					document.getElementById("jackettApi").value = jackettApi;
+					document.getElementById("maxResults").value = maxResults;
+					document.getElementById(sorting).checked = true;
+					document.getElementById("tmdbApiKey").value = tmdbApiKey;
+					updateLink();
+				}
 			}
 
 			// Appelle la fonction au chargement de la page

@@ -7,6 +7,7 @@ import { getMoviePMLink } from "../../helpers/getMoviePMLink";
 import { getMovieRDLink } from "../../helpers/getMovieRDLink";
 import { detectQuality } from "../../helpers/getQuality";
 import { selectBiggestFileSeasonTorrent } from "../../helpers/selectBiggestFileSeasonTorrent";
+import { sortByLocale } from "../../helpers/sortByLocale";
 import { sortByQuality } from "../../helpers/sortByQuality";
 import { sortBySize } from "../../helpers/sortBySize";
 import { toHumanReadable } from "../../helpers/toHumanReadable";
@@ -70,6 +71,7 @@ export default async function jackettSearch(
 							url: downloadLink,
 							quality: detectQuality(item.title),
 							size: item.size,
+							locale: detectLanguageEmoji(item.title),
 						});
 						break;
 					}
@@ -90,6 +92,7 @@ export default async function jackettSearch(
 							url: downloadLink,
 							quality: detectQuality(item.title),
 							size: item.size,
+							locale: detectLanguageEmoji(item.title),
 						});
 					}
 				}
@@ -107,6 +110,7 @@ export default async function jackettSearch(
 							url: downloadLink,
 							quality: detectQuality(item.title),
 							size: item.size,
+							locale: detectLanguageEmoji(item.title),
 						});
 						break;
 					}
@@ -132,6 +136,7 @@ export default async function jackettSearch(
 							url: downloadLink,
 							quality: detectQuality(item.title),
 							size: item.size,
+							locale: detectLanguageEmoji(item.title),
 						});
 					}
 				}
@@ -148,6 +153,7 @@ export default async function jackettSearch(
 							url: downloadLink,
 							quality: detectQuality(item.title),
 							size: item.size,
+							locale: detectLanguageEmoji(item.title),
 						});
 						break;
 					}
@@ -168,6 +174,7 @@ export default async function jackettSearch(
 							url: downloadLink,
 							quality: detectQuality(item.title),
 							size: item.size,
+							locale: detectLanguageEmoji(item.title),
 						});
 					}
 				}
@@ -215,6 +222,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 							break;
 						}
@@ -239,6 +247,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 						}
 					}
@@ -261,6 +270,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 							break;
 						}
@@ -290,6 +300,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 						}
 					}
@@ -315,6 +326,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 							break;
 						}
@@ -339,6 +351,7 @@ export default async function jackettSearch(
 								url,
 								quality: detectQuality(item.title),
 								size: item.size,
+								locale: detectLanguageEmoji(item.title),
 							});
 						}
 					}
@@ -361,13 +374,32 @@ export default async function jackettSearch(
 				console.log(`Added torrent to results: ${item.title}`);
 			}
 		}
+		console.log(detectLanguageEmoji(searchQuery.locale));
 		if (sorting.sorting === "quality") {
-			return sortByQuality(results);
+			if (searchQuery.locale === "undefined") {
+				console.log("Sorting by quality");
+				return sortByQuality(results);
+			}
+			let sorted = sortByQuality(results);
+			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
+			console.log("Sorting by locale + quality...");
+			return sorted;
 		}
 		if (sorting.sorting === "size") {
-			return sortBySize(results, sorting.ascOrDesc);
+			if (searchQuery.locale === "undefined") {
+				console.log(`Sorting by size ${sorting.ascOrDesc}`);
+				return sortBySize(results, sorting.ascOrDesc);
+			}
+			let sorted = sortBySize(results, sorting.ascOrDesc);
+			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
+			console.log("Sorting by locale + size...");
+			return sorted;
 		}
-		return results;
+		if (searchQuery.locale === "undefined") {
+			return results;
+		}
+		console.log("Sorting by locale...");
+		return results.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
 	} catch (e) {
 		console.error(e);
 
