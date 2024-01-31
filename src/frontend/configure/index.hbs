@@ -158,7 +158,7 @@
 											id="tmdbApiKey"
 										/>
 									</div>
-									
+
 									<div class="form-outline form-white mb-4">
 										<label class="form-label"
 											>Language (will only show this language and MULTI)</label
@@ -274,7 +274,7 @@
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
-					}${window.location.pathname.replace("/configure", "")}/${btoa(
+					}${window.location.pathname.replace(/\/configure\/?/, "")}/${btoa(
 						JSON.stringify(dataJson)
 					)}/manifest.json`;
 				} else if (serviceProvider === "realdebrid") {
@@ -295,7 +295,7 @@
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
-					}${window.location.pathname.replace("/configure", "")}/${btoa(
+					}${window.location.pathname.replace(/\/configure\/?/, "")}/${btoa(
 						JSON.stringify(dataJson)
 					)}/manifest.json`;
 				} else if (serviceProvider === "alldebrid") {
@@ -317,7 +317,7 @@
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
-					}${window.location.pathname.replace("/configure", "")}/${btoa(
+					}${window.location.pathname.replace(/\/configure\/?/, "")}/${btoa(
 						JSON.stringify(dataJson)
 					)}/manifest.json`;
 				} else if (serviceProvider === "premiumize") {
@@ -339,7 +339,7 @@
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
-					}${window.location.pathname.replace("/configure", "")}/${btoa(
+					}${window.location.pathname.replace(/\/configure\/?/, "")}/${btoa(
 						JSON.stringify(dataJson)
 					)}/manifest.json`;
 				}

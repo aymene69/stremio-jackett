@@ -23,9 +23,17 @@ I am not responsible for any content downloaded through this addon.
     ```
 - Once done, install dependencies
     ```sh
-    npm install && npm run build
+    npm install
     ````
-- Now just run your addon, access to the link and add it to your Stremio app!
+- Copy `.env.example` to `.env` and modify it if needed
+    ```sh
+    cp .env.example .env
+    ````
+- Build the addon
+    ```sh
+    npm run build
+    ````
+- Now just run your addon, access the link and add it to your Stremio app!
     ```
     npm start
     ```
@@ -39,7 +47,7 @@ I am not responsible for any content downloaded through this addon.
 **WARNING** This will only work locally. If you want your addon to be reachable at any time, simply deploy it on [Beamup](https://github.com/Stremio/stremio-beamup-cli). Click [here](https://github.com/Stremio/stremio-beamup-cli) to visit their repository and see how you can deploy it.
 
   - To update your container
- 
+
     - Find your existing container name
     ```sh
     docker ps
@@ -49,7 +57,7 @@ I am not responsible for any content downloaded through this addon.
     ```sh
     docker stop <CONTAINER_ID>
     ```
-    
+
     - Remove your existing container
     ```sh
     docker rm <CONTAINER_ID>
@@ -64,7 +72,7 @@ I am not responsible for any content downloaded through this addon.
 
 ## With Docker compose (Recommended) (includes Jackett and Flaresolverr)
   - Use the docker-compose.yml from the repo
-    
+
   - To start the stack
    ```sh
       docker compose up -d
