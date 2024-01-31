@@ -8,6 +8,7 @@ export default async function fetchResults(
 	maxResults,
 	sorting,
 	searchQuery,
+	host,
 ) {
 	let results = await jackettSearch(
 		debridApi,
@@ -17,9 +18,10 @@ export default async function fetchResults(
 		maxResults,
 		sorting,
 		searchQuery,
+		host,
 	);
 	if (results.length === 0) {
-		results = await jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, 1, sorting, searchQuery);
+		results = await jackettSearch(debridApi, jackettHost, jackettApiKey, addonType, 1, sorting, searchQuery, host);
 		if (results.length === 0) {
 			results = [{ name: "Jackett", title: "No results found", url: "#" }];
 		}
