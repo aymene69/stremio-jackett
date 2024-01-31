@@ -2,7 +2,6 @@ import { clamp } from "@hyoretsu/utils";
 import express, { Router } from "express";
 import { existsSync, readFileSync } from "fs";
 import handlebars from "handlebars";
-import { version as localVersion } from "../package.json";
 import { version } from "../package.json";
 import { getMovieADLink } from "./helpers/getMovieADLink";
 import { getMoviePMLink } from "./helpers/getMoviePMLink";
@@ -26,7 +25,7 @@ routes.get("/:params/manifest.json", (req, res) => {
 	const manifest = {
 		id: "community.aymene69.jackett",
 		icon: "https://i.imgur.com/tVjqEJP.png",
-		version: localVersion,
+		version,
 		catalogs: [],
 		resources: ["stream"],
 		types: ["movie", "series"],
