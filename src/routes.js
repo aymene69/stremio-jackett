@@ -3,6 +3,9 @@ import express, { Router } from "express";
 import { existsSync, readFileSync } from "fs";
 import handlebars from "handlebars";
 import { version } from "../package.json";
+import { getMovieADLink } from "./helpers/getMovieADLink";
+import { getMoviePMLink } from "./helpers/getMoviePMLink";
+import { getMovieRDLink } from "./helpers/getMovieRDLink";
 import { getName } from "./helpers/getName";
 import { getNum } from "./helpers/getNum";
 import fetchResults from "./jackett/index";
@@ -37,8 +40,35 @@ routes.get("/:params/manifest.json", (req, res) => {
 
 routes.get("/:params/configure", (req, res) => {
 	const paramsJson = JSON.parse(atob(req.params.params));
-	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}`;
+	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}&tmdbApiKey=${paramsJson.tmdbApiKey}&locale=${paramsJson.locale}`;
 	res.redirect(`${subpath}/configure${prefill}`);
+});
+
+routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res) => {
+	let media;
+	if (req.params.service === "alldebrid") {
+		if (req.params.seasonEpisode === "undefined") {
+			media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey);
+		} else {
+			media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+		}
+	}
+	if (req.params.service === "realdebrid") {
+		if (req.params.seasonEpisode === "undefined") {
+			media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey);
+		} else {
+			console.log("defined");
+			media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+		}
+	}
+	if (req.params.service === "premiumize") {
+		if (req.params.seasonEpisode === "undefined") {
+			media = await getMoviePMLink(atob(req.params.magnet), req.params.apiKey);
+		} else {
+			media = await getMoviePMLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+		}
+	}
+	res.redirect(media);
 });
 
 routes.get("/:params/stream/:type/:id", async (req, res) => {
@@ -80,12 +110,21 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		}
 		if (type === "movie") {
 			console.log(`Movie request.\nID: ${id[0]}\nName: ${mediaName.name}`);
-			const torrentInfo = await fetchResults(debridApi, jackettUrl, jackettApi, service, maxResults, sort, {
-				name: mediaName.name,
-				year: mediaName.year,
-				locale: locale,
-				type: type,
-			});
+			const torrentInfo = await fetchResults(
+				debridApi,
+				jackettUrl,
+				jackettApi,
+				service,
+				maxResults,
+				sort,
+				{
+					name: mediaName.name,
+					year: mediaName.year,
+					locale: locale,
+					type: type,
+				},
+				`${req.protocol}://${req.headers.host}/${subpath}`,
+			);
 			respond(res, { streams: torrentInfo });
 		}
 		if (type === "series") {
@@ -94,12 +133,21 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 					id[2],
 				)}`,
 			);
-			const torrentInfo = await fetchResults(debridApi, jackettUrl, jackettApi, service, maxResults, sort, {
-				name: mediaName,
-				type: type,
-				season: getNum(id[1]),
-				episode: getNum(id[2]),
-			});
+			const torrentInfo = await fetchResults(
+				debridApi,
+				jackettUrl,
+				jackettApi,
+				service,
+				maxResults,
+				sort,
+				{
+					name: mediaName,
+					type: type,
+					season: getNum(id[1]),
+					episode: getNum(id[2]),
+				},
+				req.headers.host,
+			);
 			respond(res, { streams: torrentInfo });
 		}
 	} catch (e) {
