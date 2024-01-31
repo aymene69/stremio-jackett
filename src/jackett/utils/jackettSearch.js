@@ -63,7 +63,6 @@ export default async function jackettSearch(
 			if (!torrentAddon) {
 				if (addonType === "realdebrid") {
 					if (maxResults === "1") {
-						console.log("Ouais dcp");
 						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
 						if (downloadLink === null) {
 							return [{ name: "Jackett", title: "No results found", url: "#" }];

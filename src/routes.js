@@ -48,16 +48,13 @@ routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res
 	let media;
 	if (req.params.service === "alldebrid") {
 		if (req.params.seasonEpisode === "undefined") {
-			console.log("undefined");
 			media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey);
 		} else {
-			console.log("defined");
 			media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
 		}
 	}
 	if (req.params.service === "realdebrid") {
 		if (req.params.seasonEpisode === "undefined") {
-			console.log("undefined realdebrid");
 			media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey);
 		} else {
 			console.log("defined");
@@ -66,10 +63,8 @@ routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res
 	}
 	if (req.params.service === "premiumize") {
 		if (req.params.seasonEpisode === "undefined") {
-			console.log("undefined");
 			media = await getMoviePMLink(atob(req.params.magnet), req.params.apiKey);
 		} else {
-			console.log("defined");
 			media = await getMoviePMLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
 		}
 	}
