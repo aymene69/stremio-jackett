@@ -84,12 +84,13 @@ export default async function jackettSearch(
 					}
 					if (availability) {
 						console.log(
-							`${host}getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+							`${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
 						);
+						console.log("Host: ", host);
 						results.push({
 							name: "Jackett Debrid",
 							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: `${host}getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+							url: `${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
 							quality: detectQuality(item.title),
 							size: item.size,
 							locale: detectLanguageEmoji(item.title),
@@ -128,7 +129,7 @@ export default async function jackettSearch(
 						results.push({
 							name: "Jackett Debrid",
 							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: `${host}getStream/alldebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+							url: `${host}/getStream/alldebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
 							quality: detectQuality(item.title),
 							size: item.size,
 							locale: detectLanguageEmoji(item.title),
@@ -162,7 +163,7 @@ export default async function jackettSearch(
 						results.push({
 							name: "Jackett Debrid",
 							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: `${host}getStream/premiumize/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+							url: `${host}/getStream/premiumize/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
 							quality: detectQuality(item.title),
 							size: item.size,
 							locale: detectLanguageEmoji(item.title),
@@ -227,7 +228,7 @@ export default async function jackettSearch(
 							results.push({
 								name: "Jackett Debrid",
 								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url: `${host}getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
+								url: `${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
 								quality: detectQuality(item.title),
 								size: item.size,
 								locale: detectLanguageEmoji(item.title),
@@ -271,7 +272,7 @@ export default async function jackettSearch(
 							results.push({
 								name: "Jackett Debrid",
 								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url: `${host}getStream/alldebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
+								url: `${host}/getStream/alldebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
 								quality: detectQuality(item.title),
 								size: item.size,
 								locale: detectLanguageEmoji(item.title),
@@ -314,7 +315,7 @@ export default async function jackettSearch(
 							results.push({
 								name: "Jackett Debrid",
 								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url: `${host}getStream/premiumize/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
+								url: `${host}/getStream/premiumize/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
 								quality: detectQuality(item.title),
 								size: item.size,
 								locale: detectLanguageEmoji(item.title),
