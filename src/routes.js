@@ -45,8 +45,11 @@ routes.get("/:params/configure", (req, res) => {
 });
 
 routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res) => {
-	let media;
-	if (req.params.service === "alldebrida") {
+	let media, magnet;
+	magnet =
+		"magnet:?xt=urn:btih:9D3EFCDC02E5AA67B4E863EFEB6D8327592223B5&dn=The%20Beekeeper%202024%20HDR%202160p%20WEB%20H265%20LilKim%20TGx&tr=udp%3A%2F%2Fmovies.zsw.ca%3A6969%2Fannounce&tr=udp%3A%2F%2Fexodus.desync.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.opentrackr.org%3A1337%2Fannounce&tr=udp%3A%2F%2Fp4p.arenabg.com%3A1337%2Fannounce&tr=udp%3A%2F%2Ftracker.theoks.net%3A6969%2Fannounce&tr=udp%3A%2F%2Fexplodie.org%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.therarbg.com%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker1.bt.moack.co.kr%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.openbittorrent.com%3A6969%2Fannounce&tr=udp%3A%2F%2Fopen.demonii.com%3A1337%2Fannounce&tr=udp%3A%2F%2Fopentracker.i2p.rocks%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.therarbg.to%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.mirrorbay.org%3A6969%2Fannounce&tr=udp%3A%2F%2Fopen.stealth.si%3A80%2Fannounce&tr=udp%3A%2F%2Ftracker.moeking.me%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.t-rb.org%3A6969%2Fannounce&tr=udp%3A%2F%2Ftracker.torrent.eu.org%3A451%2Fannounce&tr=udp%3A%2F%2Ftracker.tiny-vps.com%3A6969%2Fannounce";
+
+	if (req.params.service === "alldebrid") {
 		if (req.params.seasonEpisode === "undefined") {
 			media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey);
 		} else {
@@ -55,10 +58,10 @@ routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res
 	}
 	if (req.params.service === "realdebrid") {
 		if (req.params.seasonEpisode === "undefined") {
-			media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey);
+			media = await getMovieRDLink(magnet, req.params.apiKey);
 		} else {
 			console.log("defined");
-			media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+			media = await getMovieRDLink(magnet, req.params.apiKey, req.params.seasonEpisode);
 		}
 	}
 	if (req.params.service === "premiumize") {
