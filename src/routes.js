@@ -2,6 +2,7 @@ import { clamp } from "@hyoretsu/utils";
 import express, { Router } from "express";
 import { existsSync, readFileSync } from "fs";
 import handlebars from "handlebars";
+import { version as localVersion } from "../package.json";
 import { version } from "../package.json";
 import { getMovieADLink } from "./helpers/getMovieADLink";
 import { getMoviePMLink } from "./helpers/getMoviePMLink";
@@ -25,7 +26,7 @@ routes.get("/:params/manifest.json", (req, res) => {
 	const manifest = {
 		id: "community.aymene69.jackett",
 		icon: "https://i.imgur.com/tVjqEJP.png",
-		version: "1.2.5",
+		version: localVersion,
 		catalogs: [],
 		resources: ["stream"],
 		types: ["movie", "series"],
@@ -40,7 +41,7 @@ routes.get("/:params/manifest.json", (req, res) => {
 
 routes.get("/:params/configure", (req, res) => {
 	const paramsJson = JSON.parse(atob(req.params.params));
-	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}`;
+	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}&tmdbApiKey=${paramsJson.tmdbApiKey}&locale=${paramsJson.locale}`;
 	res.redirect(`${subpath}/configure${prefill}`);
 });
 
