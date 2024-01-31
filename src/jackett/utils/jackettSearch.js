@@ -49,7 +49,6 @@ export default async function jackettSearch(
 		console.log(searchUrl.replace(/(apikey=)[^&]+(&t)/, "$1<private>$2"));
 
 		const results = [];
-		maxResults = 2;
 		let items = await getItemsFromUrl(searchUrl);
 		for (const [index, item] of items.entries()) {
 			console.log(maxResults);
@@ -84,6 +83,9 @@ export default async function jackettSearch(
 						continue;
 					}
 					if (availability) {
+						console.log(
+							`${host}getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+						);
 						results.push({
 							name: "Jackett Debrid",
 							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
