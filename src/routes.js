@@ -58,7 +58,7 @@ routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res
 			media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey);
 		} else {
 			console.log("defined");
-			media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+			media = await getMovieRDLink(atob(req.params.magnet), req.params.seasonEpisode);
 		}
 	}
 	if (req.params.service === "premiumize") {
@@ -73,6 +73,7 @@ routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res
 
 routes.get("/:params/stream/:type/:id", async (req, res) => {
 	try {
+		const host = `${req.protocol}://${req.headers.host}${subpath.substring(0)}`;
 		const paramsJson = JSON.parse(atob(req.params.params));
 		const { type } = req.params;
 		const id = req.params.id.replace(".json", "").split(":");
@@ -110,6 +111,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		}
 		if (type === "movie") {
 			console.log(`Movie request.\nID: ${id[0]}\nName: ${mediaName.name}`);
+			console.log(`${req.protocol}://${req.headers.host}${subpath}`);
 			const torrentInfo = await fetchResults(
 				debridApi,
 				jackettUrl,
@@ -123,7 +125,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 					locale: locale,
 					type: type,
 				},
-				`${req.protocol}://${req.headers.host}/${subpath}`,
+				host,
 			);
 			respond(res, { streams: torrentInfo });
 		}
@@ -146,7 +148,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 					season: getNum(id[1]),
 					episode: getNum(id[2]),
 				},
-				req.headers.host,
+				host,
 			);
 			respond(res, { streams: torrentInfo });
 		}

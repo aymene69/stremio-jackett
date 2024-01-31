@@ -359,7 +359,7 @@
 					const maxResults = urlParams.get('maxResults');
 					const sorting = urlParams.get('sorting');
 					const tmdbApiKey = urlParams.get('tmdbApiKey');
-					const checkedTmdb = urlParams.get('checkedTmdb');
+					const locale = urlParams.get('locale');
 					document.getElementById("serviceProvider").value = serviceProvider;
 					document.getElementById("realDebridApi").value = realDebridApi;
 					document.getElementById("allDebridApi").value = allDebridApi;
@@ -369,6 +369,7 @@
 					document.getElementById("maxResults").value = maxResults;
 					document.getElementById(sorting).checked = true;
 					document.getElementById("tmdbApiKey").value = tmdbApiKey;
+					document.getElementById("languageException").value = locale;
 					updateLink();
 				}
 			}
