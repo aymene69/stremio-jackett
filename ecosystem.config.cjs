@@ -3,8 +3,7 @@ module.exports = {
 		{
 			name: "stremio-jackett",
 			script: "npm start",
-			cwd: "/app",
-			watch: true,
+			watch: "./dist/index.cjs",
 			autorestart: true,
 			env: {
 				NODE_ENV: "production",

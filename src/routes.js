@@ -46,7 +46,7 @@ routes.get("/:params/configure", (req, res) => {
 
 routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res) => {
 	let media;
-	if (req.params.service === "alldebrid") {
+	if (req.params.service === "alldebrida") {
 		if (req.params.seasonEpisode === "undefined") {
 			media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey);
 		} else {
