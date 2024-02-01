@@ -1,5 +1,11 @@
 export async function getAvailabilityRD(hash, debridApi) {
-	const url = `https://api.real-debrid.com/rest/1.0/torrents/instantAvailability/${hash}`;
+	let url;
+	if (typeof hash !== "string") {
+		const hashList = hash.join("/");
+		url = `https://api.real-debrid.com/rest/1.0/torrents/instantAvailability/${hashList}`;
+	} else {
+		url = `https://api.real-debrid.com/rest/1.0/torrents/instantAvailability/${hash}`;
+	}
 	const headers = {
 		Authorization: `Bearer ${debridApi}`,
 	};

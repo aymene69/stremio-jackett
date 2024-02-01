@@ -5,3 +5,4 @@ node_modules
 pnpm-lock.yaml
 tmp
 update.zip
+cache.db

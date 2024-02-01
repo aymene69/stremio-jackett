@@ -6,6 +6,7 @@ import { getMovieADLink } from "../../helpers/getMovieADLink";
 import { getMoviePMLink } from "../../helpers/getMoviePMLink";
 import { getMovieRDLink } from "../../helpers/getMovieRDLink";
 import { detectQuality } from "../../helpers/getQuality";
+import { searchCache } from "../../helpers/searchCache";
 import { selectBiggestFileSeasonTorrent } from "../../helpers/selectBiggestFileSeasonTorrent";
 import { sortByLocale } from "../../helpers/sortByLocale";
 import { sortByQuality } from "../../helpers/sortByQuality";
@@ -38,25 +39,35 @@ export default async function jackettSearch(
 		const torrentAddon = addonType === "torrent";
 
 		console.log(`Searching on Jackett, will return ${!torrentAddon ? "debrid links" : "torrents"}...`);
-
+		let items;
+		items = await searchCache(searchQuery.name, type);
 		let searchUrl;
-		if (isSeries) {
-			searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=search&cat=5000&q=${encodeURIComponent(name.name)}+S${season}E${episode}`;
-		} else {
-			searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=movie&cat=2000&q=${encodeURIComponent(name)}&year=${year}`;
+		let isCached = true;
+		if (items.length === 0) {
+			isCached = false;
+			if (isSeries) {
+				searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=search&cat=5000&q=${encodeURIComponent(name.name)}+S${season}E${episode}`;
+			} else {
+				searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=movie&cat=2000&q=${encodeURIComponent(name)}&year=${year}`;
+			}
+
+			console.log(searchUrl.replace(/(apikey=)[^&]+(&t)/, "$1<private>$2"));
+			items = await getItemsFromUrl(searchUrl);
 		}
 
-		console.log(searchUrl.replace(/(apikey=)[^&]+(&t)/, "$1<private>$2"));
-
 		const results = [];
-		let items = await getItemsFromUrl(searchUrl);
+		maxResults = 10;
 		for (const [index, item] of items.entries()) {
 			console.log(maxResults);
 			if (index >= maxResults) {
 				break;
 			}
-
-			const torrentInfo = await getTorrentInfo(item.link);
+			let torrentInfo;
+			if (isCached) {
+				torrentInfo = JSON.parse(item.torrentInfo);
+			} else {
+				torrentInfo = await getTorrentInfo(item.link);
+			}
 			console.log(`Torrent info: ${item.title}`);
 
 			if (!torrentAddon) {
@@ -83,10 +94,6 @@ export default async function jackettSearch(
 						continue;
 					}
 					if (availability) {
-						console.log(
-							`${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
-						);
-						console.log("Host: ", host);
 						results.push({
 							name: "Jackett Debrid",
 							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
