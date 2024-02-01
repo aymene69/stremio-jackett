@@ -1,5 +1,6 @@
 import getTorrentInfo from "../jackett/utils/getTorrentInfo.js";
 import processXML from "../jackett/utils/processXML.js";
+import insertTable from "./insertTable.js";
 
 async function getItemsFromUrl(url) {
 	const res = await fetch(url);
@@ -20,14 +21,19 @@ export async function jackettCache(jackettUrl, jackettApi, list, category) {
 				let increment = 0;
 				for (const item of items) {
 					if (increment === 20) break;
-					results.push({
-						title: item.title,
-						size: item.size,
-						link: item.link,
-						seeders: item.seeders,
-						torrentInfo: await getTorrentInfo(item.link),
-						dateAdded: Date.now(),
-					});
+					try {
+						const torrentInfo = await getTorrentInfo(item.link);
+						insertTable(category, {
+							title: item.title,
+							size: item.size,
+							link: item.link,
+							seeders: item.seeders,
+							torrentInfo: torrentInfo,
+							dateAdded: Date.now(),
+						});
+					} catch (error) {
+						console.error(error);
+					}
 					increment += 1;
 				}
 			}
@@ -41,14 +47,19 @@ export async function jackettCache(jackettUrl, jackettApi, list, category) {
 				let increment = 0;
 				for (const item of items) {
 					if (increment === 20) break;
-					results.push({
-						title: item.title,
-						size: item.size,
-						link: item.link,
-						seeders: item.seeders,
-						torrentInfo: await getTorrentInfo(item.link),
-						dateAdded: Date.now(),
-					});
+					try {
+						const torrentInfo = await getTorrentInfo(item.link);
+						insertTable(category, {
+							title: item.title,
+							size: item.size,
+							link: item.link,
+							seeders: item.seeders,
+							torrentInfo: torrentInfo,
+							dateAdded: Date.now(),
+						});
+					} catch (error) {
+						console.error(error);
+					}
 					increment += 1;
 				}
 			}

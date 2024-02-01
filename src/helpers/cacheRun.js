@@ -1,4 +1,3 @@
-import sqlite3 from "sqlite3";
 import { jackettCache } from "./jackettCache.js";
 
 async function getPopularMovies(tmdbApiKey, language) {
@@ -81,69 +80,12 @@ async function getPopularTV(tmdbApiKey, language) {
 	return results;
 }
 
-// Fonction asynchrone pour créer une base de données et une table pour les films ou séries
-const processDatabase = async (list, category) => {
-	return new Promise((resolve, reject) => {
-		const db = new sqlite3.Database("cache.db");
-
-		// Crée la table si elle n'existe pas
-		db.run(
-			`
-            CREATE TABLE IF NOT EXISTS ${category} (
-                id INTEGER PRIMARY KEY AUTOINCREMENT,
-                link TEXT,
-                title TEXT,
-                size TEXT,
-                seeders INTEGER,
-                torrentInfo TEXT,
-				dateAdded INTEGER
-            )
-        `,
-			err => {
-				if (err) {
-					reject(err);
-				} else {
-					console.log(`Table ${category} créée avec succès!`);
-					const stmt = db.prepare(
-						`INSERT INTO ${category} (link, title, size, seeders, torrentInfo, dateAdded) VALUES (?, ?, ?, ?, ?, ?)`,
-					);
-
-					for (const item of list) {
-						stmt.run(
-							item.link,
-							item.title,
-							item.size,
-							item.seeders,
-							JSON.stringify(item.torrentInfo, item.dateAdded),
-						);
-					}
-
-					stmt.finalize();
-
-					console.log("Données insérées avec succès!");
-
-					resolve("Opérations terminées avec succès!");
-				}
-				db.close();
-			},
-		);
-	});
-};
-
 export async function cachePopular(jackettUrl, jackettApi, tmdbApiKey, language) {
 	try {
 		const movieResults = await getPopularMovies(tmdbApiKey, language);
 		const tvResults = await getPopularTV(tmdbApiKey, language);
-		const jackettMovieResults = await jackettCache(jackettUrl, jackettApi, movieResults, "movie");
-		const jackettTVResults = await jackettCache(jackettUrl, jackettApi, tvResults, "series");
-		(async () => {
-			try {
-				await processDatabase(jackettMovieResults, "movie");
-				await processDatabase(jackettTVResults, "series");
-			} catch (error) {
-				console.error(error.message);
-			}
-		})();
+		await jackettCache(jackettUrl, jackettApi, movieResults, "movie");
+		await jackettCache(jackettUrl, jackettApi, tvResults, "series");
 	} catch (error) {
 		console.error(error.message);
 	}

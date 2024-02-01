@@ -1,6 +1,7 @@
 import cors from "cors";
 import express from "express";
 import http from "http";
+import { cachePopular } from "./helpers/cacheRun";
 import { updateApp } from "./helpers/updateApp";
 import routes from "./routes";
 import "dotenv/config";
@@ -14,6 +15,29 @@ if (process.env.NODE_ENV === "production") {
 		}
 	}, 60000);
 }
+
+setInterval(async () => {
+	if (process.env.TMDB_API === undefined) {
+		console.error("TMDB_API is not defined");
+		return;
+	}
+	try {
+		const executeOnce = async () => {
+			await cachePopular(
+				process.env.JACKETT_URL,
+				process.env.JACKETT_API,
+				process.env.TMDB_API,
+				process.env.LANGUAGE,
+			);
+		};
+		await executeOnce();
+		setInterval(async () => {
+			await executeOnce();
+		}, 2160000);
+	} catch (error) {
+		console.error("An error has occurred :", error);
+	}
+}, 5000);
 
 const app = express();
 const port = process.env.PORT || 3000;
