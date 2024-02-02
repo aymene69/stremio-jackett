@@ -186,6 +186,23 @@ routes.get("/configure", async (req, res) => {
 	res.send(template({ version }));
 });
 
+routes.get("/scraper", async (req, res) => {
+	const template = handlebars.compile(readFileSync(`${dirname}/frontend/configure/scraper.hbs`, "utf8"));
+
+	res.send(template({ version }));
+});
+
+routes.get("/scraper/:params", async (req, res) => {
+	const paramsJson = JSON.parse(atob(req.params.params));
+	const { jackettUrl } = paramsJson;
+	const jackettApi = paramsJson.jackettApiKey;
+	const { tmdbApiKey } = paramsJson;
+	const { locale } = paramsJson;
+	const { scrapeEvery } = paramsJson;
+	console.log({ jackettUrl, jackettApi, tmdbApiKey, locale, scrapeEvery });
+	respond(res, "Scraper configured!");
+});
+
 routes.use((req, res, next) => {
 	if (!req.path.endsWith(".html")) {
 		if (req.path.match(/\..*$/g)) {

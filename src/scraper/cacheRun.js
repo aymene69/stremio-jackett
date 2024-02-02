@@ -8,30 +8,42 @@ async function getPopularMovies(tmdbApiKey, language) {
 		let data = await response.json();
 		// @ts-ignore
 		for (const elem of data.results) {
-			const isDuplicate = results.some(
-				item => item.title === elem.title && item.year === elem.release_date.substring(0, 4),
-			);
-			if (!isDuplicate) results.push({ title: elem.title, year: elem.release_date.substring(0, 4) });
+			let year;
+			try {
+				year = elem.release_date.substring(0, 4);
+			} catch (error) {
+				year = "undefined";
+			}
+			const isDuplicate = results.some(item => item.title === elem.title && item.year === year);
+			if (!isDuplicate) results.push({ title: elem.title, year: year });
 		}
 		url = `https://api.themoviedb.org/3/movie/now_playing?api_key=${tmdbApiKey}&language=${language}&page=${i}`;
 		response = await fetch(url);
 		data = await response.json();
 		// @ts-ignore
 		for (const elem of data.results) {
-			const isDuplicate = results.some(
-				item => item.title === elem.title && item.year === elem.release_date.substring(0, 4),
-			);
-			if (!isDuplicate) results.push({ title: elem.title, year: elem.release_date.substring(0, 4) });
+			let year;
+			try {
+				year = elem.release_date.substring(0, 4);
+			} catch (error) {
+				year = "undefined";
+			}
+			const isDuplicate = results.some(item => item.title === elem.title && item.year === year);
+			if (!isDuplicate) results.push({ title: elem.title, year: year });
 		}
 		url = `https://api.themoviedb.org/3/movie/top_rated?api_key=${tmdbApiKey}&language=${language}&page=${i}`;
 		response = await fetch(url);
 		data = await response.json();
 		// @ts-ignore
 		for (const elem of data.results) {
-			const isDuplicate = results.some(
-				item => item.title === elem.title && item.year === elem.release_date.substring(0, 4),
-			);
-			if (!isDuplicate) results.push({ title: elem.title, year: elem.release_date.substring(0, 4) });
+			let year;
+			try {
+				year = elem.release_date.substring(0, 4);
+			} catch (error) {
+				year = "undefined";
+			}
+			const isDuplicate = results.some(item => item.title === elem.title && item.year === year);
+			if (!isDuplicate) results.push({ title: elem.title, year: year });
 		}
 	}
 	return results;
@@ -84,9 +96,11 @@ export async function cachePopular(jackettUrl, jackettApi, tmdbApiKey, language)
 	try {
 		const movieResults = await getPopularMovies(tmdbApiKey, language);
 		const tvResults = await getPopularTV(tmdbApiKey, language);
+		console.log("scrape FAIT");
 		await jackettCache(jackettUrl, jackettApi, movieResults, "movie");
 		await jackettCache(jackettUrl, jackettApi, tvResults, "series");
 	} catch (error) {
+		console.log("ok");
 		console.error(error.message);
 	}
 }
