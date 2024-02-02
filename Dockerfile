@@ -10,6 +10,8 @@ RUN npm install pm2 -g
 
 COPY . .
 
+RUN npm install better-sqlite3
+
 COPY .env.example .env
 
 EXPOSE 3000

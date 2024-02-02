@@ -13,7 +13,7 @@ try {
 	build({
 		bundle: true,
 		entryPoints: ["./scraper/src/index.js"],
-		external: [...(devDependencies && Object.keys(devDependencies))],
+		external: [...(devDependencies && Object.keys(devDependencies)), "better-sqlite3"],
 		keepNames: true,
 		loader: {
 			".css": "copy",
