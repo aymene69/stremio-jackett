@@ -60,11 +60,8 @@ export default async function jackettSearch(
 				items = await getItemsFromUrl(searchUrl);
 			}
 		}
-		console.log(items);
-
 		const results = [];
 		let tries = 0;
-		maxResults = 10;
 		for (let index = 0; index < items.length; index++) {
 			const item = items[index];
 			if (tries > 10) {
