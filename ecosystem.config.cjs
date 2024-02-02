@@ -4,7 +4,7 @@ module.exports = {
 			name: "stremio-jackett",
 			script: "npm start",
 			cwd: "/app",
-			watch: ["./dist/index.cjs"],
+			watch: ["./dist/addon/index.cjs"],
 			autorestart: true,
 			env: {
 				NODE_ENV: "production",
@@ -13,9 +13,9 @@ module.exports = {
 		},
 		{
 			name: "stremio-jackett-scraper",
-			script: "node scraper/scraper.js",
+			script: "npm run startscraper",
 			cwd: "/app",
-			watch: ["./scraper/scraper.js", "./config.json"],
+			watch: ["./dist/scraper/index.cjs", "./config.json"],
 			autorestart: true,
 		},
 	],

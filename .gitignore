@@ -6,3 +6,4 @@ pnpm-lock.yaml
 tmp
 update.zip
 cache.db
+config.json

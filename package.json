@@ -5,9 +5,11 @@
 	"description": "Stremio Jackett Addon",
 	"scripts": {
 		"build": "node esbuild.js",
+		"buildscraper": "node esbuild.scraper.js",
 		"dev": "tsx watch --ignore node_modules src/index.js",
 		"prepare": "husky",
-		"start": "node dist/index.cjs",
+		"start": "node dist/addon/index.cjs",
+		"startscraper": "node dist/scraper/index.cjs",
 		"bscrape": "node esbuild.js"
 	},
 	"lint-staged": {
@@ -17,6 +19,7 @@
 	},
 	"dependencies": {
 		"@hyoretsu/utils": "^1.10.1",
+		"better-sqlite3": "^9.3.0",
 		"buffer": "^6.0.3",
 		"cors": "^2.8.5",
 		"decompress": "^4.2.1",
@@ -26,7 +29,6 @@
 		"http": "^0.0.1-security",
 		"parse-torrent": "^11.0.14",
 		"pm2": "^5.3.1",
-		"sqlite3": "^5.1.7",
 		"xml2js": "^0.6.2"
 	},
 	"devDependencies": {

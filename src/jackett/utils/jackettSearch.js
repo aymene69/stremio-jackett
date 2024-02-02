@@ -15,6 +15,8 @@ import { toHumanReadable } from "../../helpers/toHumanReadable";
 import getTorrentInfo from "./getTorrentInfo";
 import processXML from "./processXML";
 
+const removeAccents = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
 async function getItemsFromUrl(url) {
 	const res = await fetch(url);
 
@@ -42,7 +44,7 @@ export default async function jackettSearch(
 
 		console.log(`Searching on Jackett, will return ${!torrentAddon ? "debrid links" : "torrents"}...`);
 		let items;
-		items = await searchCache(searchQuery.name, type);
+		items = await searchCache(removeAccents(searchQuery.name), type);
 		let searchUrl;
 		let isCached = true;
 		if (items.length === 0) {
@@ -58,9 +60,11 @@ export default async function jackettSearch(
 				items = await getItemsFromUrl(searchUrl);
 			}
 		}
+		console.log(items);
 
 		const results = [];
 		let tries = 0;
+		maxResults = 10;
 		for (let index = 0; index < items.length; index++) {
 			const item = items[index];
 			if (tries > 10) {
