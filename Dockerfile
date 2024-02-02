@@ -8,8 +8,6 @@ COPY package*.json ./
 
 RUN npm install pm2 -g
 
-RUN npm install parse-torrent
-
 COPY . .
 
 COPY .env.example .env

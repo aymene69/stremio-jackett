@@ -95,7 +95,9 @@ async function getPopularTV(tmdbApiKey, language) {
 export async function cachePopular(jackettUrl, jackettApi, tmdbApiKey, language) {
 	try {
 		const movieResults = await getPopularMovies(tmdbApiKey, language);
+		console.log("Got popular movies");
 		const tvResults = await getPopularTV(tmdbApiKey, language);
+		console.log("Got popular tv");
 		await jackettCache(jackettUrl, jackettApi, movieResults, "movie");
 		await jackettCache(jackettUrl, jackettApi, tvResults, "series");
 	} catch (error) {

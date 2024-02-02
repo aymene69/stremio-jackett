@@ -13,8 +13,10 @@ async function getItemsFromUrl(url) {
 export async function jackettCache(jackettUrl, jackettApi, list, category) {
 	if (category === "movie") {
 		if (list.length !== 0) {
+			console.log("okkkkkkkkkk");
 			for (const elem of list) {
 				const searchUrl = `${jackettUrl}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApi}&t=movie&cat=2000&q=${encodeURIComponent(elem.title)}&year=${elem.year}`;
+				console.log(searchUrl);
 				const items = await getItemsFromUrl(searchUrl);
 				let increment = 0;
 				for (const item of items) {
