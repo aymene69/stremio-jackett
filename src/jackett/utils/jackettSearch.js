@@ -76,16 +76,16 @@ export default async function jackettSearch(
 			} else {
 				torrentInfo = await getTorrentInfo(item.link);
 			}
-			console.log(`Torrent info: ${item.title}`);
 			if (qualityExclusion !== "undefined") {
-				if (item.title.includes(qualityExclusion)) {
+				if (item.title.includes(qualityExclusion) && qualityExclusion.length > 0) {
+					console.log("Quality excluded. Skipping...");
 					items.splice(index, 1);
 					tries += 1;
 					index -= 1;
 					continue;
 				}
 			}
-			if (maxSize !== "undefined" && isSeries === false) {
+			if (maxSize !== 0 && isSeries === false) {
 				if (item.size > maxSize) {
 					console.log("Torrent size too big. Skipping...");
 					items.splice(index, 1);
