@@ -17,7 +17,7 @@ if (process.env.NODE_ENV === "production") {
 
 const app = express();
 const port = process.env.PORT || 3000;
-export const subpath = process.env.SUBPATH || "";
+export const subpath = process.env.SUBPATH || "/addon";
 
 const server = http.createServer(app);
 const serverTimeout = 120000;
