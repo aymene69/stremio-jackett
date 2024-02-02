@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 
 export default function insertTable(category, data) {
 	console.log(data);
-	const db = new Database("cache.db");
+	const db = new Database("data/cache.db");
 	db.exec(
 		`
 		CREATE TABLE IF NOT EXISTS ${category} (

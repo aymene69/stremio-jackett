@@ -2,7 +2,7 @@ import Database from "better-sqlite3";
 
 export async function searchCache(title, category) {
 	try {
-		const db = new Database("./cache.db");
+		const db = new Database("./data/cache.db");
 		const query = `SELECT * FROM ${category} WHERE title LIKE '%${title}%' COLLATE NOCASE`;
 		const results = await new Promise((resolve, reject) => {
 			try {

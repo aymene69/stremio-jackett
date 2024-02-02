@@ -3,7 +3,7 @@ import { cachePopular } from "./cacheRun.js";
 
 function getConfig() {
 	try {
-		const config = fs.readFileSync("config.json", "utf-8");
+		const config = fs.readFileSync("data/config.json", "utf-8");
 		return JSON.parse(config);
 	} catch (e) {
 		return {
@@ -30,7 +30,7 @@ async function startScrape() {
 				await cachePopular(jackettUrl, jackettApi, tmdbApiKey, languageException);
 				console.log("Cached popular items");
 				await new Promise(resolve => setTimeout(resolve, scrapeTime));
-				fs.unlinkSync("cache.db");
+				fs.unlinkSync("data/cache.db");
 				console.log("Deleted cache");
 			} else {
 				console.error("Missing config values");

@@ -13,7 +13,7 @@ module.exports = {
 		{
 			name: "stremio-jackett-scraper",
 			script: "npm run startscraper",
-			watch: ["./dist/scraper/index.cjs", "./config.json"],
+			watch: ["./dist/scraper/index.cjs", "./data/config.json"],
 			autorestart: true,
 		},
 	],
