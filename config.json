@@ -1,0 +1,7 @@
+{
+  "tmdbApiKey": "f476004dc2176327dfe344dda0263761",
+  "languageException": "fr",
+  "jackettUrl": "https://jackett.aymene.tech",
+  "jackettApi": "8zhy2rf8djop7g4qh4xv5zr3mnqfxtr8",
+  "scrapeEvery": "6h"
+}

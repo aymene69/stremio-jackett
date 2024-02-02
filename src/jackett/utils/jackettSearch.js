@@ -44,15 +44,17 @@ export default async function jackettSearch(
 		let searchUrl;
 		let isCached = true;
 		if (items.length === 0) {
-			isCached = false;
-			if (isSeries) {
-				searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=search&cat=5000&q=${encodeURIComponent(name.name)}+S${season}E${episode}`;
-			} else {
-				searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=movie&cat=2000&q=${encodeURIComponent(name)}&year=${year}`;
+			items = await searchCache(searchQuery.name.replace(" ", "."), type);
+			if (items.length === 0) {
+				isCached = false;
+				if (isSeries) {
+					searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=search&cat=5000&q=${encodeURIComponent(name.name)}+S${season}E${episode}`;
+				} else {
+					searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=movie&cat=2000&q=${encodeURIComponent(name)}&year=${year}`;
+				}
+				console.log(searchUrl.replace(/(apikey=)[^&]+(&t)/, "$1<private>$2"));
+				items = await getItemsFromUrl(searchUrl);
 			}
-
-			console.log(searchUrl.replace(/(apikey=)[^&]+(&t)/, "$1<private>$2"));
-			items = await getItemsFromUrl(searchUrl);
 		}
 
 		const results = [];

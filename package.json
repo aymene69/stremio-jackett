@@ -7,7 +7,8 @@
 		"build": "node esbuild.js",
 		"dev": "tsx watch --ignore node_modules src/index.js",
 		"prepare": "husky",
-		"start": "node dist/index.cjs"
+		"start": "node dist/index.cjs",
+		"bscrape": "node esbuild.js"
 	},
 	"lint-staged": {
 		"**/*.js": [

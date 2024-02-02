@@ -1,6 +1,6 @@
-import getTorrentInfo from "../jackett/utils/getTorrentInfo.js";
-import processXML from "../jackett/utils/processXML.js";
+import getTorrentInfo from "./getTorrentInfo.js";
 import insertTable from "./insertTable.js";
+import processXML from "./processXML.js";
 
 async function getItemsFromUrl(url) {
 	const res = await fetch(url);
@@ -14,13 +14,12 @@ export async function jackettCache(jackettUrl, jackettApi, list, category) {
 	if (category === "movie") {
 		if (list.length !== 0) {
 			for (const elem of list) {
-				const results = [];
 				const searchUrl = `${jackettUrl}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApi}&t=movie&cat=2000&q=${encodeURIComponent(elem.title)}&year=${elem.year}`;
 				const items = await getItemsFromUrl(searchUrl);
 				let increment = 0;
 				for (const item of items) {
 					if (increment === 20) break;
-					results.push({
+					insertTable(category, {
 						title: item.title,
 						size: item.size,
 						link: item.link,
@@ -28,11 +27,8 @@ export async function jackettCache(jackettUrl, jackettApi, list, category) {
 						torrentInfo: await getTorrentInfo(item.link),
 						dateAdded: Date.now(),
 					});
+					console.log(`Cached item: ${item.title}`);
 					increment += 1;
-				}
-				for (const result of results) {
-					console.log(result);
-					insertTable(category, result);
 				}
 			}
 		}
@@ -45,19 +41,15 @@ export async function jackettCache(jackettUrl, jackettApi, list, category) {
 				let increment = 0;
 				for (const item of items) {
 					if (increment === 20) break;
-					try {
-						const torrentInfo = await getTorrentInfo(item.link);
-						insertTable(category, {
-							title: item.title,
-							size: item.size,
-							link: item.link,
-							seeders: item.seeders,
-							torrentInfo: torrentInfo,
-							dateAdded: Date.now(),
-						});
-					} catch (error) {
-						console.error(error);
-					}
+					insertTable(category, {
+						title: item.title,
+						size: item.size,
+						link: item.link,
+						seeders: item.seeders,
+						torrentInfo: await getTorrentInfo(item.link),
+						dateAdded: Date.now(),
+					});
+					console.log(`Cached item: ${item.title}`);
 					increment += 1;
 				}
 			}

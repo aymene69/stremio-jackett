@@ -3,12 +3,12 @@ import express, { Router } from "express";
 import { existsSync, readFileSync } from "fs";
 import handlebars from "handlebars";
 import { version } from "../package.json";
+import { configScraper } from "./helpers/configScraper";
 import { getMovieADLink } from "./helpers/getMovieADLink";
 import { getMoviePMLink } from "./helpers/getMoviePMLink";
 import { getMovieRDLink } from "./helpers/getMovieRDLink";
 import { getName } from "./helpers/getName";
 import { getNum } from "./helpers/getNum";
-import { writeToEnv } from "./helpers/writeToEnv";
 import fetchResults from "./jackett/index";
 import { subpath } from "./index";
 
@@ -23,15 +23,6 @@ function respond(res, data) {
 }
 
 routes.get("/:params/manifest.json", (req, res) => {
-	const paramsJson = JSON.parse(atob(req.params.params));
-	const { jackettUrl } = paramsJson;
-	const jackettApi = paramsJson.jackettApiKey;
-	const { tmdbApiKey } = paramsJson;
-	const { locale } = paramsJson;
-	writeToEnv("JACKETT_URL", jackettUrl);
-	writeToEnv("JACKETT_API", jackettApi);
-	writeToEnv("TMDB_API", tmdbApiKey);
-	writeToEnv("LANGUAGE", locale);
 	const manifest = {
 		id: "community.aymene69.jackett",
 		icon: "https://i.imgur.com/tVjqEJP.png",
@@ -96,10 +87,6 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const { ascOrDesc } = paramsJson;
 		const { tmdbApiKey } = paramsJson;
 		const { locale } = paramsJson;
-		writeToEnv("JACKETT_URL", jackettUrl);
-		writeToEnv("JACKETT_API", jackettApi);
-		writeToEnv("TMDB_API", tmdbApiKey);
-		writeToEnv("LANGUAGE", locale);
 		let sort;
 		if (sorting === "sizedesc" || sorting === "sizeasc") {
 			sort = {
@@ -194,13 +181,8 @@ routes.get("/scraper", async (req, res) => {
 
 routes.get("/scraper/:params", async (req, res) => {
 	const paramsJson = JSON.parse(atob(req.params.params));
-	const { jackettUrl } = paramsJson;
-	const jackettApi = paramsJson.jackettApiKey;
-	const { tmdbApiKey } = paramsJson;
-	const { locale } = paramsJson;
-	const { scrapeEvery } = paramsJson;
-	console.log({ jackettUrl, jackettApi, tmdbApiKey, locale, scrapeEvery });
-	respond(res, "Scraper configured!");
+	configScraper(paramsJson);
+	respond(res, "Scraper configured");
 });
 
 routes.use((req, res, next) => {

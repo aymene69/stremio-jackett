@@ -2,7 +2,7 @@ import { jackettCache } from "./jackettCache.js";
 
 async function getPopularMovies(tmdbApiKey, language) {
 	const results = [];
-	for (let i = 1; i <= 3; i++) {
+	for (let i = 1; i <= 1; i++) {
 		let url = `https://api.themoviedb.org/3/movie/popular?api_key=${tmdbApiKey}&language=${language}&page=${i}`;
 		let response = await fetch(url);
 		let data = await response.json();
@@ -51,7 +51,7 @@ async function getPopularMovies(tmdbApiKey, language) {
 
 async function getPopularTV(tmdbApiKey, language) {
 	const results = [];
-	for (let i = 1; i <= 2; i++) {
+	for (let i = 1; i <= 1; i++) {
 		let url = `https://api.themoviedb.org/3/tv/popular?api_key=${tmdbApiKey}&language=${language}&page=${i}`;
 		let response = await fetch(url);
 		let data = await response.json();
@@ -96,11 +96,9 @@ export async function cachePopular(jackettUrl, jackettApi, tmdbApiKey, language)
 	try {
 		const movieResults = await getPopularMovies(tmdbApiKey, language);
 		const tvResults = await getPopularTV(tmdbApiKey, language);
-		console.log("scrape FAIT");
 		await jackettCache(jackettUrl, jackettApi, movieResults, "movie");
 		await jackettCache(jackettUrl, jackettApi, tvResults, "series");
 	} catch (error) {
-		console.log("ok");
 		console.error(error.message);
 	}
 }

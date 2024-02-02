@@ -17,7 +17,7 @@ export default function insertTable(category, data) {
         `,
 		err => {
 			if (err) {
-				reject(err);
+				console.error(err.message);
 			} else {
 				db.run(
 					`
