@@ -193,6 +193,17 @@
 										/>
 									</div>
 
+									<div class="form-outline form-white mb-4" id="useTmdb">
+										<label class="form-label">Maximum size in GB (ignore if you don't want to)</label>
+										<input
+											required
+											class="form-control form-control-lg"
+											placeholder="Maximum size in GB (for example 10)"
+											oninput="updateLink()"
+											id="maxSize"
+										/>
+									</div>
+
 									<div class="form-outline form-white mb-4" id="tmdbApi">
 										<label class="form-label">TMDB API Key (get your own <a href="https://www.themoviedb.org/signup" target="_blank">here</a> (findable in "Parameters"))</label>
 										<input
@@ -307,6 +318,13 @@
 				qualityExclusionCheckboxes.forEach((checkbox) => {
 					qualityExclusion.push(checkbox.value);
 				});
+				let maxSize = document.getElementById("maxSize").value;
+				if (maxSize == "undefined" || maxSize == "") {
+					maxSize = 0;
+				} else {
+					maxSize = maxSize * 1024 * 1024 * 1024
+				}
+				console.log(maxSize)
 				if (serviceProvider === "torrent") {
 					document.getElementById("realDebridApiDiv").style.display = "none";
 					document.getElementById("allDebridApiDiv").style.display = "none";
@@ -321,7 +339,8 @@
 						ascOrDesc: ascOrDesc,
 						tmdbApiKey: tmdbApiKey,
 						locale: languageException,
-						qualityExclusion: qualityExclusion
+						qualityExclusion: qualityExclusion,
+						maxSize: maxSize
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -343,7 +362,8 @@
 						ascOrDesc: ascOrDesc,
 						tmdbApiKey: tmdbApiKey,
 						locale: languageException,
-						qualityExclusion: qualityExclusion
+						qualityExclusion: qualityExclusion,
+						maxSize: maxSize
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -366,7 +386,8 @@
 						ascOrDesc: ascOrDesc,
 						tmdbApiKey: tmdbApiKey,
 						locale: languageException,
-						qualityExclusion: qualityExclusion
+						qualityExclusion: qualityExclusion,
+						maxSize: maxSize
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -389,7 +410,8 @@
 						ascOrDesc: ascOrDesc,
 						tmdbApiKey: tmdbApiKey,
 						locale: languageException,
-						qualityExclusion: qualityExclusion
+						qualityExclusion: qualityExclusion,
+						maxSize: maxSize
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -415,6 +437,7 @@
 					const tmdbApiKey = urlParams.get('tmdbApiKey');
 					const locale = urlParams.get('locale');
 					const qualityExclusion = urlParams.get('qualityExclusion');
+					const maxSize = urlParams.get('maxSize');
 					document.getElementById("serviceProvider").value = serviceProvider;
 					document.getElementById("realDebridApi").value = realDebridApi;
 					document.getElementById("allDebridApi").value = allDebridApi;
@@ -431,7 +454,10 @@
 							document.getElementById(quality).checked = true;
 						});
 					}
+					if (maxSize !== null) {
+						document.getElementById("maxSize").value = maxSize / 1024 / 1024 / 1024;
 					updateLink();
+					}
 				}
 			}
 			// Appelle la fonction au chargement de la page

@@ -33,6 +33,7 @@ export default async function jackettSearch(
 	searchQuery,
 	host,
 	qualityExclusion,
+	maxSize,
 ) {
 	try {
 		const { episode, name, season, type, year } = searchQuery;
@@ -77,6 +78,15 @@ export default async function jackettSearch(
 			console.log(`Torrent info: ${item.title}`);
 			if (qualityExclusion !== "undefined") {
 				if (item.title.includes(qualityExclusion)) {
+					items.splice(index, 1);
+					tries += 1;
+					index -= 1;
+					continue;
+				}
+			}
+			if (maxSize !== "undefined" && isSeries === false) {
+				if (item.size > maxSize) {
+					console.log("Torrent size too big. Skipping...");
 					items.splice(index, 1);
 					tries += 1;
 					index -= 1;
