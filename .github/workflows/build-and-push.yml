@@ -26,8 +26,12 @@ jobs:
 
       - name: 🏗 Installing dependencies
         run: npm install
-      - name: 🏗 Building app
+
+      - name: 🏗 Building addon
         run: npm run build
+
+      - name: 🏗 Building scraper
+        run: npm run buildscraper
 
       - name: 🔒 Login to Docker Hub
         uses: docker/login-action@v3
