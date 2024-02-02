@@ -59,9 +59,12 @@ export default async function jackettSearch(
 		}
 
 		const results = [];
-		maxResults = 10;
+		let tries = 0;
 		for (let index = 0; index < items.length; index++) {
 			const item = items[index];
+			if (tries > 10) {
+				break;
+			}
 			if (index >= maxResults) {
 				break;
 			}
@@ -75,6 +78,7 @@ export default async function jackettSearch(
 			if (qualityExclusion !== "undefined") {
 				if (item.title.includes(qualityExclusion)) {
 					items.splice(index, 1);
+					tries += 1;
 					index -= 1;
 					continue;
 				}
@@ -101,6 +105,7 @@ export default async function jackettSearch(
 					if (!availability) {
 						console.log("No RD link found. Skipping...");
 						items.splice(index, 1);
+						tries += 1;
 						index -= 1;
 						continue;
 					}
@@ -142,6 +147,7 @@ export default async function jackettSearch(
 					if (!availability) {
 						console.log("No AD link found. Skipping...");
 						items.splice(index, 1);
+						tries += 1;
 						index -= 1;
 						continue;
 					}
@@ -178,6 +184,7 @@ export default async function jackettSearch(
 					if (!availability) {
 						console.log("No RD link found. Skipping...");
 						items.splice(index, 1);
+						tries += 1;
 						index -= 1;
 						continue;
 					}
