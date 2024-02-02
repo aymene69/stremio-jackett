@@ -18,7 +18,7 @@ try {
 			"./src/**/*.hbs",
 			// "./src/**/*.html"
 		],
-		external: [...(devDependencies && Object.keys(devDependencies))],
+		external: [...(devDependencies && Object.keys(devDependencies)), "better-sqlite3"],
 		keepNames: true,
 		loader: {
 			".css": "copy",

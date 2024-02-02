@@ -44,6 +44,7 @@ export default async function jackettSearch(
 
 		console.log(`Searching on Jackett, will return ${!torrentAddon ? "debrid links" : "torrents"}...`);
 		let items;
+		console.log(searchQuery.name);
 		items = await searchCache(removeAccents(searchQuery.name), type);
 		let searchUrl;
 		let isCached = true;
