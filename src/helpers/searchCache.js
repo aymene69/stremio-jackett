@@ -1,5 +1,9 @@
 import Database from "better-sqlite3";
 
+function removeDuplicates(list) {
+	return list.filter((item, index, array) => array.indexOf(item) === index);
+}
+
 export async function searchCache(title, category) {
 	try {
 		const db = new Database("./data/cache.db");
@@ -13,7 +17,7 @@ export async function searchCache(title, category) {
 			}
 		});
 		db.close();
-		return results;
+		return removeDuplicates(results);
 	} catch (err) {
 		console.log("No cache");
 		return [];

@@ -1,7 +1,6 @@
 import Database from "better-sqlite3";
 
 export default function insertTable(category, data) {
-	console.log(data);
 	const db = new Database("data/cache.db");
 	db.exec(
 		`

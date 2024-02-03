@@ -12,10 +12,10 @@ import { sortByLocale } from "../../helpers/sortByLocale";
 import { sortByQuality } from "../../helpers/sortByQuality";
 import { sortBySize } from "../../helpers/sortBySize";
 import { toHumanReadable } from "../../helpers/toHumanReadable";
+import { excludeItem } from "./excludeItems";
 import getTorrentInfo from "./getTorrentInfo";
 import processXML from "./processXML";
-
-const removeAccents = str => str.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+import { threadedAvailability } from "./threadedAvailability";
 
 async function getItemsFromUrl(url) {
 	const res = await fetch(url);
@@ -35,7 +35,6 @@ export default async function jackettSearch(
 	searchQuery,
 	host,
 	qualityExclusion,
-	maxSize,
 ) {
 	try {
 		const { episode, name, season, type, year } = searchQuery;
@@ -44,57 +43,63 @@ export default async function jackettSearch(
 
 		console.log(`Searching on Jackett, will return ${!torrentAddon ? "debrid links" : "torrents"}...`);
 		let items;
-		console.log(searchQuery.name);
-		items = await searchCache(removeAccents(searchQuery.name), type);
+		console.log("Searching on cache...");
+		items = await searchCache(searchQuery.name, type);
+		console.log("Cache search done.");
+		items = { cached: true, items };
 		let searchUrl;
-		let isCached = true;
-		if (items.length === 0) {
+		items.items = [];
+		if (items.items.length === 0) {
 			items = await searchCache(searchQuery.name.replace(" ", "."), type);
 			if (items.length === 0) {
-				isCached = false;
 				if (isSeries) {
 					searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=search&cat=5000&q=${encodeURIComponent(name.name)}+S${season}E${episode}`;
 				} else {
 					searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=movie&cat=2000&q=${encodeURIComponent(name)}&year=${year}`;
 				}
 				console.log(searchUrl.replace(/(apikey=)[^&]+(&t)/, "$1<private>$2"));
-				items = await getItemsFromUrl(searchUrl);
+				items.items = await getItemsFromUrl(searchUrl);
+				items.cached = false;
 			}
 		}
-		const results = [];
-		let tries = 0;
-		for (let index = 0; index < items.length; index++) {
-			const item = items[index];
-			if (tries > 10) {
-				break;
+		items.items = excludeItem(items.items, qualityExclusion);
+		if (sorting.sorting === "quality") {
+			if (searchQuery.locale === "undefined") {
+				console.log("Sorting by quality");
+				items.items = sortByQuality(items.items);
 			}
-			if (index >= maxResults) {
+			let sorted = sortByQuality(items.items);
+			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
+			console.log("Sorting by locale + quality...");
+			items.items = sorted;
+		}
+		if (sorting.sorting === "size") {
+			if (searchQuery.locale === "undefined") {
+				console.log(`Sorting by size ${sorting.ascOrDesc}`);
+				items.items = sortBySize(items.items, sorting.ascOrDesc);
+			}
+			let sorted = sortBySize(items.items, sorting.ascOrDesc);
+			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
+			console.log("Sorting by locale + size...");
+			items.items = sorted;
+		}
+		items.items = items.items.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
+		const results = [];
+		maxResults = 10;
+		if (!torrentAddon && items.cached === false)
+			items.items = await threadedAvailability(items.items, debridApi, addonType);
+		// faire une boucle sur les items jusqu'a maxResults
+		for (let index = 0; index < maxResults; index++) {
+			const item = items.items[index];
+			if (!item) {
 				break;
 			}
 			let torrentInfo;
-			if (isCached) {
+			if (items.cached) {
 				torrentInfo = JSON.parse(item.torrentInfo);
-			} else {
-				torrentInfo = await getTorrentInfo(item.link);
 			}
-			if (qualityExclusion !== "undefined") {
-				if (item.title.includes(qualityExclusion) && qualityExclusion.length > 0) {
-					console.log("Quality excluded. Skipping...");
-					items.splice(index, 1);
-					tries += 1;
-					index -= 1;
-					continue;
-				}
-			}
-			if (maxSize !== 0 && isSeries === false) {
-				if (item.size > maxSize) {
-					console.log("Torrent size too big. Skipping...");
-					items.splice(index, 1);
-					tries += 1;
-					index -= 1;
-					continue;
-				}
-			}
+			console.log(`Torrent info: ${item.title}`);
+			torrentInfo = item.torrentInfo;
 			if (!torrentAddon) {
 				if (addonType === "realdebrid") {
 					if (maxResults === "1") {
@@ -113,24 +118,14 @@ export default async function jackettSearch(
 						break;
 					}
 					console.log("Getting RD link...");
-					const availability = await getAvailabilityRD(torrentInfo.infoHash, debridApi);
-					if (!availability) {
-						console.log("No RD link found. Skipping...");
-						items.splice(index, 1);
-						tries += 1;
-						index -= 1;
-						continue;
-					}
-					if (availability) {
-						results.push({
-							name: "Jackett Debrid",
-							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: `${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
-							quality: detectQuality(item.title),
-							size: item.size,
-							locale: detectLanguageEmoji(item.title),
-						});
-					}
+					results.push({
+						name: "Jackett Debrid",
+						title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+						url: `${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+						quality: detectQuality(item.title),
+						size: item.size,
+						locale: detectLanguageEmoji(item.title),
+					});
 				}
 
 				if (addonType === "alldebrid") {
@@ -158,9 +153,6 @@ export default async function jackettSearch(
 					}
 					if (!availability) {
 						console.log("No AD link found. Skipping...");
-						items.splice(index, 1);
-						tries += 1;
-						index -= 1;
 						continue;
 					}
 					if (availability) {
@@ -195,9 +187,6 @@ export default async function jackettSearch(
 					const availability = await getAvailabilityPM(torrentInfo.infoHash, debridApi);
 					if (!availability) {
 						console.log("No RD link found. Skipping...");
-						items.splice(index, 1);
-						tries += 1;
-						index -= 1;
 						continue;
 					}
 					if (availability) {
@@ -383,31 +372,7 @@ export default async function jackettSearch(
 			}
 		}
 		console.log(detectLanguageEmoji(searchQuery.locale));
-		if (sorting.sorting === "quality") {
-			if (searchQuery.locale === "undefined") {
-				console.log("Sorting by quality");
-				return sortByQuality(results);
-			}
-			let sorted = sortByQuality(results);
-			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
-			console.log("Sorting by locale + quality...");
-			return sorted;
-		}
-		if (sorting.sorting === "size") {
-			if (searchQuery.locale === "undefined") {
-				console.log(`Sorting by size ${sorting.ascOrDesc}`);
-				return sortBySize(results, sorting.ascOrDesc);
-			}
-			let sorted = sortBySize(results, sorting.ascOrDesc);
-			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
-			console.log("Sorting by locale + size...");
-			return sorted;
-		}
-		if (searchQuery.locale === "undefined") {
-			return results;
-		}
-		console.log("Sorting by locale...");
-		return results.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
+		return results;
 	} catch (e) {
 		console.error(e);
 
