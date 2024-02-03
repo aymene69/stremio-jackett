@@ -41,7 +41,7 @@ routes.get("/:params/manifest.json", (req, res) => {
 
 routes.get("/:params/configure", (req, res) => {
 	const paramsJson = JSON.parse(atob(req.params.params));
-	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&debridlinkDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}&tmdbApiKey=${paramsJson.tmdbApiKey}&locale=${paramsJson.locale}`;
+	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&debridLinkApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}&tmdbApiKey=${paramsJson.tmdbApiKey}&locale=${paramsJson.locale}`;
 	res.redirect(`${subpath}/configure${prefill}`);
 });
 
