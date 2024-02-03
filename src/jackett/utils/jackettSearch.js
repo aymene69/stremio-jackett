@@ -44,13 +44,21 @@ export default async function jackettSearch(
 		console.log(`Searching on Jackett, will return ${!torrentAddon ? "debrid links" : "torrents"}...`);
 		let items;
 		console.log("Searching on cache...");
-		items = await searchCache(searchQuery.name, type);
+		if (isSeries) {
+			items = await searchCache(searchQuery.name.name.replace(" ", "."), type);
+		} else {
+			items = await searchCache(searchQuery.name.replace(" ", "."), type);
+		}
 		console.log("Cache search done.");
 		items = { cached: true, items };
 		let searchUrl;
 		items.items = [];
 		if (items.items.length === 0) {
-			items = await searchCache(searchQuery.name.replace(" ", "."), type);
+			if (isSeries) {
+				items = await searchCache(searchQuery.name.name.replace(" ", "."), type);
+			} else {
+				items = await searchCache(searchQuery.name.replace(" ", "."), type);
+			}
 			if (items.length === 0) {
 				if (isSeries) {
 					searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&t=search&cat=5000&q=${encodeURIComponent(name.name)}+S${season}E${episode}`;
