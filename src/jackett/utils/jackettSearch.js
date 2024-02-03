@@ -1,8 +1,10 @@
 import { getAvailabilityAD } from "../../helpers/getAvailabilityAD";
+import { getAvailabilityDL } from "../../helpers/getAvailabilityDL";
 import { getAvailabilityPM } from "../../helpers/getAvailabilityPM";
 import { getAvailabilityRD } from "../../helpers/getAvailabilityRD";
 import { detectLanguageEmoji } from "../../helpers/getLanguage";
 import { getMovieADLink } from "../../helpers/getMovieADLink";
+import { getMovieDLLink } from "../../helpers/getMovieDLLink";
 import { getMoviePMLink } from "../../helpers/getMoviePMLink";
 import { getMovieRDLink } from "../../helpers/getMovieRDLink";
 import { detectQuality } from "../../helpers/getQuality";
@@ -170,6 +172,41 @@ export default async function jackettSearch(
 						});
 					}
 				}
+
+				if (addonType === "debridlink") {
+					if (maxResults === "1") {
+						const downloadLink = await getMovieDLLink(torrentInfo.magnetLink, debridApi);
+						if (downloadLink === null) {
+							return [{ name: "Jackett", title: "No results found", url: "#" }];
+						}
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} - ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+							url: downloadLink,
+							quality: detectQuality(item.title),
+							size: item.size,
+							locale: detectLanguageEmoji(item.title),
+						});
+						break;
+					}
+					console.log("Getting DL link...");
+					const availability = await getAvailabilityDL(torrentInfo.infoHash, debridApi);
+					if (!availability) {
+						console.log("No DL link found. Skipping...");
+						continue;
+					}
+					if (availability) {
+						console.log("Host: ", host);
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+							url: `${host}/getStream/debridlink/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+							quality: detectQuality(item.title),
+							size: item.size,
+							locale: detectLanguageEmoji(item.title),
+						});
+					}
+				}
 			}
 
 			torrentInfo.seeders = item.seeders;
@@ -322,6 +359,44 @@ export default async function jackettSearch(
 							});
 						}
 					}
+
+					if (addonType === "debridlink") {
+						if (maxResults === "1") {
+							const url = await getMovieDLLink(
+								torrentInfo.magnetLink,
+								debridApi,
+								`S${searchQuery.season}E${searchQuery.episode}`,
+							);
+							if (url === null) {
+								return [{ name: "Jackett", title: "No results found", url: "#" }];
+							}
+							results.push({
+								name: "Jackett Debrid",
+								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+								url,
+								quality: detectQuality(item.title),
+								size: item.size,
+								locale: detectLanguageEmoji(item.title),
+							});
+							break;
+						}
+						console.log("Getting DL link...");
+						const availability = await getAvailabilityDL(torrentInfo.infoHash, debridApi);
+						if (!availability) {
+							console.log("No DL link found. Skipping...");
+							continue;
+						}
+						if (availability) {
+							results.push({
+								name: "Jackett Debrid",
+								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+								url: `${host}/getStream/debridlink/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
+								quality: detectQuality(item.title),
+								size: item.size,
+								locale: detectLanguageEmoji(item.title),
+							});
+						}
+					}
 				}
 
 				console.log("Getting torrent info...");
@@ -332,13 +407,15 @@ export default async function jackettSearch(
 
 				console.log("Determining episode file...");
 				torrentInfo.fileIdx = parseInt(
-					selectBiggestFileSeasonTorrent(torrentInfo.files, `S${searchQuery.season}E${searchQuery.episode}`),
+					selectBiggestFileSeasonTorrent(torrentInfo.files || [], `S${searchQuery.season}E${searchQuery.episode}`),
 					10,
 				);
 				console.log("Episode file determined.");
 
-				results.push(torrentInfo);
-				console.log(`Added torrent to results: ${item.title}`);
+				if (torrentAddon) {
+					results.push(torrentInfo);
+					console.log(`Added torrent to results: ${item.title}`);
+				}
 			}
 		}
 		console.log(detectLanguageEmoji(searchQuery.locale));

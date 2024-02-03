@@ -4,6 +4,7 @@ import { existsSync, readFileSync } from "fs";
 import handlebars from "handlebars";
 import { version } from "../package.json";
 import { getMovieADLink } from "./helpers/getMovieADLink";
+import { getMovieDLLink } from "./helpers/getMovieDLLink";
 import { getMoviePMLink } from "./helpers/getMoviePMLink";
 import { getMovieRDLink } from "./helpers/getMovieRDLink";
 import { getName } from "./helpers/getName";
@@ -40,7 +41,7 @@ routes.get("/:params/manifest.json", (req, res) => {
 
 routes.get("/:params/configure", (req, res) => {
 	const paramsJson = JSON.parse(atob(req.params.params));
-	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}&tmdbApiKey=${paramsJson.tmdbApiKey}&locale=${paramsJson.locale}`;
+	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&debridlinkDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}&tmdbApiKey=${paramsJson.tmdbApiKey}&locale=${paramsJson.locale}`;
 	res.redirect(`${subpath}/configure${prefill}`);
 });
 
@@ -68,6 +69,14 @@ routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res
 			media = await getMoviePMLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
 		}
 	}
+	if (req.params.service === "debridlink") {
+		if (req.params.seasonEpisode === "undefined") {
+			media = await getMovieDLLink(atob(req.params.magnet), req.params.apiKey);
+		} else {
+			media = await getMovieDLLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+		}
+	}
+	if(!media)return res.status(404).end()
 	res.redirect(media);
 });
 

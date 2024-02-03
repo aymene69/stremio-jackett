@@ -48,6 +48,7 @@
 											<option value="realdebrid">realdebrid</option>
 											<option value="alldebrid">alldebrid</option>
 											<option value="premiumize">premiumize</option>
+											<option value="debridlink">debridlink</option>
 										</select>
 									</div>
 
@@ -92,6 +93,22 @@
 											class="form-control form-control-lg"
 											placeholder="Enter your All-Debrid service API key"
 											id="premiumizeApi"
+											oninput="updateLink()"
+										/>
+									</div>
+
+									<div class="form-outline form-white mb-4" id="debridLinkApiDiv">
+										<label class="form-label"
+											>Debrid-Link API key (you can get it
+											<a href="https://debrid-link.com/webapp/apikey" target="_blank"
+												>here</a
+											>)</label
+										>
+										<input
+											required
+											class="form-control form-control-lg"
+											placeholder="Enter your Debrid-Link service API key"
+											id="debridLinkApi"
 											oninput="updateLink()"
 										/>
 									</div>
@@ -213,6 +230,7 @@
 			document.getElementById("realDebridApiDiv").style.display = "none";
 			document.getElementById("allDebridApiDiv").style.display = "none";
 			document.getElementById("premiumizeApiDiv").style.display = "none";
+			document.getElementById("debridLinkApiDiv").style.display = "none";
 			document.getElementById("sortingDiv").style.display = "none";
 			document.getElementById("tmdbApi").style.display = "none";
 
@@ -230,6 +248,7 @@
 				let realDebridApi = document.getElementById("realDebridApi").value;
 				let allDebridApi = document.getElementById("allDebridApi").value;
 				let premiumizeApi = document.getElementById("premiumizeApi").value;
+				let debridLinkApi = document.getElementById("debridLinkApi").value;
 				let maxResults = document.getElementById("maxResults").value;
 				let jackettUrl = document.getElementById("jackettUrl").value;
 				let jackettApi = document.getElementById("jackettApi").value;
@@ -261,6 +280,7 @@
 					document.getElementById("realDebridApiDiv").style.display = "none";
 					document.getElementById("allDebridApiDiv").style.display = "none";
 					document.getElementById("premiumizeApiDiv").style.display = "none";
+					document.getElementById("debridLinkApiDiv").style.display = "none";
 					document.getElementById("sortingDiv").style.display = "none";
 					let dataJson = {
 						streamService: serviceProvider,
@@ -281,6 +301,7 @@
 					document.getElementById("realDebridApiDiv").style.display = "block";
 					document.getElementById("allDebridApiDiv").style.display = "none";
 					document.getElementById("premiumizeApiDiv").style.display = "none";
+					document.getElementById("debridLinkApiDiv").style.display = "none";
 					document.getElementById("sortingDiv").style.display = "block";
 					let dataJson = {
 						streamService: serviceProvider,
@@ -302,6 +323,7 @@
 					document.getElementById("realDebridApiDiv").style.display = "none";
 					document.getElementById("premiumizeApiDiv").style.display = "none";
 					document.getElementById("allDebridApiDiv").style.display = "block";
+					document.getElementById("debridLinkApiDiv").style.display = "none";
 					document.getElementById("sortingDiv").style.display = "block";
 
 					let dataJson = {
@@ -324,6 +346,7 @@
 					document.getElementById("realDebridApiDiv").style.display = "none";
 					document.getElementById("allDebridApiDiv").style.display = "none";
 					document.getElementById("premiumizeApiDiv").style.display = "block";
+					document.getElementById("debridLinkApiDiv").style.display = "none";
 					document.getElementById("sortingDiv").style.display = "block";
 
 					let dataJson = {
@@ -331,6 +354,29 @@
 						jackettUrl: jackettUrl,
 						jackettApiKey: jackettApi,
 						debridApiKey: premiumizeApi,
+						maxResults: maxResults,
+						sorting: sorting,
+						ascOrDesc: ascOrDesc,
+						tmdbApiKey: tmdbApiKey,
+						locale: languageException
+					};
+					dynamicLink.href = `stremio://${
+						window.location.host
+					}${window.location.pathname.replace(/\/configure\/?/, "")}/${btoa(
+						JSON.stringify(dataJson)
+					)}/manifest.json`;
+				} else if (serviceProvider === "debridlink") {
+					document.getElementById("realDebridApiDiv").style.display = "none";
+					document.getElementById("allDebridApiDiv").style.display = "none";
+					document.getElementById("premiumizeApiDiv").style.display = "none";
+					document.getElementById("debridLinkApiDiv").style.display = "block";
+					document.getElementById("sortingDiv").style.display = "block";
+
+					let dataJson = {
+						streamService: serviceProvider,
+						jackettUrl: jackettUrl,
+						jackettApiKey: jackettApi,
+						debridApiKey: debridLinkApi,
 						maxResults: maxResults,
 						sorting: sorting,
 						ascOrDesc: ascOrDesc,
@@ -354,6 +400,7 @@
 					const realDebridApi = urlParams.get('realDebridApi');
 					const allDebridApi = urlParams.get('allDebridApi');
 					const premiumizeApi = urlParams.get('premiumizeApi');
+					const debridLinkApi = urlParams.get('debridLinkApi');
 					const jackettUrl = urlParams.get('jackettUrl');
 					const jackettApi = urlParams.get('jackettApi');
 					const maxResults = urlParams.get('maxResults');
@@ -364,6 +411,7 @@
 					document.getElementById("realDebridApi").value = realDebridApi;
 					document.getElementById("allDebridApi").value = allDebridApi;
 					document.getElementById("premiumizeApi").value = premiumizeApi;
+					document.getElementById("debridLinkApi").value = debridLinkApi;
 					document.getElementById("jackettUrl").value = jackettUrl;
 					document.getElementById("jackettApi").value = jackettApi;
 					document.getElementById("maxResults").value = maxResults;
