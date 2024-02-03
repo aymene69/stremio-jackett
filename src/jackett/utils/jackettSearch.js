@@ -146,25 +146,14 @@ export default async function jackettSearch(
 						break;
 					}
 					console.log("Getting AD link...");
-					const availability = await getAvailabilityAD(torrentInfo.magnetLink, debridApi);
-					if (availability === "blocked") {
-						console.log("Error: AllDebrid blocked for this IP. Please check your email.");
-						return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
-					}
-					if (!availability) {
-						console.log("No AD link found. Skipping...");
-						continue;
-					}
-					if (availability) {
-						results.push({
-							name: "Jackett Debrid",
-							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: `${host}/getStream/alldebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
-							quality: detectQuality(item.title),
-							size: item.size,
-							locale: detectLanguageEmoji(item.title),
-						});
-					}
+					results.push({
+						name: "Jackett Debrid",
+						title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+						url: `${host}/getStream/alldebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+						quality: detectQuality(item.title),
+						size: item.size,
+						locale: detectLanguageEmoji(item.title),
+					});
 				}
 
 				if (addonType === "premiumize") {
@@ -184,21 +173,14 @@ export default async function jackettSearch(
 						break;
 					}
 					console.log("Getting RD link...");
-					const availability = await getAvailabilityPM(torrentInfo.infoHash, debridApi);
-					if (!availability) {
-						console.log("No RD link found. Skipping...");
-						continue;
-					}
-					if (availability) {
-						results.push({
-							name: "Jackett Debrid",
-							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: `${host}/getStream/premiumize/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
-							quality: detectQuality(item.title),
-							size: item.size,
-							locale: detectLanguageEmoji(item.title),
-						});
-					}
+					results.push({
+						name: "Jackett Debrid",
+						title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+						url: `${host}/getStream/premiumize/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+						quality: detectQuality(item.title),
+						size: item.size,
+						locale: detectLanguageEmoji(item.title),
+					});
 				}
 			}
 
