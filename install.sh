@@ -47,6 +47,7 @@ sudo sed -i 's/"FlareSolverrUrl": null/"FlareSolverrUrl": "https:\/\/'"$domainNa
 
 sudo docker compose up -d
 cd ../addon
+mkdir data
 sudo curl -fsSL https://raw.githubusercontent.com/aymene69/stremio-jackett/main/docker-compose-traefik.yml -o ./docker-compose.yml
 sudo sed -i "s/YOURADDON.COM/$domainName/g" ./docker-compose.yml
 sudo docker compose up -d

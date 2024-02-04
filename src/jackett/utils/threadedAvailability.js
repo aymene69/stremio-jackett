@@ -8,8 +8,9 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 const queue = new PQueue({ concurrency: 5 }); // Limite le nombre de workers à 5
 
-export async function threadedAvailability(items, debridApi, addonType) {
-	if (items.length !== 0) {
+export async function threadedAvailability(itemList, debridApi, addonType, maxResults) {
+	if (itemList.length !== 0) {
+		const items = itemList.slice(0, parseInt(maxResults) + 5);
 		const filteredItems = await Promise.all(
 			items.map(async elem => {
 				return await queue.add(async () => {
@@ -41,7 +42,6 @@ export async function threadedAvailability(items, debridApi, addonType) {
 						} else if (addonType === "premiumize") {
 							availability = await getAvailabilityPM(magnetLink, debridApi);
 						} else if (addonType === "realdebrid") {
-							console.log("Fetching availability for " + elem.title);
 							availability = await getAvailabilityRD(infoHash, debridApi);
 						}
 						elem.torrentInfo = torrentInfo;

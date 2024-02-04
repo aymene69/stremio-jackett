@@ -89,7 +89,7 @@ export default async function jackettSearch(
 		items.items = items.items.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
 		const results = [];
 		if (!torrentAddon && items.cached === false)
-			items.items = await threadedAvailability(items.items, debridApi, addonType);
+			items.items = await threadedAvailability(items.items, debridApi, addonType, maxResults);
 		for (let index = 0; index < maxResults; index++) {
 			const item = items.items[index];
 			if (!item) {
@@ -120,7 +120,6 @@ export default async function jackettSearch(
 						break;
 					}
 					console.log("Getting RD link...");
-					console.log(torrentInfo);
 					results.push({
 						name: "Jackett Debrid",
 						title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
@@ -217,7 +216,7 @@ export default async function jackettSearch(
 				}
 			}
 			if (!torrentAddon && items.cached === false)
-				items.items = await threadedAvailability(items.items, debridApi, addonType);
+				items.items = await threadedAvailability(items.items, debridApi, addonType, maxResults);
 			for (let index = 0; index < maxResults; index++) {
 				const item = items.items[index];
 				if (!item) {

@@ -79,7 +79,13 @@ routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res
 
 routes.get("/:params/stream/:type/:id", async (req, res) => {
 	try {
-		const host = `${req.protocol}://${req.headers.host}${subpath.substring(0)}`;
+		let protocol;
+		if (req.headers.host.includes("localhost") || req.headers.host.includes("127.0.0.1")) {
+			protocol = "http";
+		} else {
+			protocol = "https";
+		}
+		const host = `${protocol}://${req.headers.host}${subpath.substring(0)}`;
 		const paramsJson = JSON.parse(atob(req.params.params));
 		const { type } = req.params;
 		const id = req.params.id.replace(".json", "").split(":");
