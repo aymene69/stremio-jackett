@@ -96,11 +96,12 @@ export default async function jackettSearch(
 				break;
 			}
 			let torrentInfo;
-			if (items.cached) {
+			try {
 				torrentInfo = JSON.parse(item.torrentInfo);
+			} catch (error) {
+				torrentInfo = item.torrentInfo;
 			}
 			console.log(`Torrent info: ${item.title}`);
-			torrentInfo = item.torrentInfo;
 			if (!torrentAddon) {
 				if (addonType === "realdebrid") {
 					if (maxResults === "1") {
@@ -119,6 +120,7 @@ export default async function jackettSearch(
 						break;
 					}
 					console.log("Getting RD link...");
+					console.log(torrentInfo);
 					results.push({
 						name: "Jackett Debrid",
 						title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,

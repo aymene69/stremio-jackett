@@ -58,7 +58,6 @@ routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res
 		}
 		if (req.params.service === "realdebrid") {
 			if (req.params.seasonEpisode === "undefined") {
-				console.log("ICI");
 				media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey);
 			} else {
 				media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
