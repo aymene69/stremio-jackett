@@ -1,13 +1,16 @@
 {
 	"type": "module",
 	"name": "stremio-addon-jackett",
-	"version": "1.3.6",
+	"version": "2.0.0",
 	"description": "Stremio Jackett Addon",
 	"scripts": {
 		"build": "node esbuild.js",
+		"buildscraper": "node esbuild.scraper.js",
 		"dev": "tsx watch --ignore node_modules src/index.js",
 		"prepare": "husky",
-		"start": "node dist/index.cjs"
+		"start": "node dist/addon/index.cjs",
+		"startscraper": "node dist/scraper/index.cjs",
+		"bscrape": "node esbuild.js"
 	},
 	"lint-staged": {
 		"**/*.js": [
@@ -16,6 +19,7 @@
 	},
 	"dependencies": {
 		"@hyoretsu/utils": "^1.10.1",
+		"better-sqlite3": "^9.3.0",
 		"buffer": "^6.0.3",
 		"cors": "^2.8.5",
 		"decompress": "^4.2.1",
@@ -23,6 +27,7 @@
 		"express": "^4.18.2",
 		"handlebars": "^4.7.8",
 		"http": "^0.0.1-security",
+		"p-queue": "^8.0.1",
 		"parse-torrent": "^11.0.14",
 		"pm2": "^5.3.1",
 		"xml2js": "^0.6.2"

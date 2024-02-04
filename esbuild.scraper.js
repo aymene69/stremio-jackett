@@ -6,18 +6,13 @@ const { devDependencies } = JSON.parse(readFileSync("./package.json", "utf8"));
 const start = Date.now();
 
 try {
-	const outdir = "dist/addon";
+	const outdir = "dist/scraper";
 
 	rmSync(outdir, { recursive: true, force: true });
 
 	build({
 		bundle: true,
-		entryPoints: [
-			"./src/index.js",
-			"./src/**/*.css",
-			"./src/**/*.hbs",
-			// "./src/**/*.html"
-		],
+		entryPoints: ["./scraper/src/index.js"],
 		external: [...(devDependencies && Object.keys(devDependencies)), "better-sqlite3"],
 		keepNames: true,
 		loader: {
@@ -26,7 +21,7 @@ try {
 			".html": "copy",
 		},
 		minify: true,
-		outbase: "./src",
+		outbase: "./scraper/src",
 		outdir,
 		outExtension: {
 			".js": ".cjs",
@@ -36,7 +31,7 @@ try {
 			{
 				name: "populate-import-meta",
 				setup: ({ onLoad }) => {
-					onLoad({ filter: new RegExp(`${import.meta.dirname}/src/.*\.(js|ts)$`) }, args => {
+					onLoad({ filter: new RegExp(`${import.meta.dirname}/scraper/src/.*\.(js|ts)$`) }, args => {
 						const contents = readFileSync(args.path, "utf8");
 
 						const transformedContents = contents

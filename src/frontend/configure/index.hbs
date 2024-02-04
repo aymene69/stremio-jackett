@@ -136,6 +136,51 @@
 												oninput="updateLink()"
 											/>
 											<label for="sorting3">Size (desc)</label>
+										</fieldset>
+									</div>
+
+									<div class="form-outline form-white mb-4">
+										<label class="form-label">Quality exclusion</label>
+										<fieldset>
+											<div>
+												<input
+													type="checkbox"
+													id="2160"
+													name="qualityExclusion"
+													value="2160"
+													oninput="updateLink()"
+												/>
+												<label for="quality1">2160p</label>
+											</div>
+											<input
+												type="checkbox"
+												id="1080"
+												name="qualityExclusion"
+												value="1080"
+												oninput="updateLink()"
+											/>
+											<label for="quality2">1080p</label>
+											<div>
+											<input
+												type="checkbox"
+												id="720"
+												name="qualityExclusion"
+												value="720"
+												oninput="updateLink()"
+											/>
+											<label for="quality3">720p</label>
+											</div>
+											<div>
+											<input
+												type="checkbox"
+												id="480"
+												name="qualityExclusion"
+												value="480"
+												oninput="updateLink()"
+											/>
+											<label for="quality4">480p</label>
+											</div>
+										</fieldset>
 									</div>
 
 									<div class="form-outline form-white mb-4" id="useTmdb">
@@ -145,6 +190,17 @@
 											type="checkbox"
 											oninput="updateLink()"
 											id="checkedTmdb"
+										/>
+									</div>
+
+									<div class="form-outline form-white mb-4" id="useTmdb">
+										<label class="form-label">Maximum size in GB (ignore if you don't want to)</label>
+										<input
+											required
+											class="form-control form-control-lg"
+											placeholder="Maximum size in GB (for example 10)"
+											oninput="updateLink()"
+											id="maxSize"
 										/>
 									</div>
 
@@ -215,7 +271,6 @@
 			document.getElementById("premiumizeApiDiv").style.display = "none";
 			document.getElementById("sortingDiv").style.display = "none";
 			document.getElementById("tmdbApi").style.display = "none";
-
 			function onChangeMaxResults() {
 				let addonType = document.getElementById("serviceProvider").value;
 				let maxResultsInput = document.getElementById("maxResults");
@@ -256,7 +311,20 @@
 				}
 
 				let dynamicLink = document.getElementById("configureLink");
-
+				let qualityExclusion = [];
+				let qualityExclusionCheckboxes = document.querySelectorAll(
+					'input[name="qualityExclusion"]:checked'
+				);
+				qualityExclusionCheckboxes.forEach((checkbox) => {
+					qualityExclusion.push(checkbox.value);
+				});
+				let maxSize = document.getElementById("maxSize").value;
+				if (maxSize == "undefined" || maxSize == "") {
+					maxSize = 0;
+				} else {
+					maxSize = maxSize * 1024 * 1024 * 1024
+				}
+				console.log(maxSize)
 				if (serviceProvider === "torrent") {
 					document.getElementById("realDebridApiDiv").style.display = "none";
 					document.getElementById("allDebridApiDiv").style.display = "none";
@@ -270,7 +338,9 @@
 						sorting: sorting,
 						ascOrDesc: ascOrDesc,
 						tmdbApiKey: tmdbApiKey,
-						locale: languageException
+						locale: languageException,
+						qualityExclusion: qualityExclusion,
+						maxSize: maxSize
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -291,7 +361,9 @@
 						sorting: sorting,
 						ascOrDesc: ascOrDesc,
 						tmdbApiKey: tmdbApiKey,
-						locale: languageException
+						locale: languageException,
+						qualityExclusion: qualityExclusion,
+						maxSize: maxSize
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -313,7 +385,9 @@
 						sorting: sorting,
 						ascOrDesc: ascOrDesc,
 						tmdbApiKey: tmdbApiKey,
-						locale: languageException
+						locale: languageException,
+						qualityExclusion: qualityExclusion,
+						maxSize: maxSize
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -335,7 +409,9 @@
 						sorting: sorting,
 						ascOrDesc: ascOrDesc,
 						tmdbApiKey: tmdbApiKey,
-						locale: languageException
+						locale: languageException,
+						qualityExclusion: qualityExclusion,
+						maxSize: maxSize
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -360,6 +436,8 @@
 					const sorting = urlParams.get('sorting');
 					const tmdbApiKey = urlParams.get('tmdbApiKey');
 					const locale = urlParams.get('locale');
+					const qualityExclusion = urlParams.get('qualityExclusion');
+					const maxSize = urlParams.get('maxSize');
 					document.getElementById("serviceProvider").value = serviceProvider;
 					document.getElementById("realDebridApi").value = realDebridApi;
 					document.getElementById("allDebridApi").value = allDebridApi;
@@ -370,10 +448,18 @@
 					document.getElementById(sorting).checked = true;
 					document.getElementById("tmdbApiKey").value = tmdbApiKey;
 					document.getElementById("languageException").value = locale;
+					if (qualityExclusion !== null) {
+						const qualityExclusionArray = qualityExclusion.split(",");
+						qualityExclusionArray.forEach((quality) => {
+							document.getElementById(quality).checked = true;
+						});
+					}
+					if (maxSize !== null) {
+						document.getElementById("maxSize").value = maxSize / 1024 / 1024 / 1024;
 					updateLink();
+					}
 				}
 			}
-
 			// Appelle la fonction au chargement de la page
 			window.onload = prefillUrl;
 		</script>

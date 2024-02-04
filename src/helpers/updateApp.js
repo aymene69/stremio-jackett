@@ -33,8 +33,8 @@ export async function updateApp() {
 	const asset = releaseJson.assets[0].browser_download_url;
 	const response = await fetch(asset);
 	const buffer = await response.arrayBuffer();
-	await fs.writeFile("update.zip", Buffer.from(buffer));
-	await decompress("update.zip", "dist");
-	await fs.rm("update.zip");
+	await fs.writeFile("../update.zip", Buffer.from(buffer));
+	await decompress("../update.zip", "dist");
+	await fs.rm("../update.zip");
 	console.log("App updated.");
 }

@@ -3,6 +3,7 @@ import express, { Router } from "express";
 import { existsSync, readFileSync } from "fs";
 import handlebars from "handlebars";
 import { version } from "../package.json";
+import { configScraper } from "./helpers/configScraper";
 import { getMovieADLink } from "./helpers/getMovieADLink";
 import { getMoviePMLink } from "./helpers/getMoviePMLink";
 import { getMovieRDLink } from "./helpers/getMovieRDLink";
@@ -40,40 +41,51 @@ routes.get("/:params/manifest.json", (req, res) => {
 
 routes.get("/:params/configure", (req, res) => {
 	const paramsJson = JSON.parse(atob(req.params.params));
-	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}&tmdbApiKey=${paramsJson.tmdbApiKey}&locale=${paramsJson.locale}`;
+	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}&tmdbApiKey=${paramsJson.tmdbApiKey}&locale=${paramsJson.locale}&qualityExclusion=${paramsJson.qualityExclusion}&maxSize=${paramsJson.maxSize}`;
 	res.redirect(`${subpath}/configure${prefill}`);
 });
 
 routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res) => {
 	let media;
-	if (req.params.service === "alldebrid") {
-		if (req.params.seasonEpisode === "undefined") {
-			media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey);
-		} else {
-			media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+	console.log(req.params.seasonEpisode);
+	try {
+		if (req.params.service === "alldebrid") {
+			if (req.params.seasonEpisode === "undefined") {
+				media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey);
+			} else {
+				media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+			}
 		}
-	}
-	if (req.params.service === "realdebrid") {
-		if (req.params.seasonEpisode === "undefined") {
-			media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey);
-		} else {
-			console.log("defined");
-			media = await getMovieRDLink(atob(req.params.magnet), req.params.seasonEpisode);
+		if (req.params.service === "realdebrid") {
+			if (req.params.seasonEpisode === "undefined") {
+				media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey);
+			} else {
+				media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+			}
 		}
-	}
-	if (req.params.service === "premiumize") {
-		if (req.params.seasonEpisode === "undefined") {
-			media = await getMoviePMLink(atob(req.params.magnet), req.params.apiKey);
-		} else {
-			media = await getMoviePMLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+		if (req.params.service === "premiumize") {
+			if (req.params.seasonEpisode === "undefined") {
+				media = await getMoviePMLink(atob(req.params.magnet), req.params.apiKey);
+			} else {
+				media = await getMoviePMLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+			}
 		}
+	} catch (e) {
+		console.log(e);
+		media = noResults;
 	}
 	res.redirect(media);
 });
 
 routes.get("/:params/stream/:type/:id", async (req, res) => {
 	try {
-		const host = `${req.protocol}://${req.headers.host}${subpath.substring(0)}`;
+		let protocol;
+		if (req.headers.host.includes("localhost") || req.headers.host.includes("127.0.0.1")) {
+			protocol = "http";
+		} else {
+			protocol = "https";
+		}
+		const host = `${protocol}://${req.headers.host}${subpath.substring(0)}`;
 		const paramsJson = JSON.parse(atob(req.params.params));
 		const { type } = req.params;
 		const id = req.params.id.replace(".json", "").split(":");
@@ -86,6 +98,8 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const { ascOrDesc } = paramsJson;
 		const { tmdbApiKey } = paramsJson;
 		const { locale } = paramsJson;
+		const { qualityExclusion } = paramsJson;
+		const { maxSize } = paramsJson;
 		let sort;
 		if (sorting === "sizedesc" || sorting === "sizeasc") {
 			sort = {
@@ -126,6 +140,8 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 					type: type,
 				},
 				host,
+				qualityExclusion,
+				maxSize,
 			);
 			respond(res, { streams: torrentInfo });
 		}
@@ -149,6 +165,8 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 					episode: getNum(id[2]),
 				},
 				host,
+				qualityExclusion,
+				maxSize,
 			);
 			respond(res, { streams: torrentInfo });
 		}
@@ -170,6 +188,18 @@ routes.get("/configure", async (req, res) => {
 	const template = handlebars.compile(readFileSync(`${dirname}/frontend/configure/index.hbs`, "utf8"));
 
 	res.send(template({ version }));
+});
+
+routes.get("/scraper", async (req, res) => {
+	const template = handlebars.compile(readFileSync(`${dirname}/frontend/configure/scraper.hbs`, "utf8"));
+
+	res.send(template({ version }));
+});
+
+routes.get("/scraper/:params", async (req, res) => {
+	const paramsJson = JSON.parse(atob(req.params.params));
+	configScraper(paramsJson);
+	respond(res, "Scraper configured");
 });
 
 routes.use((req, res, next) => {

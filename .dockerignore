@@ -16,3 +16,8 @@ install.sh
 jsconfig.json
 LICENSE
 README.md
+cache.db
+docker-compose.yml
+scraper
+config.json
+data/

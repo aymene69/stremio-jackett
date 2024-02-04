@@ -28,7 +28,6 @@ export default async function getTorrentInfo(torrentLink) {
 						} catch (error) {
 							torrentParsed = undefined;
 						}
-
 						resolve();
 					})
 					.end(),

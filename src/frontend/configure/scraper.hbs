@@ -1,0 +1,157 @@
+<html lang="en">
+	<head>
+		<title>Stremio-Jackett Scraper</title>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<style>
+			body {
+				background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)),
+					url("https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Flag_of_Palestine.svg/1280px-Flag_of_Palestine.svg.png")
+						no-repeat center center fixed;
+				-webkit-background-size: cover;
+				-moz-background-size: cover;
+				-o-background-size: cover;
+				background-size: cover;
+				font-family: "Roboto", sans-serif;
+			}
+		</style>
+		<link
+			href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+			rel="stylesheet"
+			integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+			crossorigin="anonymous"
+		/>
+	</head>
+	<body>
+		<section class="vh-100">
+			<div class="container py-5">
+				<div class="row d-flex justify-content-center align-items-center">
+					<div class="col-12 col-md-8 col-lg-6 col-xl-5">
+						<div class="card bg-dark text-white" style="border-radius: 1rem">
+							<div class="card-body p-5 text-center">
+								<div class="mb-md-5 mt-md-4 pb-5">
+									<img
+										src="https://user-images.githubusercontent.com/27040483/28728094-99f3e3f6-73c7-11e7-8f8d-28912dc6ac0d.png"
+										class="img-fluid mb-5"
+										alt="logo"
+										width="100"
+										height="100"
+									/>
+									<h2 class="fw-bold mb-2 text-uppercase">Stremio-Jackett scraper</h2>
+									<p class="text-white-50 mb-5">v{{version}}</p>
+									<h3 class="text-white mb-5">Scraper onfiguration page</h3>
+									<p class="text-white-50 mb-5">
+										Please fill in the following fields to configure your scraper
+									</p>
+
+									<div class="form-outline form-white mb-4" id="tmdbApi">
+										<label class="form-label">TMDB API Key (get your own <a href="https://www.themoviedb.org/signup" target="_blank">here</a> (findable in "Parameters"))</label>
+										<input
+											required
+											class="form-control form-control-lg"
+											placeholder="Enter your TMDB API key"
+											oninput="updateLink()"
+											id="tmdbApiKey"
+										/>
+									</div>
+
+									<div class="form-outline form-white mb-4">
+										<label class="form-label"
+											>Language (will only show this language and MULTI)</label
+										>
+										<select
+											required
+											class="form-select"
+											aria-label=""
+											id="languageException"
+											onchange="updateLink()"
+										>
+											<option value="en">🇬🇧</option>
+											<option value="fr">🇫🇷</option>
+											<option value="de">🇩🇪</option>
+											<option value="es">🇪🇸</option>
+											<option value="pt">🇵🇹</option>
+											<option value="it">🇮🇹</option>
+										</select>
+									</div>
+
+									<div class="form-outline form-white mb-4">
+										<label class="form-label">Jackett URL</label>
+										<input
+											required
+											class="form-control form-control-lg"
+											placeholder="For example 'http(s)://jackett_url:port'"
+											oninput="updateLink()"
+											id="jackettUrl"
+										/>
+									</div>
+
+									<div class="form-outline form-white mb-4">
+										<label class="form-label">Jackett API Key</label>
+										<input
+											required
+											class="form-control form-control-lg"
+											placeholder="Enter your Jackett API key"
+											oninput="updateLink()"
+											id="jackettApi"
+										/>
+									</div>
+
+									<div class="form-outline form-white mb-4">
+										<label class="form-label">Scrape every (week recommended)</label>
+										<select
+											required
+											class="form-select"
+											aria-label=""
+											id="scrapeEvery"
+											onchange="onChangeScrapeEvery(); updateLink()"
+										>
+											<option value="6h">6 hours</option>
+											<option value="1d">day</option>
+											<option value="3d">3 days</option>
+											<option value="week">week (recommended)</option>
+										</select>
+									</div>
+
+									<a id="configureLink" href="" class="btn btn-primary">Configure</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</section>
+		<script>
+			let dynamicLink = document.getElementById("configureLink");
+			function updateLink() {
+				const tmdbApiKey = document.getElementById("tmdbApiKey").value;
+				const languageException = document.getElementById("languageException").value;
+				const jackettUrl = document.getElementById("jackettUrl").value;
+				const jackettApi = document.getElementById("jackettApi").value;
+				const scrapeEvery = document.getElementById("scrapeEvery").value;
+				const dataJson = {
+					tmdbApiKey,
+					languageException,
+					jackettUrl,
+					jackettApi,
+					scrapeEvery,
+				};
+				console.log(dataJson)
+				const configureLink = document.getElementById("configureLink");
+				dynamicLink.href = `${window.location.protocol}${window.location.pathname}/${btoa(
+						JSON.stringify(dataJson)
+					)}`;
+
+			}
+
+			function onChangeScrapeEvery() {
+				const scrapeEvery = document.getElementById("scrapeEvery").value;
+				if (scrapeEvery !== "week") {
+					alert(
+						"Please note that scraping every week is recommended to avoid a load on your server"
+					);
+				}
+			}
+		</script>
+	</body>
+</html>

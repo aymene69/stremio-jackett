@@ -1,8 +1,6 @@
 import { selectBiggestFileSeason } from "./selectBiggestFileSeason";
 
-function wait(ms) {
-	new Promise(resolve => setTimeout(resolve, ms));
-}
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function addMagnetToRD(magnetLink, debridApi) {
 	const apiUrl = "https://api.real-debrid.com/rest/1.0/torrents/addMagnet";
@@ -51,8 +49,11 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 		}, 0);
 	}
 	let torrentFileId;
-	if (seasonEpisode) torrentFileId = torrentFiles[maxIndex - 1].id;
-	else torrentFileId = torrentFiles[maxIndex].id;
+	if (seasonEpisode) {
+		torrentFileId = torrentFiles[maxIndex - 1].id;
+	} else {
+		torrentFileId = torrentFiles[maxIndex].id;
+	}
 	const apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/selectFiles/${torrentId}`;
 	const headers = {
 		Authorization: `Bearer ${debridApi}`,
@@ -63,6 +64,7 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 }
 
 export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
+	console.log(torrentLink);
 	const torrentId = await addMagnetToRD(torrentLink, debridApi);
 	console.log(`Magnet added to RD. ID: ${torrentId}`);
 	if (seasonEpisode) {
@@ -94,7 +96,7 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 			console.log("RD link found.");
 			break;
 		}
-		await wait(5000);
+		wait(5000);
 		console.log("RD link isn't ready. Retrying...");
 		tries += 1;
 	}
