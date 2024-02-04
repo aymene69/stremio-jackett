@@ -5,7 +5,7 @@ import { updateApp } from "./helpers/updateApp";
 import routes from "./routes";
 import "dotenv/config";
 
-if (process.env.NODE_ENV === "prodauction") {
+if (process.env.NODE_ENV === "production") {
 	setInterval(async () => {
 		try {
 			await updateApp();
