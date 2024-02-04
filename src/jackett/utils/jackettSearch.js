@@ -1,6 +1,3 @@
-import { getAvailabilityAD } from "../../helpers/getAvailabilityAD";
-import { getAvailabilityPM } from "../../helpers/getAvailabilityPM";
-import { getAvailabilityRD } from "../../helpers/getAvailabilityRD";
 import { detectLanguageEmoji } from "../../helpers/getLanguage";
 import { getMovieADLink } from "../../helpers/getMovieADLink";
 import { getMoviePMLink } from "../../helpers/getMoviePMLink";
@@ -13,7 +10,6 @@ import { sortByQuality } from "../../helpers/sortByQuality";
 import { sortBySize } from "../../helpers/sortBySize";
 import { toHumanReadable } from "../../helpers/toHumanReadable";
 import { excludeItem } from "./excludeItems";
-import getTorrentInfo from "./getTorrentInfo";
 import processXML from "./processXML";
 import { threadedAvailability } from "./threadedAvailability";
 
@@ -45,9 +41,9 @@ export default async function jackettSearch(
 		let items;
 		console.log("Searching on cache...");
 		if (isSeries) {
-			items = await searchCache(searchQuery.name.name.replace(" ", "."), type);
+			items = await searchCache(`${name.name} S${season}E${episode}`, type);
 		} else {
-			items = await searchCache(searchQuery.name.replace(" ", "."), type);
+			items = await searchCache(name, type);
 		}
 		console.log("Cache search done.");
 		items = { cached: true, items };
@@ -55,9 +51,9 @@ export default async function jackettSearch(
 		items.items = [];
 		if (items.items.length === 0) {
 			if (isSeries) {
-				items = await searchCache(searchQuery.name.name.replace(" ", "."), type);
+				items = await searchCache(`${name.name} S${season}E${episode}`.replace(" ", "."), type);
 			} else {
-				items = await searchCache(searchQuery.name.replace(" ", "."), type);
+				items = await searchCache(name.replace(" ", "."), type);
 			}
 			if (items.length === 0) {
 				if (isSeries) {
@@ -93,10 +89,8 @@ export default async function jackettSearch(
 		}
 		items.items = items.items.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
 		const results = [];
-		maxResults = 10;
 		if (!torrentAddon && items.cached === false)
 			items.items = await threadedAvailability(items.items, debridApi, addonType);
-		// faire une boucle sur les items jusqu'a maxResults
 		for (let index = 0; index < maxResults; index++) {
 			const item = items.items[index];
 			if (!item) {
@@ -207,16 +201,33 @@ export default async function jackettSearch(
 				console.log("No results found with season/episode. Trying without...");
 				console.log("Searching on Jackett...");
 			}
-
-			searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&cat=5000&q=${encodeURIComponent(
-				searchQuery.name.name,
-			)}+S${searchQuery.season}`;
-
-			console.log(searchUrl.replace(/(apikey=)[^&]+(&t)/, "$1<private>$2"));
-			items = await getItemsFromUrl(searchUrl);
-			for (const item of items) {
-				const torrentInfo = await getTorrentInfo(item.link);
-
+			items.items = await searchCache(`${searchQuery.name.name} S${searchQuery.season}`, type);
+			if (items.items.length === 0) {
+				items.items = await searchCache(
+					`${searchQuery.name.name} S${searchQuery.season}`.replace(" ", "."),
+					type,
+				);
+				if (items.items.length === 0) {
+					searchUrl = `${jackettHost}/api/v2.0/indexers/all/results/torznab/api?apikey=${jackettApiKey}&cat=5000&q=${encodeURIComponent(
+						searchQuery.name.name,
+					)}+S${searchQuery.season}`;
+					console.log(searchUrl.replace(/(apikey=)[^&]+(&t)/, "$1<private>$2"));
+					items.items = await getItemsFromUrl(searchUrl);
+				}
+			}
+			if (!torrentAddon && items.cached === false)
+				items.items = await threadedAvailability(items.items, debridApi, addonType);
+			for (let index = 0; index < maxResults; index++) {
+				const item = items.items[index];
+				if (!item) {
+					break;
+				}
+				let torrentInfo;
+				if (items.cached) {
+					torrentInfo = JSON.parse(item.torrentInfo);
+				}
+				console.log(`Torrent info: ${item.title}`);
+				torrentInfo = item.torrentInfo;
 				if (!torrentAddon) {
 					if (addonType === "realdebrid") {
 						if (maxResults === "1") {
@@ -239,21 +250,17 @@ export default async function jackettSearch(
 							break;
 						}
 						console.log("Getting RD link...");
-						const availability = await getAvailabilityRD(torrentInfo.infoHash, debridApi);
-						if (!availability) {
-							console.log("No RD link found. Skipping...");
-							continue;
-						}
-						if (availability) {
-							results.push({
-								name: "Jackett Debrid",
-								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url: `${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
-								quality: detectQuality(item.title),
-								size: item.size,
-								locale: detectLanguageEmoji(item.title),
-							});
-						}
+						console.log(
+							`${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
+						);
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+							url: `${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
+							quality: detectQuality(item.title),
+							size: item.size,
+							locale: detectLanguageEmoji(item.title),
+						});
 					}
 
 					if (addonType === "alldebrid") {
@@ -279,25 +286,14 @@ export default async function jackettSearch(
 							break;
 						}
 						console.log("Getting AD link...");
-						const availability = await getAvailabilityAD(torrentInfo.magnetLink, debridApi);
-						if (availability === "blocked") {
-							console.log("Error: AllDebrid blocked for this IP. Please check your email.");
-							return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
-						}
-						if (!availability) {
-							console.log("No AD link found. Skipping...");
-							continue;
-						}
-						if (availability) {
-							results.push({
-								name: "Jackett Debrid",
-								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url: `${host}/getStream/alldebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
-								quality: detectQuality(item.title),
-								size: item.size,
-								locale: detectLanguageEmoji(item.title),
-							});
-						}
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+							url: `${host}/getStream/alldebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
+							quality: detectQuality(item.title),
+							size: item.size,
+							locale: detectLanguageEmoji(item.title),
+						});
 					}
 
 					if (addonType === "premiumize") {
@@ -326,42 +322,37 @@ export default async function jackettSearch(
 							break;
 						}
 						console.log("Getting RD link...");
-						const availability = await getAvailabilityPM(torrentInfo.infoHash, debridApi);
-						if (!availability) {
-							console.log("No RD link found. Skipping...");
-							continue;
-						}
-						if (availability) {
-							results.push({
-								name: "Jackett Debrid",
-								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url: `${host}/getStream/premiumize/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
-								quality: detectQuality(item.title),
-								size: item.size,
-								locale: detectLanguageEmoji(item.title),
-							});
-						}
+						results.push({
+							name: "Jackett Debrid",
+							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
+							url: `${host}/getStream/premiumize/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
+							quality: detectQuality(item.title),
+							size: item.size,
+							locale: detectLanguageEmoji(item.title),
+						});
 					}
+				} else {
+					console.log("Getting torrent info...");
+					console.log(`Torrent info: ${item.title}`);
+
+					torrentInfo.seeders = item.seeders;
+					torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`;
+
+					console.log("Determining episode file...");
+					torrentInfo.fileIdx = parseInt(
+						selectBiggestFileSeasonTorrent(
+							torrentInfo.files,
+							`S${searchQuery.season}E${searchQuery.episode}`,
+						),
+						10,
+					);
+					console.log("Episode file determined.");
+
+					results.push(torrentInfo);
+					console.log(`Added torrent to results: ${item.title}`);
 				}
-
-				console.log("Getting torrent info...");
-				console.log(`Torrent info: ${item.title}`);
-
-				torrentInfo.seeders = item.seeders;
-				torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`;
-
-				console.log("Determining episode file...");
-				torrentInfo.fileIdx = parseInt(
-					selectBiggestFileSeasonTorrent(torrentInfo.files, `S${searchQuery.season}E${searchQuery.episode}`),
-					10,
-				);
-				console.log("Episode file determined.");
-
-				results.push(torrentInfo);
-				console.log(`Added torrent to results: ${item.title}`);
 			}
 		}
-		console.log(detectLanguageEmoji(searchQuery.locale));
 		return results;
 	} catch (e) {
 		console.error(e);

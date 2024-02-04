@@ -1,8 +1,6 @@
 import { selectBiggestFileSeason } from "./selectBiggestFileSeason";
 
-function wait(ms) {
-	new Promise(resolve => setTimeout(resolve, ms));
-}
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 async function addMagnetToRD(magnetLink, debridApi) {
 	const apiUrl = "https://api.real-debrid.com/rest/1.0/torrents/addMagnet";
@@ -20,6 +18,7 @@ async function addMagnetToRD(magnetLink, debridApi) {
 
 async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 	let responseJson;
+	console.log(seasonEpisode);
 	while (true) {
 		const apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/info/${torrentId}`;
 		const headers = {
@@ -41,6 +40,7 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 	if (seasonEpisode) {
 		console.log("Selecting biggest file for season/episode...");
 		maxIndex = selectBiggestFileSeason(torrentFiles, seasonEpisode);
+		console.log(maxIndex);
 		console.log("Biggest file selected.");
 	} else {
 		maxIndex = torrentFiles.reduce((maxIndex, file, currentIndex, array) => {
@@ -50,9 +50,13 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 			return currentBytes > maxBytes ? currentIndex : maxIndex;
 		}, 0);
 	}
+	console.log(torrentFiles[maxIndex - 1].id);
 	let torrentFileId;
-	if (seasonEpisode) torrentFileId = torrentFiles[maxIndex - 1].id;
-	else torrentFileId = torrentFiles[maxIndex].id;
+	if (seasonEpisode) {
+		torrentFileId = torrentFiles[maxIndex - 1].id;
+	} else {
+		torrentFileId = torrentFiles[maxIndex].id;
+	}
 	const apiUrl = `https://api.real-debrid.com/rest/1.0/torrents/selectFiles/${torrentId}`;
 	const headers = {
 		Authorization: `Bearer ${debridApi}`,
@@ -63,9 +67,10 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 }
 
 export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
+	console.log(seasonEpisode);
 	const torrentId = await addMagnetToRD(torrentLink, debridApi);
 	console.log(`Magnet added to RD. ID: ${torrentId}`);
-	if (seasonEpisode) {
+	if (seasonEpisode !== undefined) {
 		console.log("Setting episode file for season/episode...");
 		await setMovieFileRD(torrentId, debridApi, seasonEpisode);
 	} else {
@@ -94,7 +99,7 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 			console.log("RD link found.");
 			break;
 		}
-		await wait(5000);
+		wait(5000);
 		console.log("RD link isn't ready. Retrying...");
 		tries += 1;
 	}
