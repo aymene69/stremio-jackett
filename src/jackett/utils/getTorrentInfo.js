@@ -23,7 +23,11 @@ export default async function getTorrentInfo(torrentLink) {
 				(torrentLink.startsWith("https") ? https : http)
 					.request(torrentLink, async res => {
 						magnetLink = res.headers.location;
-						torrentParsed = await ParseTorrent(res.headers.location);
+						try {
+							torrentParsed = await ParseTorrent(res.headers.location);
+						} catch (error) {
+							torrentParsed = undefined;
+						}
 
 						resolve();
 					})
