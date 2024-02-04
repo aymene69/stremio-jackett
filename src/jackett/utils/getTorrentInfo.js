@@ -35,7 +35,10 @@ export default async function getTorrentInfo(torrentLink) {
 			);
 		}
 	}
-
+	if (torrentParsed === undefined) {
+		console.error("Error fetching torrent info for " + torrentLink);
+		return undefined;
+	}
 	const torrentInfo = {
 		name: "Jackett",
 		infoHash: torrentParsed.infoHash,

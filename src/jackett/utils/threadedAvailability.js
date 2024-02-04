@@ -41,6 +41,7 @@ export async function threadedAvailability(items, debridApi, addonType) {
 						} else if (addonType === "premiumize") {
 							availability = await getAvailabilityPM(magnetLink, debridApi);
 						} else if (addonType === "realdebrid") {
+							console.log("Fetching availability for " + elem.title);
 							availability = await getAvailabilityRD(infoHash, debridApi);
 						}
 						elem.torrentInfo = torrentInfo;

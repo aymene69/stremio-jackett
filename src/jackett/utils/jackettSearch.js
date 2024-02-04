@@ -48,7 +48,6 @@ export default async function jackettSearch(
 		console.log("Cache search done.");
 		items = { cached: true, items };
 		let searchUrl;
-		items.items = [];
 		if (items.items.length === 0) {
 			if (isSeries) {
 				items = await searchCache(`${name.name} S${season}E${episode}`.replace(" ", "."), type);
@@ -184,12 +183,12 @@ export default async function jackettSearch(
 						locale: detectLanguageEmoji(item.title),
 					});
 				}
-			}
-
-			torrentInfo.seeders = item.seeders;
-			torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(torrentInfo.title)} ${detectQuality(torrentInfo.title)}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
-			if (!isSeries) {
-				torrentInfo.fileIdx = undefined;
+			} else {
+				torrentInfo.seeders = item.seeders;
+				torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(torrentInfo.title)} ${detectQuality(torrentInfo.title)}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
+				if (!isSeries) {
+					torrentInfo.fileIdx = undefined;
+				}
 			}
 
 			if (torrentAddon) results.push(torrentInfo);

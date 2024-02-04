@@ -17,7 +17,8 @@ services:
     restart: unless-stopped
     environment:
       - SUBPATH=/addon
-
+    volumes:
+      - ./data:/app/data
 networks:
   traefik_default:
     external: true

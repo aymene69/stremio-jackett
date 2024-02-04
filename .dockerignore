@@ -20,3 +20,4 @@ cache.db
 docker-compose.yml
 scraper
 config.json
+data/
