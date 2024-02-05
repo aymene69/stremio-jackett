@@ -48,7 +48,6 @@ export async function getMoviePMLink(torrentLink, debridApi, seasonEpisode) {
 		responseJson = await response.json();
 		const file_status = responseJson.transfers.find(item => item.id === torrentId).status;
 		fileId = responseJson.transfers.find(item => item.id === torrentId).file_id;
-		console.log(fileId);
 		if (file_status !== "finished") {
 			await wait(5000);
 		} else {

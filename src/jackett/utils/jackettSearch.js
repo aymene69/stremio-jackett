@@ -31,12 +31,16 @@ export default async function jackettSearch(
 	searchQuery,
 	host,
 	qualityExclusion,
+	maxSize,
+	maxThread,
 ) {
 	try {
 		const { episode, name, season, type, year } = searchQuery;
 		const isSeries = type === "series";
 		const torrentAddon = addonType === "torrent";
-
+		if (maxThread === undefined || maxThread === "" || parseInt(maxThread) === 0) {
+			maxThread = 5;
+		}
 		console.log(`Searching on Jackett, will return ${!torrentAddon ? "debrid links" : "torrents"}...`);
 		let items;
 		console.log("Searching on cache...");
@@ -66,30 +70,18 @@ export default async function jackettSearch(
 			}
 		}
 		items.items = excludeItem(items.items, qualityExclusion);
+		if (searchQuery.locale !== undefined) items.items = sortByLocale(items.items, searchQuery.locale);
 		if (sorting.sorting === "quality") {
-			if (searchQuery.locale === "undefined") {
-				console.log("Sorting by quality");
-				items.items = sortByQuality(items.items);
-			}
-			let sorted = sortByQuality(items.items);
-			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
-			console.log("Sorting by locale + quality...");
-			items.items = sorted;
+			console.log("Sorting by quality");
+			items.items = sortByQuality(items.items);
 		}
 		if (sorting.sorting === "size") {
-			if (searchQuery.locale === "undefined") {
-				console.log(`Sorting by size ${sorting.ascOrDesc}`);
-				items.items = sortBySize(items.items, sorting.ascOrDesc);
-			}
-			let sorted = sortBySize(items.items, sorting.ascOrDesc);
-			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
-			console.log("Sorting by locale + size...");
-			items.items = sorted;
+			console.log(`Sorting by size ${sorting.ascOrDesc}`);
+			items.items = sortBySize(items.items, sorting.ascOrDesc);
 		}
-		items.items = items.items.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
 		const results = [];
 		if (!torrentAddon && items.cached === false)
-			items.items = await threadedAvailability(items.items, debridApi, addonType, maxResults);
+			items.items = await threadedAvailability(items.items, debridApi, addonType, maxResults, maxThread);
 		for (let index = 0; index < maxResults; index++) {
 			const item = items.items[index];
 			if (!item) {
@@ -185,8 +177,7 @@ export default async function jackettSearch(
 					});
 				}
 			} else {
-				torrentInfo.seeders = item.seeders;
-				torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(torrentInfo.title)} ${detectQuality(torrentInfo.title)}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
+				torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(torrentInfo.title)} ${detectQuality(torrentInfo.title)}\r\n📁${toHumanReadable(item.size)}`;
 				if (!isSeries) {
 					torrentInfo.fileIdx = undefined;
 				}
@@ -216,7 +207,7 @@ export default async function jackettSearch(
 				}
 			}
 			if (!torrentAddon && items.cached === false)
-				items.items = await threadedAvailability(items.items, debridApi, addonType, maxResults);
+				items.items = await threadedAvailability(items.items, debridApi, addonType, maxResults, maxThread);
 			for (let index = 0; index < maxResults; index++) {
 				const item = items.items[index];
 				if (!item) {
@@ -335,7 +326,6 @@ export default async function jackettSearch(
 					console.log("Getting torrent info...");
 					console.log(`Torrent info: ${item.title}`);
 
-					torrentInfo.seeders = item.seeders;
 					torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`;
 
 					console.log("Determining episode file...");

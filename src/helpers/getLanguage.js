@@ -11,12 +11,12 @@ export function detectLanguageEmoji(torrentName) {
 
 	// Extended regex patterns for various language conventions
 	const languagePatterns = {
-		en: /(\bEN\b|\bENGLISH\b|\bENG\b|[\[\(]\s*EN\s*[\]\)])|((720|1080)[pi].*EN)|(EN.*[xh]\.264)/i,
-		fr: /(\bFR\b|\bFRENCH\b|\bVF\b|\bVFF\b|\bTRUEFRENCH\b|\bVFQ\b|\bFRA\b|[\[\(]\s*FR\s*[\]\)])|((720|1080)[pi].*FR)|(FR.*[xh]\.264)/i,
-		es: /(\bES\b|\bSPANISH\b|\bESP\b|[\[\(]\s*ES\s*[\]\)])|((720|1080)[pi].*ES)|(ES.*[xh]\.264)/i,
-		pt: /(\bPT\b|\bPORTUGUESE\b|\bPOR\b|[\[\(]\s*PT\s*[\]\)])|((720|1080)[pi].*PT)|(PT.*[xh]\.264)/i,
-		de: /(\bDE\b|\bGERMAN\b|\bGER\b|[\[\(]\s*DE\s*[\]\)])|((720|1080)[pi].*DE)|(DE.*[xh]\.264)/i,
-		it: /(\bIT\b|\bITALIAN\b|\bITA\b|[\[\(]\s*IT\s*[\]\)])|((720|1080)[pi].*IT)|(IT.*[xh]\.264)/i,
+		en: /(\bEN\b|\bENGLISH\b|\bENG\b|[\[\(]\s*EN\s*[\]\)])|(EN.*[xh]\.264)/i,
+		fr: /(\bFR\b|\bFRENCH\b|\bVF\b|\bVFF\b|\bTRUEFRENCH\b|\bVFQ\b|\bFRA\b|[\[\(]\s*FR\s*[\]\)])|(FR.*[xh]\.264)/i,
+		es: /(\bES\b|\bSPANISH\b|\bESP\b|[\[\(]\s*ES\s*[\]\)])|(ES.*[xh]\.264)/i,
+		pt: /(\bPT\b|\bPORTUGUESE\b|\bPOR\b|[\[\(]\s*PT\s*[\]\)])|(PT.*[xh]\.264)/i,
+		de: /(\bDE\b|\bGERMAN\b|\bGER\b|[\[\(]\s*DE\s*[\]\)])|(DE.*[xh]\.264)/i,
+		it: /(\bIT\b|\bITALIAN\b|\bITA\b|[\[\(]\s*IT\s*[\]\)])|(IT.*[xh]\.264)/i,
 	};
 
 	for (const [emoji, pattern] of Object.entries(languagePatterns)) {

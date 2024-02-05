@@ -50,7 +50,8 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 	}
 	let torrentFileId;
 	if (seasonEpisode) {
-		torrentFileId = torrentFiles[maxIndex - 1].id;
+		maxIndex = parseInt(maxIndex) - 1;
+		torrentFileId = torrentFiles[maxIndex].id;
 	} else {
 		torrentFileId = torrentFiles[maxIndex].id;
 	}
@@ -62,9 +63,7 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 	body.append("files", torrentFileId);
 	await fetch(apiUrl, { method: "POST", headers, body });
 }
-
 export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
-	console.log(torrentLink);
 	const torrentId = await addMagnetToRD(torrentLink, debridApi);
 	console.log(`Magnet added to RD. ID: ${torrentId}`);
 	if (seasonEpisode) {
@@ -96,7 +95,7 @@ export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
 			console.log("RD link found.");
 			break;
 		}
-		wait(5000);
+		await wait(5000);
 		console.log("RD link isn't ready. Retrying...");
 		tries += 1;
 	}
