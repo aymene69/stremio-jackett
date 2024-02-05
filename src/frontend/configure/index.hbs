@@ -257,6 +257,17 @@
 										/>
 									</div>
 
+									<div class="form-outline form-white mb-4">
+										<label class="form-label">Max threaders (5 recommended)</label>
+										<input
+											required
+											class="form-control form-control-lg"
+											placeholder="(5 recommended)"
+											oninput="updateLink()"
+											id="maxThread"
+										/>
+									</div>
+
 									<a id="configureLink" href="" class="btn btn-primary">Install</a>
 								</div>
 							</div>
@@ -292,6 +303,7 @@
 				let tmdbChecked = document.getElementById("checkedTmdb").checked;
 				let tmdbApiKey = document.getElementById("tmdbApiKey").value;
 				let languageException = document.getElementById("languageException").value;
+				let maxThread = document.getElementById("maxThread").value;
 				if (tmdbChecked) {
 					document.getElementById("tmdbApi").style.display = "block";
 				} else {
@@ -340,7 +352,8 @@
 						tmdbApiKey: tmdbApiKey,
 						locale: languageException,
 						qualityExclusion: qualityExclusion,
-						maxSize: maxSize
+						maxSize: maxSize,
+						maxThread: maxThread
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -363,7 +376,8 @@
 						tmdbApiKey: tmdbApiKey,
 						locale: languageException,
 						qualityExclusion: qualityExclusion,
-						maxSize: maxSize
+						maxSize: maxSize,
+						maxThread: maxThread
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -387,7 +401,8 @@
 						tmdbApiKey: tmdbApiKey,
 						locale: languageException,
 						qualityExclusion: qualityExclusion,
-						maxSize: maxSize
+						maxSize: maxSize,
+						maxThread: maxThread
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -411,7 +426,8 @@
 						tmdbApiKey: tmdbApiKey,
 						locale: languageException,
 						qualityExclusion: qualityExclusion,
-						maxSize: maxSize
+						maxSize: maxSize,
+						maxThread: maxThread
 					};
 					dynamicLink.href = `stremio://${
 						window.location.host
@@ -438,6 +454,7 @@
 					const locale = urlParams.get('locale');
 					const qualityExclusion = urlParams.get('qualityExclusion');
 					const maxSize = urlParams.get('maxSize');
+					const maxThread = urlParams.get('maxThread');
 					document.getElementById("serviceProvider").value = serviceProvider;
 					document.getElementById("realDebridApi").value = realDebridApi;
 					document.getElementById("allDebridApi").value = allDebridApi;
@@ -448,6 +465,8 @@
 					document.getElementById(sorting).checked = true;
 					document.getElementById("tmdbApiKey").value = tmdbApiKey;
 					document.getElementById("languageException").value = locale;
+					document.getElementById("checkedTmdb").checked = true;
+					document.getElementById("maxThread").value = maxThread;
 					if (qualityExclusion !== null) {
 						const qualityExclusionArray = qualityExclusion.split(",");
 						qualityExclusionArray.forEach((quality) => {

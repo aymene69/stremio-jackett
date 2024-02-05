@@ -6,9 +6,8 @@ import getTorrentInfo from "./getTorrentInfo.js";
 
 const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
-const queue = new PQueue({ concurrency: 5 }); // Limite le nombre de workers à 5
-
-export async function threadedAvailability(itemList, debridApi, addonType, maxResults) {
+export async function threadedAvailability(itemList, debridApi, addonType, maxResults, maxThread) {
+	const queue = new PQueue({ concurrency: maxThread }); // Limite le nombre de workers à 5
 	if (itemList.length !== 0) {
 		const items = itemList.slice(0, parseInt(maxResults));
 		const filteredItems = await Promise.all(

@@ -41,7 +41,7 @@ routes.get("/:params/manifest.json", (req, res) => {
 
 routes.get("/:params/configure", (req, res) => {
 	const paramsJson = JSON.parse(atob(req.params.params));
-	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}&tmdbApiKey=${paramsJson.tmdbApiKey}&locale=${paramsJson.locale}&qualityExclusion=${paramsJson.qualityExclusion}&maxSize=${paramsJson.maxSize}`;
+	const prefill = `?jackettUrl=${encodeURI(paramsJson.jackettUrl)}&jackettApi=${paramsJson.jackettApiKey}&realDebridApi=${paramsJson.debridApiKey}&allDebridApi=${paramsJson.debridApiKey}&premiumizeDebridApi=${paramsJson.debridApiKey}&serviceProvider=${paramsJson.streamService}&maxResults=${paramsJson.maxResults}&sorting=${paramsJson.sorting}&ascOrDesc=${paramsJson.ascOrDesc}&tmdbApiKey=${paramsJson.tmdbApiKey}&locale=${paramsJson.locale}&qualityExclusion=${paramsJson.qualityExclusion}&maxSize=${paramsJson.maxSize}&maxThread=${paramsJson.maxThread}`;
 	res.redirect(`${subpath}/configure${prefill}`);
 });
 
@@ -100,6 +100,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const { locale } = paramsJson;
 		const { qualityExclusion } = paramsJson;
 		const { maxSize } = paramsJson;
+		const { maxThread } = paramsJson;
 		console.log(locale);
 		let sort;
 		if (sorting === "sizedesc" || sorting === "sizeasc") {
@@ -143,6 +144,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 				host,
 				qualityExclusion,
 				maxSize,
+				maxThread,
 			);
 			respond(res, { streams: torrentInfo });
 		}
@@ -168,6 +170,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 				host,
 				qualityExclusion,
 				maxSize,
+				maxThread,
 			);
 			respond(res, { streams: torrentInfo });
 		}

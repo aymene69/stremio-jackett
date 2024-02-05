@@ -11,6 +11,7 @@ export default async function fetchResults(
 	host,
 	qualityExclusion,
 	maxSize,
+	maxThread,
 ) {
 	let results = await jackettSearch(
 		debridApi,
@@ -23,6 +24,7 @@ export default async function fetchResults(
 		host,
 		qualityExclusion,
 		maxSize,
+		maxThread,
 	);
 	if (results.length === 0) {
 		results = await jackettSearch(
@@ -36,6 +38,7 @@ export default async function fetchResults(
 			host,
 			qualityExclusion,
 			maxSize,
+			maxThread,
 		);
 		if (results.length === 0) {
 			results = [{ name: "Jackett", title: "No results found", url: "#" }];
