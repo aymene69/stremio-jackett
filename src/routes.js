@@ -101,7 +101,6 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const { qualityExclusion } = paramsJson;
 		const { maxSize } = paramsJson;
 		const { maxThread } = paramsJson;
-		console.log(maxThread);
 		let sort;
 		if (sorting === "sizedesc" || sorting === "sizeasc") {
 			sort = {

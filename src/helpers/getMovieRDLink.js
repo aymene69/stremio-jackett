@@ -64,7 +64,6 @@ async function setMovieFileRD(torrentId, debridApi, seasonEpisode) {
 	await fetch(apiUrl, { method: "POST", headers, body });
 }
 export async function getMovieRDLink(torrentLink, debridApi, seasonEpisode) {
-	console.log(torrentLink);
 	const torrentId = await addMagnetToRD(torrentLink, debridApi);
 	console.log(`Magnet added to RD. ID: ${torrentId}`);
 	if (seasonEpisode) {

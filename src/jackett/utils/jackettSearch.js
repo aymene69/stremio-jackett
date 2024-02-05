@@ -38,11 +38,9 @@ export default async function jackettSearch(
 		const { episode, name, season, type, year } = searchQuery;
 		const isSeries = type === "series";
 		const torrentAddon = addonType === "torrent";
-		console.log(maxThread);
 		if (maxThread === undefined || maxThread === "" || parseInt(maxThread) === 0) {
 			maxThread = 5;
 		}
-		console.log(maxThread);
 		console.log(`Searching on Jackett, will return ${!torrentAddon ? "debrid links" : "torrents"}...`);
 		let items;
 		console.log("Searching on cache...");
