@@ -8,7 +8,7 @@ const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function threadedAvailability(itemList, debridApi, addonType, maxResults, maxThread) {
 	if (maxThread > 1) {
-		const queue = new PQueue({ concurrency: maxThread }); // Limite le nombre de workers à 5
+		const queue = new PQueue({ concurrency: parseInt(maxThread) }); // Limite le nombre de workers à 5
 		if (itemList.length !== 0) {
 			const items = itemList.slice(0, parseInt(maxResults));
 			const filteredItems = await Promise.all(
