@@ -100,6 +100,7 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const { locale } = paramsJson;
 		const { qualityExclusion } = paramsJson;
 		const { maxSize } = paramsJson;
+		console.log(locale);
 		let sort;
 		if (sorting === "sizedesc" || sorting === "sizeasc") {
 			sort = {

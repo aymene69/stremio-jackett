@@ -66,27 +66,16 @@ export default async function jackettSearch(
 			}
 		}
 		items.items = excludeItem(items.items, qualityExclusion);
+		console.log(searchQuery.locale);
+		items.items = sortByLocale(items.items, searchQuery.locale);
 		if (sorting.sorting === "quality") {
-			if (searchQuery.locale === "undefined") {
-				console.log("Sorting by quality");
-				items.items = sortByQuality(items.items);
-			}
-			let sorted = sortByQuality(items.items);
-			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
-			console.log("Sorting by locale + quality...");
-			items.items = sorted;
+			console.log("Sorting by quality");
+			items.items = sortByQuality(items.items);
 		}
 		if (sorting.sorting === "size") {
-			if (searchQuery.locale === "undefined") {
-				console.log(`Sorting by size ${sorting.ascOrDesc}`);
-				items.items = sortBySize(items.items, sorting.ascOrDesc);
-			}
-			let sorted = sortBySize(items.items, sorting.ascOrDesc);
-			sorted = sorted.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
-			console.log("Sorting by locale + size...");
-			items.items = sorted;
+			console.log(`Sorting by size ${sorting.ascOrDesc}`);
+			items.items = sortBySize(items.items, sorting.ascOrDesc);
 		}
-		items.items = items.items.sort((a, b) => sortByLocale(a, b, detectLanguageEmoji(searchQuery.locale)));
 		const results = [];
 		if (!torrentAddon && items.cached === false)
 			items.items = await threadedAvailability(items.items, debridApi, addonType, maxResults);
