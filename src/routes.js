@@ -45,7 +45,7 @@ routes.get("/:params/configure", (req, res) => {
 	res.redirect(`${subpath}/configure${prefill}`);
 });
 
-routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode", async (req, res) => {
+routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode/", async (req, res) => {
 	let media;
 	console.log(req.params.seasonEpisode);
 	try {

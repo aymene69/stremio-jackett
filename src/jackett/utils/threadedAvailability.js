@@ -10,7 +10,7 @@ const queue = new PQueue({ concurrency: 5 }); // Limite le nombre de workers à 
 
 export async function threadedAvailability(itemList, debridApi, addonType, maxResults) {
 	if (itemList.length !== 0) {
-		const items = itemList.slice(0, parseInt(maxResults) + 5);
+		const items = itemList.slice(0, parseInt(maxResults));
 		const filteredItems = await Promise.all(
 			items.map(async elem => {
 				return await queue.add(async () => {
@@ -20,7 +20,12 @@ export async function threadedAvailability(itemList, debridApi, addonType, maxRe
 					if (torrentInfo === undefined) {
 						console.log("Error fetching torrent info for " + elem.title);
 						console.log("Retrying...");
+						let tries = 0;
 						while (true) {
+							if (tries > 5) {
+								console.log("Failed to fetch torrent info for " + elem.title);
+								break;
+							}
 							await wait(5000);
 							console.log("Retrying...");
 							try {
@@ -32,6 +37,7 @@ export async function threadedAvailability(itemList, debridApi, addonType, maxRe
 								console.log("Success");
 								break;
 							}
+							tries += 1;
 						}
 					}
 					if (torrentInfo !== undefined) {

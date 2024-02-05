@@ -185,8 +185,7 @@ export default async function jackettSearch(
 					});
 				}
 			} else {
-				torrentInfo.seeders = item.seeders;
-				torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(torrentInfo.title)} ${detectQuality(torrentInfo.title)}\r\n👤${item.seeders} 📁${toHumanReadable(item.size)}`;
+				torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(torrentInfo.title)} ${detectQuality(torrentInfo.title)}\r\n📁${toHumanReadable(item.size)}`;
 				if (!isSeries) {
 					torrentInfo.fileIdx = undefined;
 				}
@@ -335,7 +334,6 @@ export default async function jackettSearch(
 					console.log("Getting torrent info...");
 					console.log(`Torrent info: ${item.title}`);
 
-					torrentInfo.seeders = item.seeders;
 					torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`;
 
 					console.log("Determining episode file...");
