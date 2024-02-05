@@ -66,8 +66,7 @@ export default async function jackettSearch(
 			}
 		}
 		items.items = excludeItem(items.items, qualityExclusion);
-		console.log(searchQuery.locale);
-		items.items = sortByLocale(items.items, searchQuery.locale);
+		if (searchQuery.locale !== undefined) items.items = sortByLocale(items.items, searchQuery.locale);
 		if (sorting.sorting === "quality") {
 			console.log("Sorting by quality");
 			items.items = sortByQuality(items.items);
