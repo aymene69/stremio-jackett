@@ -45,29 +45,38 @@ routes.get("/:params/configure", (req, res) => {
 	res.redirect(`${subpath}/configure${prefill}`);
 });
 
-routes.get("/getStream/:service/:apiKey/:magnet/:seasonEpisode/", async (req, res) => {
+routes.get("/getStream/:params/:fileName/", async (req, res) => {
 	let media;
-	console.log(req.params.seasonEpisode);
+	const paramsJson = JSON.parse(atob(req.params.params));
+	const { service } = paramsJson;
+	const { debridApi } = paramsJson;
+	const { magnetLink } = paramsJson;
+	let season;
 	try {
-		if (req.params.service === "alldebrid") {
-			if (req.params.seasonEpisode === "undefined") {
-				media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey);
+		season = paramsJson.season;
+	} catch (e) {
+		season = undefined;
+	}
+	try {
+		if (service === "alldebrid") {
+			if (season === undefined) {
+				media = await getMovieADLink(magnetLink, debridApi);
 			} else {
-				media = await getMovieADLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+				media = await getMovieADLink(magnetLink, debridApi, season);
 			}
 		}
-		if (req.params.service === "realdebrid") {
-			if (req.params.seasonEpisode === "undefined") {
-				media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey);
+		if (service === "realdebrid") {
+			if (season === undefined) {
+				media = await getMovieRDLink(magnetLink, debridApi);
 			} else {
-				media = await getMovieRDLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+				media = await getMovieRDLink(magnetLink, debridApi, season);
 			}
 		}
-		if (req.params.service === "premiumize") {
-			if (req.params.seasonEpisode === "undefined") {
-				media = await getMoviePMLink(atob(req.params.magnet), req.params.apiKey);
+		if (service === "premiumize") {
+			if (season === undefined) {
+				media = await getMoviePMLink(magnetLink, debridApi);
 			} else {
-				media = await getMoviePMLink(atob(req.params.magnet), req.params.apiKey, req.params.seasonEpisode);
+				media = await getMoviePMLink(magnetLink, debridApi, season);
 			}
 		}
 	} catch (e) {

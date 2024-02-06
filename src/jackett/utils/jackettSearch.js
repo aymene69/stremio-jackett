@@ -1,7 +1,4 @@
 import { detectLanguageEmoji } from "../../helpers/getLanguage";
-import { getMovieADLink } from "../../helpers/getMovieADLink";
-import { getMoviePMLink } from "../../helpers/getMoviePMLink";
-import { getMovieRDLink } from "../../helpers/getMovieRDLink";
 import { detectQuality } from "../../helpers/getQuality";
 import { searchCache } from "../../helpers/searchCache";
 import { selectBiggestFileSeasonTorrent } from "../../helpers/selectBiggestFileSeasonTorrent";
@@ -100,81 +97,48 @@ export default async function jackettSearch(
 			console.log(`Torrent info: ${item.title}`);
 			if (!torrentAddon) {
 				if (addonType === "realdebrid") {
-					if (maxResults === "1") {
-						const downloadLink = await getMovieRDLink(torrentInfo.magnetLink, debridApi);
-						if (downloadLink === null) {
-							return [{ name: "Jackett", title: "No results found", url: "#" }];
-						}
-						results.push({
-							name: "Jackett Debrid",
-							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} - ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: downloadLink,
-							quality: detectQuality(item.title),
-							size: item.size,
-							locale: detectLanguageEmoji(item.title),
-						});
-						break;
-					}
-					console.log("Getting RD link...");
+					let config = {
+						service: addonType,
+						debridApi: debridApi,
+						magnetLink: torrentInfo.magnetLink,
+						season: undefined,
+					};
 					results.push({
 						name: "Jackett Debrid",
 						title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-						url: `${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+						url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 						quality: detectQuality(item.title),
 						size: item.size,
 						locale: detectLanguageEmoji(item.title),
 					});
 				}
-
 				if (addonType === "alldebrid") {
-					if (maxResults === "1") {
-						const downloadLink = await getMovieADLink(torrentInfo.magnetLink, debridApi);
-						if (downloadLink === "blocked") {
-							console.log("Error: AllDebrid blocked for this IP. Please check your email.");
-							return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
-						}
-						results.push({
-							name: "Jackett Debrid",
-							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: downloadLink,
-							quality: detectQuality(item.title),
-							size: item.size,
-							locale: detectLanguageEmoji(item.title),
-						});
-						break;
-					}
-					console.log("Getting AD link...");
+					let config = {
+						service: addonType,
+						debridApi: debridApi,
+						magnetLink: torrentInfo.magnetLink,
+						season: undefined,
+					};
 					results.push({
 						name: "Jackett Debrid",
 						title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-						url: `${host}/getStream/alldebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+						url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 						quality: detectQuality(item.title),
 						size: item.size,
 						locale: detectLanguageEmoji(item.title),
 					});
 				}
-
 				if (addonType === "premiumize") {
-					if (maxResults === "1") {
-						const downloadLink = await getMoviePMLink(torrentInfo.magnetLink, debridApi);
-						if (downloadLink === null) {
-							return [{ name: "Jackett", title: "No results found", url: "#" }];
-						}
-						results.push({
-							name: "Jackett Debrid",
-							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: downloadLink,
-							quality: detectQuality(item.title),
-							size: item.size,
-							locale: detectLanguageEmoji(item.title),
-						});
-						break;
-					}
-					console.log("Getting RD link...");
+					let config = {
+						service: addonType,
+						debridApi: debridApi,
+						magnetLink: torrentInfo.magnetLink,
+						season: undefined,
+					};
 					results.push({
 						name: "Jackett Debrid",
 						title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-						url: `${host}/getStream/premiumize/${debridApi}/${btoa(torrentInfo.magnetLink)}/undefined`,
+						url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 						quality: detectQuality(item.title),
 						size: item.size,
 						locale: detectLanguageEmoji(item.title),
@@ -221,39 +185,24 @@ export default async function jackettSearch(
 					break;
 				}
 				let torrentInfo;
-				if (items.cached) {
+				try {
 					torrentInfo = JSON.parse(item.torrentInfo);
+				} catch (error) {
+					torrentInfo = item.torrentInfo;
 				}
-				console.log(`Torrent infoaa: ${item.title}`);
+				console.log(`Torrent info: ${item.title}`);
 				if (!torrentAddon) {
 					if (addonType === "realdebrid") {
-						if (maxResults === "1") {
-							const url = await getMovieRDLink(
-								torrentInfo.magnetLink,
-								debridApi,
-								`S${searchQuery.season}E${searchQuery.episode}`,
-							);
-							if (url === null) {
-								return [{ name: "Jackett", title: "No results found", url: "#" }];
-							}
-							results.push({
-								name: "Jackett Debrid",
-								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url,
-								quality: detectQuality(item.title),
-								size: item.size,
-								locale: detectLanguageEmoji(item.title),
-							});
-							break;
-						}
-						console.log("Getting RD link...");
-						console.log(
-							`${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
-						);
+						let config = {
+							service: addonType,
+							debridApi: debridApi,
+							magnetLink: torrentInfo.magnetLink,
+							season: `S${searchQuery.season}E${searchQuery.episode}`,
+						};
 						results.push({
 							name: "Jackett Debrid",
 							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: `${host}/getStream/realdebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
+							url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 							quality: detectQuality(item.title),
 							size: item.size,
 							locale: detectLanguageEmoji(item.title),
@@ -261,32 +210,16 @@ export default async function jackettSearch(
 					}
 
 					if (addonType === "alldebrid") {
-						if (maxResults === "1") {
-							console.log("Getting AD link...");
-							const url = await getMovieADLink(
-								torrentInfo.magnetLink,
-								debridApi,
-								`S${searchQuery.season}E${searchQuery.episode}`,
-							);
-							if (url === "blocked") {
-								console.log("Error: AllDebrid blocked for this IP. Please check your email.");
-								return [{ name: "AllDebrid blocked", title: "Please check your email", url: "#" }];
-							}
-							results.push({
-								name: "Jackett Debrid",
-								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url,
-								quality: detectQuality(item.title),
-								size: item.size,
-								locale: detectLanguageEmoji(item.title),
-							});
-							break;
-						}
-						console.log("Getting AD link...");
+						let config = {
+							service: addonType,
+							debridApi: debridApi,
+							magnetLink: torrentInfo.magnetLink,
+							season: `S${searchQuery.season}E${searchQuery.episode}`,
+						};
 						results.push({
 							name: "Jackett Debrid",
 							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: `${host}/getStream/alldebrid/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
+							url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 							quality: detectQuality(item.title),
 							size: item.size,
 							locale: detectLanguageEmoji(item.title),
@@ -294,35 +227,16 @@ export default async function jackettSearch(
 					}
 
 					if (addonType === "premiumize") {
-						if (maxResults === "1") {
-							const url = await getMoviePMLink(
-								torrentInfo.magnetLink,
-								debridApi,
-								`S${searchQuery.season}E${searchQuery.episode}`,
-							);
-							if (url === null) {
-								results.push({
-									name: "Jackett Debrid",
-									title: "RD link not found.",
-									url: "#",
-								});
-								break;
-							}
-							results.push({
-								name: "Jackett Debrid",
-								title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-								url,
-								quality: detectQuality(item.title),
-								size: item.size,
-								locale: detectLanguageEmoji(item.title),
-							});
-							break;
-						}
-						console.log("Getting RD link...");
+						let config = {
+							service: addonType,
+							debridApi: debridApi,
+							magnetLink: torrentInfo.magnetLink,
+							season: `S${searchQuery.season}E${searchQuery.episode}`,
+						};
 						results.push({
 							name: "Jackett Debrid",
 							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
-							url: `${host}/getStream/premiumize/${debridApi}/${btoa(torrentInfo.magnetLink)}/S${searchQuery.season}E${searchQuery.episode}`,
+							url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 							quality: detectQuality(item.title),
 							size: item.size,
 							locale: detectLanguageEmoji(item.title),
