@@ -89,5 +89,11 @@ And access it via `your_ip:3000`
 
 I recommend also deploying Nginx Proxy Manager and securing your network with SSL.
 
-## Scraper
-Scraper is available under /scraper
+## Scraper (Optional)
+Without scraper configration, you may get errors with the addon which can be ignored
+
+   ```sh
+stremio-jackett-scraper  | Missing config values  # Just means that the scraper is not configured. There are no problems leaving it like this if you dont want to have the cache DB
+   ```
+To use the scraper (cache), you will need to create a TMDB account and get an API key.
+Then go to yourdomain.com/scraper (or yourdomain.ddns.net/addon/scraper if you followed the guide) and enter your details there. Once you click configure, it will autoscrape!
