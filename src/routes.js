@@ -88,13 +88,6 @@ routes.get("/getStream/:params/:fileName/", async (req, res) => {
 
 routes.get("/:params/stream/:type/:id", async (req, res) => {
 	try {
-		let protocol;
-		if (req.headers.host.includes("localhost") || req.headers.host.includes("127.0.0.1")) {
-			protocol = "http";
-		} else {
-			protocol = "https";
-		}
-		const host = `${protocol}://${req.headers.host}${subpath.substring(0)}`;
 		const paramsJson = JSON.parse(atob(req.params.params));
 		const { type } = req.params;
 		const id = req.params.id.replace(".json", "").split(":");
@@ -110,6 +103,14 @@ routes.get("/:params/stream/:type/:id", async (req, res) => {
 		const { qualityExclusion } = paramsJson;
 		const { maxSize } = paramsJson;
 		const { maxThread } = paramsJson;
+		const { hostname } = paramsJson;
+		let protocol;
+		if (hostname.includes("localhost") || hostname.includes("127.0.0.1")) {
+			protocol = "http";
+		} else {
+			protocol = "https";
+		}
+		const host = `${protocol}://${hostname}${subpath.substring(0)}`;
 		let sort;
 		if (sorting === "sizedesc" || sorting === "sizeasc") {
 			sort = {
