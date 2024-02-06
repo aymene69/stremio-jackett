@@ -50,6 +50,7 @@ export async function jackettCache(jackettUrl, jackettApi, list, category) {
 							}
 						}
 						insertTable(category, {
+							indexer: item.indexer._,
 							title: item.title,
 							size: item.size,
 							link: item.link,
