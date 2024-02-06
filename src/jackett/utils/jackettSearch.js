@@ -12,6 +12,7 @@ import { toHumanReadable } from "../../helpers/toHumanReadable";
 import { excludeItem } from "./excludeItems";
 import processXML from "./processXML";
 import { threadedAvailability } from "./threadedAvailability";
+import { threadedTorrent } from "./threadedTorrent";
 
 async function getItemsFromUrl(url) {
 	const res = await fetch(url);
@@ -80,8 +81,11 @@ export default async function jackettSearch(
 			items.items = sortBySize(items.items, sorting.ascOrDesc);
 		}
 		const results = [];
-		if (!torrentAddon && items.cached === false)
+		if (!torrentAddon && items.cached === false) {
 			items.items = await threadedAvailability(items.items, debridApi, addonType, maxResults, maxThread);
+		} else {
+			items.items = await threadedTorrent(items.items, maxResults, maxThread);
+		}
 		for (let index = 0; index < maxResults; index++) {
 			const item = items.items[index];
 			if (!item) {
@@ -177,7 +181,7 @@ export default async function jackettSearch(
 					});
 				}
 			} else {
-				torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(torrentInfo.title)} ${detectQuality(torrentInfo.title)}\r\n📁${toHumanReadable(item.size)}`;
+				torrentInfo.title = `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`;
 				if (!isSeries) {
 					torrentInfo.fileIdx = undefined;
 				}
@@ -206,8 +210,11 @@ export default async function jackettSearch(
 					items.items = await getItemsFromUrl(searchUrl);
 				}
 			}
-			if (!torrentAddon && items.cached === false)
+			if (!torrentAddon && items.cached === false) {
 				items.items = await threadedAvailability(items.items, debridApi, addonType, maxResults, maxThread);
+			} else {
+				items.items = await threadedTorrent(items.items, maxResults, maxThread);
+			}
 			for (let index = 0; index < maxResults; index++) {
 				const item = items.items[index];
 				if (!item) {
@@ -217,8 +224,7 @@ export default async function jackettSearch(
 				if (items.cached) {
 					torrentInfo = JSON.parse(item.torrentInfo);
 				}
-				console.log(`Torrent info: ${item.title}`);
-				torrentInfo = item.torrentInfo;
+				console.log(`Torrent infoaa: ${item.title}`);
 				if (!torrentAddon) {
 					if (addonType === "realdebrid") {
 						if (maxResults === "1") {
@@ -325,7 +331,7 @@ export default async function jackettSearch(
 				} else {
 					console.log("Getting torrent info...");
 					console.log(`Torrent info: ${item.title}`);
-
+					torrentInfo = item.torrentInfo;
 					torrentInfo.title = `${item.title.slice(0, 98)}...\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`;
 
 					console.log("Determining episode file...");
@@ -336,6 +342,7 @@ export default async function jackettSearch(
 						),
 						10,
 					);
+					console.log(torrentInfo.fileIdx);
 					console.log("Episode file determined.");
 
 					results.push(torrentInfo);
