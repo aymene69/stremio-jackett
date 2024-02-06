@@ -15,6 +15,7 @@ async function getItemsFromUrl(url) {
 	const res = await fetch(url);
 
 	const items = await processXML(await res.text());
+	console.log(items[0]);
 
 	return items;
 }
@@ -104,7 +105,7 @@ export default async function jackettSearch(
 						season: undefined,
 					};
 					results.push({
-						name: `Jackett Debrid [${detectQuality(item.title)}]`,
+						name: `${item.indexer._} Debrid [${detectQuality(item.title)}]`,
 						title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
 						url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 						quality: detectQuality(item.title),
@@ -120,7 +121,7 @@ export default async function jackettSearch(
 						season: undefined,
 					};
 					results.push({
-						name: `Jackett Debrid [${detectQuality(item.title)}]`,
+						name: `${item.indexer._} Debrid [${detectQuality(item.title)}]`,
 						title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
 						url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 						quality: detectQuality(item.title),
@@ -136,7 +137,7 @@ export default async function jackettSearch(
 						season: undefined,
 					};
 					results.push({
-						name: `Jackett Debrid [${detectQuality(item.title)}]`,
+						name: `${item.indexer._} Debrid [${detectQuality(item.title)}]`,
 						title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
 						url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 						quality: detectQuality(item.title),
@@ -200,7 +201,7 @@ export default async function jackettSearch(
 							season: `S${searchQuery.season}E${searchQuery.episode}`,
 						};
 						results.push({
-							name: `Jackett Debrid [${detectQuality(item.title)}]`,
+							name: `${item.indexer._} Debrid [${detectQuality(item.title)}]`,
 							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
 							url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 							quality: detectQuality(item.title),
@@ -217,7 +218,7 @@ export default async function jackettSearch(
 							season: `S${searchQuery.season}E${searchQuery.episode}`,
 						};
 						results.push({
-							name: `Jackett Debrid [${detectQuality(item.title)}]`,
+							name: `${item.indexer._} Debrid [${detectQuality(item.title)}]`,
 							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
 							url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 							quality: detectQuality(item.title),
@@ -234,7 +235,7 @@ export default async function jackettSearch(
 							season: `S${searchQuery.season}E${searchQuery.episode}`,
 						};
 						results.push({
-							name: `Jackett Debrid [${detectQuality(item.title)}]`,
+							name: `${item.indexer._} Debrid [${detectQuality(item.title)}]`,
 							title: `${item.title}\r\n${detectLanguageEmoji(item.title)} ${detectQuality(item.title)}\r\n📁${toHumanReadable(item.size)}`,
 							url: `${host}/getStream/${btoa(JSON.stringify(config))}/${item.title}`,
 							quality: detectQuality(item.title),

@@ -20,9 +20,9 @@ export default async function processXML(xml) {
 					resolve([]);
 					return;
 				}
-
 				const extractedDataArray = Array.isArray(items)
 					? items.map(item => ({
+							indexer: item.jackettindexer,
 							title: item.title,
 							size: item.size,
 							link: item.link,
@@ -32,6 +32,7 @@ export default async function processXML(xml) {
 						}))
 					: [
 							{
+								indexer: items.jackettindexer,
 								title: items.title,
 								size: items.size,
 								link: items.link,
