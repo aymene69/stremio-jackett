@@ -7,6 +7,7 @@ export default function insertTable(category, data) {
 		CREATE TABLE IF NOT EXISTS ${category} (
 			id INTEGER PRIMARY KEY AUTOINCREMENT,
 			link TEXT,
+			indexer TEXT,
 			title TEXT,
 			size TEXT,
 			seeders INTEGER,
@@ -18,13 +19,14 @@ export default function insertTable(category, data) {
 
 	const insertStatement = db.prepare(
 		`
-		INSERT INTO ${category} (link, title, size, seeders, torrentInfo, dateAdded)
-		VALUES (?, ?, ?, ?, ?, ?)
+		INSERT INTO ${category} (link, indexer, title, size, seeders, torrentInfo, dateAdded)
+		VALUES (?, ?, ?, ?, ?, ?, ?)
 		`,
 	);
 
 	insertStatement.run(
 		data.link,
+		data.indexer,
 		data.title,
 		data.size,
 		data.seeders,
