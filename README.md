@@ -80,3 +80,5 @@ I am not responsible for any content downloaded through this addon.
 And access it via `your_ip:3000`
 
 I recommend also deploying Nginx Proxy Manager and securing your network with SSL.
+
+## Thanks to [elfhosted.com](https://elfhosted.com) for hosting the cache server!
