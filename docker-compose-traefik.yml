@@ -10,14 +10,11 @@ services:
       - "traefik.enable=true"
       - "traefik.docker.network=traefik_default"
       - "traefik.http.routers.addon.entrypoints=web,websecure"
-      - "traefik.http.routers.addon.rule=Host(`YOURADDON.COM`) && HostHeader(`YOURADDON.COM`) && PathPrefix(`/addon`)"
+      - "traefik.http.routers.addon.rule=Host(`addon.YOURADDON.COM`)"
       - "traefik.http.services.addon.loadbalancer.server.port=3000"
       - "traefik.http.routers.addon.tls=true"
       - "traefik.http.routers.addon.tls.certresolver=production"
     restart: unless-stopped
-    environment:
-      - SUBPATH=/addon
-
 networks:
   traefik_default:
     external: true

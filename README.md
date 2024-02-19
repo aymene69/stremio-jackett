@@ -10,7 +10,7 @@ I am not responsible for any content downloaded through this addon.
 
 # Prerequisites
 - A [Jackett](https://github.com/Jackett/Jackett) server running and reachable pubicly.
-- NodeJS, npm.
+- Python 3.11+ and pip.
 - *(optionnal)* A Real-Debrid, All-Debrid or Premiumize account.
 
 # Installation
@@ -23,21 +23,13 @@ I am not responsible for any content downloaded through this addon.
     ```
 - Once done, install dependencies
     ```sh
-    npm install
-    ````
-- Copy `.env.example` to `.env` and modify it if needed
-    ```sh
-    cp .env.example .env
-    ````
-- Build the addon
-    ```sh
-    npm run build
+    pip install -r requirements.txt
     ````
 - Now just run your addon, access the link and add it to your Stremio app!
-    ```
-    npm start
-    ```
-    And access it via `your_ip:3000`
+    ```sh
+    python3 -m uvicorn main:app --reload --port YOUR_PORT
+    ````
+    And access it via `your_ip:YOUR_PORT`
 ## With Docker
 - Simply run the Docker image
     ```sh

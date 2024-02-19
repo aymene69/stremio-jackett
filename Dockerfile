@@ -1,17 +1,13 @@
-FROM node:latest
+FROM python:3.11
 
 WORKDIR /app
 
-ENV NODE_ENV production
+COPY requirements.txt .
 
-COPY package*.json ./
-
-RUN npm install pm2 -g
+RUN pip install -r requirements.txt
 
 COPY . .
 
-COPY .env.example .env
-
 EXPOSE 3000
 
-CMD ["pm2", "start", "--no-daemon", "ecosystem.config.cjs"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "3000"]

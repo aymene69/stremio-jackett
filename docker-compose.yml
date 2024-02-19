@@ -49,9 +49,8 @@ services:
     ports:
       - 3000:3000
     restart: unless-stopped
-    
+
 #networks:
 #    stremio_jacket_network:
 #        external: true
 #        name: stremio_jacket_network
-

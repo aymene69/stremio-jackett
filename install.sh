@@ -40,13 +40,9 @@ sudo mkdir data blackhole
 sudo curl -fsSL https://raw.githubusercontent.com/aymene69/stremio-jackett/main/jackett/docker-compose.yml -o ./docker-compose.yml
 sudo sed -i "s/YOURADDON.COM/$domainName/g" ./docker-compose.yml
 sudo docker compose up -d
-sleep 5
-sudo docker compose down
-sudo sed -i 's/"BasePathOverride": null/"BasePathOverride": "\/jackett"/g' ./data/Jackett/ServerConfig.json
-sudo sed -i 's/"FlareSolverrUrl": null/"FlareSolverrUrl": "https:\/\/'"$domainName"'\/"/g' ./data/Jackett/ServerConfig.json
 
-sudo docker compose up -d
 cd ../addon
+mkdir data
 sudo curl -fsSL https://raw.githubusercontent.com/aymene69/stremio-jackett/main/docker-compose-traefik.yml -o ./docker-compose.yml
 sudo sed -i "s/YOURADDON.COM/$domainName/g" ./docker-compose.yml
 sudo docker compose up -d
@@ -55,5 +51,5 @@ sudo docker compose down
 sudo docker compose up -d
 clear
 
-echo "Your addon is accessible at https://$domainName/addon"
-echo "Jackett is accessible at https://$domainName/jackett"
+echo "Your addon is accessible at https://addon.$domainName/"
+echo "Jackett is accessible at https://jackett.$domainName/"
