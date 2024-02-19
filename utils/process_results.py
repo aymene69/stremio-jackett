@@ -19,8 +19,12 @@ def get_emoji(language):
 
 def process_results(items, cached, stream_type, season=None, episode=None, config=None):
     stream_list = []
-
     for stream in items:
+        try:
+            if "availability" not in stream and cached == False:
+                continue
+        except:
+            continue
         if cached:
             if season == None and episode == None:
                 availability = get_availability_cached(stream, stream_type, config=config)

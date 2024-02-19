@@ -83,6 +83,37 @@ def is_available(magnet, type, seasonEpisode=None, config=None):
 
 
 def get_torrent_info(item, config):
+    if item['link'].startswith("magnet:"):
+        magnet_link = item['link']
+        trackers = magnet_link.split("&tr=")[1:]
+        try:
+            season = item['season']
+            episode = item['episode']
+            availability = is_available(magnet_link, item['type'], item['season'] + item['episode'],
+                                        config=config)
+        except:
+            season = None
+            episode = None
+            availability = is_available(magnet_link, item['type'], config=config)
+        torrent_info = {
+            "name": item['name'],
+            "title": item['title'],
+            "trackers": ["tracker:" + tracker for tracker in trackers],
+            "magnet": magnet_link,
+            "files": [],
+            "hash": magnet_link.split("urn:btih:")[1].split("&")[0],
+            "indexer": item['indexer'],
+            "quality": item['quality'],
+            "qualitySpec": item['qualitySpec'],
+            "seeders": item['seeders'],
+            "size": item['size'],
+            "language": item['language'],
+            "type": item['type'],
+            "season": season,
+            "episode": episode,
+            "availability": availability
+        }
+        return torrent_info
     response = requests.get(item['link'])
     print("Getting torrent info")
     while response.status_code != 200:

@@ -126,7 +126,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
                 return {"streams": stream_list}
             else:
                 print("Processing cached results")
-                stream_list = process_results(cached[:config['maxResults']], True, "series",
+                stream_list = process_results(cached[:int(config['maxResults'])], True, "series",
                                               name['season'], name['episode'], config=config)
                 print("Processed cached results")
                 if len(stream_list) == 0:
