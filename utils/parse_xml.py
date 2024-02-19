@@ -11,8 +11,6 @@ excluded_trackers = ['0day.kiev', '1ptbar', '2 Fast 4 You', '2xFree', '3ChangTra
 
 
 def cache_torrents(torrents, type, config):
-    print(torrents)
-    print(type)
     results = []
     for torrent in torrents:
         if torrent['indexer'] in excluded_trackers:
@@ -132,7 +130,5 @@ def parse_xml(xml_content, query, config):
             items_list.append(item_dict)
     sorted_items = sorted(items_list, key=lambda x: int(x['seeders']), reverse=True)
     data = json.dumps(sorted_items, indent=4)
-    print("START")
     threading.Thread(target=cache_torrents, args=(sorted_items, query['type'], config)).start()
-    print("END")
     return data
