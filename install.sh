@@ -51,5 +51,6 @@ sudo docker compose down
 sudo docker compose up -d
 clear
 
-echo "Your addon is accessible at https://addon.$domainName/"
-echo "Jackett is accessible at https://jackett.$domainName/"
+echo "Your addon is accessible at https://$domainName/"
+echo "Jackett is accessible at http://$(curl -s ifconfig.me):9117"
+echo "FlareSolverr is accessible at http://$(curl -s ifconfig.me):8191"
