@@ -42,7 +42,6 @@ sudo sed -i "s/YOURADDON.COM/$domainName/g" ./docker-compose.yml
 sudo docker compose up -d
 
 cd ../addon
-mkdir data
 sudo curl -fsSL https://raw.githubusercontent.com/aymene69/stremio-jackett/main/docker-compose-traefik.yml -o ./docker-compose.yml
 sudo sed -i "s/YOURADDON.COM/$domainName/g" ./docker-compose.yml
 sudo docker compose up -d
@@ -52,5 +51,5 @@ sudo docker compose up -d
 clear
 
 echo "Your addon is accessible at https://$domainName/"
-echo "Jackett is accessible at http://$(curl -s ifconfig.me):9117"
-echo "FlareSolverr is accessible at http://$(curl -s ifconfig.me):8191"
+echo "Jackett is accessible at http://$(curl -4 -s ifconfig.me):9117"
+echo "FlareSolverr is accessible at http://$(curl -4 -s ifconfig.me):8191"

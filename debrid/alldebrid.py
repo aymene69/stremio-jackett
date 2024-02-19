@@ -6,7 +6,6 @@ from utils.get_config import get_config
 def get_stream_link_ad(query, config):
     magnet = json.loads(query)['magnet']
     stream_type = json.loads(query)['type']
-    config = get_config()
     url = "https://api.alldebrid.com/v4/magnet/upload?agent=jackett&apikey=" + config['debridKey'] + "&magnet=" + magnet
     response = requests.get(url)
     data = response.json()

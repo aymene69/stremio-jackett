@@ -1,3 +1,6 @@
-requests~=2.31.0
-starlette~=0.32.0.post1
-fastapi~=0.108.0
+fastapi
+uvicorn
+starlette
+requests
+bencode.py
+jinja2

@@ -166,7 +166,7 @@ async def get_playback(config: str, query: str, title: str):
         print(query)
         print("Decoded query")
 
-        service = config.get('service')
+        service = config['service']
         if service == "realdebrid":
             print("Getting Real-Debrid link")
             link = get_stream_link_rd(query, config=config)
