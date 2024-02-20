@@ -95,6 +95,11 @@ def parse_xml(xml_content, query, config):
                             namespaces={'torznab': 'http://torznab.com/schemas/2015/feed'}).attrib['value']
         if seeders == "0":
             continue
+        try:
+            if query['season'] not in title:
+                continue
+        except:
+            pass
         item_dict = {}
         if query['type'] == "movie":
             item_dict = {
