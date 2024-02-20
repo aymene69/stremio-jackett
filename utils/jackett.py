@@ -32,7 +32,7 @@ def search(query, config):
             return error
     elif query['type'] == "series":
         url_ep = (f"{config['jackettHost']}/api/v2.0/indexers/all/results/torznab/api?apikey={config['jackettApiKey']}"
-                  f"&t=tvsearch&cat=5000&q={query['title']}+{query['season']}+{query['episode']}")
+                  f"&t=tvsearch&cat=5000&q={query['title']}+{query['season']}{query['episode']}")
         url_season = (f"{config['jackettHost']}/api/v2.0/indexers/all/results/torznab/api?apikey={config['jackettApiKey']}"
                       f"&t=tvsearch&cat=5000&q={query['title']}+{query['season']}")
         try:
