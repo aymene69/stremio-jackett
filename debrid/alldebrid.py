@@ -1,6 +1,5 @@
 import requests
 import json
-from utils.get_config import get_config
 
 
 def get_stream_link_ad(query, config):
