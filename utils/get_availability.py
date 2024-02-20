@@ -139,11 +139,11 @@ def get_torrent_info(item, config):
     try:
         season = item['season']
         episode = item['episode']
-        availability = is_available(magnet, item['type'], item['season'] + item['episode'], config)
+        availability = is_available(magnet, item['type'], item['season'] + item['episode'], config=config)
     except:
         season = None
         episode = None
-        availability = is_available(magnet, item['type'], config)
+        availability = is_available(magnet, item['type'], config=config)
     torrent_info = {
         "name": item['name'],
         "title": item['title'],
