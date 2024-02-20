@@ -93,3 +93,4 @@ def get_stream_link_rd(query, config):
         data = response.json()
         print("Unrestricted link")
         return data['download']
+
