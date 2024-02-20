@@ -2,7 +2,7 @@ version: '3'
 
 services:
   addon:
-    image: belmeg/stremio-addon-jackett:testing-amd
+    image: belmeg/stremio-addon-jackett:testing-arm
     container_name: addon
     networks:
       - traefik_default
