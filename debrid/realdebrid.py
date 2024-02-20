@@ -1,5 +1,6 @@
 import requests
 import json
+import time
 
 
 def get_stream_link_rd(query, config):
@@ -35,7 +36,10 @@ def get_stream_link_rd(query, config):
         }
         requests.post(url, headers=headers, data=data_payload)
         print("Selected file")
+        tries = 0
         while True:
+            if tries > 5:
+                break
             print("Getting link")
             url = "https://api.real-debrid.com/rest/1.0/torrents/info/" + torrent_id
             response = requests.get(url, headers=headers)
@@ -43,6 +47,8 @@ def get_stream_link_rd(query, config):
             if data['links']:
                 link = data['links'][0]
                 break
+            tries += 1
+            time.sleep(5)
         print("Got link")
         print("Unrestricting link")
         url = "https://api.real-debrid.com/rest/1.0/unrestrict/link"
@@ -64,7 +70,10 @@ def get_stream_link_rd(query, config):
         }
         requests.post(url, headers=headers, data=data_payload)
         print("Selected file")
+        tries = 0
         while True:
+            if tries > 5:
+                break
             print("Getting link")
             url = "https://api.real-debrid.com/rest/1.0/torrents/info/" + torrent_id
             response = requests.get(url, headers=headers)
@@ -72,6 +81,8 @@ def get_stream_link_rd(query, config):
             if data['links']:
                 link = data['links'][0]
                 break
+            tries +=1
+            time.sleep(5)
         print("Got link")
         print("Unrestricting link")
         url = "https://api.real-debrid.com/rest/1.0/unrestrict/link"

@@ -19,8 +19,6 @@ from utils.process_results import process_results
 from debrid.realdebrid import get_stream_link_rd
 from debrid.alldebrid import get_stream_link_ad
 
-import concurrent.futures
-
 app = FastAPI()
 
 app.add_middleware(
