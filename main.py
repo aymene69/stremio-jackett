@@ -182,3 +182,32 @@ async def get_playback(config: str, query: str, title: str):
     except Exception as e:
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
+
+
+@app.head("/{config}/playback/{query}/{title}")
+async def get_playback(config: str, query: str, title: str):
+    try:
+        if not query or not title:
+            raise HTTPException(status_code=400, detail="Query and title are required.")
+        config = json.loads(base64.b64decode(config).decode('utf-8'))
+        print("Decoding query")
+        query = base64.b64decode(query).decode('utf-8')
+        print(query)
+        print("Decoded query")
+
+        service = config['service']
+        if service == "realdebrid":
+            print("Getting Real-Debrid link")
+            link = get_stream_link_rd(query, config=config)
+        elif service == "alldebrid":
+            print("Getting All-Debrid link")
+            link = get_stream_link_ad(query, config=config)
+        else:
+            raise HTTPException(status_code=500, detail="Invalid service configuration.")
+
+        print("Got link:", link)
+        return RedirectResponse(url=link, status_code=status.HTTP_302_FOUND)
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
