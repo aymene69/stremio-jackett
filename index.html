@@ -188,6 +188,19 @@
               </div>
 
                 </div>
+
+                <div class="mt-6 space-y-6">
+                    <div class="sm:col-span-3">
+                        <label for="maxSize" class="text-sm font-semibold leading-6 text-gray-900">Results per quality</label>
+                        <p class="mt-1 text-sm leading-6 text-gray-600">Set the amount of maximum results you want per quality.</p>
+
+                        <div class="mt-2">
+                            <input oninput="updateLink()" type="text" name="resultsPerQuality" id="resultsPerQuality" autocomplete="resultsPerQuality" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  5">
+                        </div>
+                    </div>
+
+                </div>
+
                 <div class="mt-6 space-y-6">
                     <div class="sm:col-span-3">
                 <label for="maxResults" class="text-sm font-semibold leading-6 text-gray-900">Maximum results</label>
@@ -222,6 +235,7 @@
             document.getElementById('service').value = data.service;
             document.getElementById('language').value = data.language;
             document.getElementById('maxSize').value = data.maxSize;
+            document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
             document.getElementById('maxResults').value = data.maxResults;
             if (data.sort === 'quality') {
                 document.getElementById('quality').checked = true;
@@ -258,6 +272,7 @@
         let filter;
         const language = document.getElementById('language').value;
         let maxSize = document.getElementById('maxSize').value;
+        let resultsPerQuality = document.getElementById('resultsPerQuality').value;
         let maxResults = document.getElementById('maxResults').value;
         let link = document.getElementById('install');
         const qualityExclusion = [];
@@ -300,6 +315,7 @@
             maxSize,
             language,
             'sort': filter,
+            resultsPerQuality,
             maxResults,
             'exclusion': qualityExclusion,
             tmdbApi

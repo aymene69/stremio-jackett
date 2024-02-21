@@ -37,6 +37,26 @@ def quality_exclusion(items, config):
             filtered_items.append(item)
     return filtered_items
 
+def results_per_quality(items, config):
+    print("Started filtering results per quality (" + str(config['resultsPerQuality']) + " results per quality)")
+    if config is None:
+        return items
+    if config['resultsPerQuality'] is None or int(config['resultsPerQuality']) == 0:
+        return items
+    filtered_items = []
+    quality_count = {}
+    for item in items:
+        if item['quality'] not in quality_count:
+            quality_count[item['quality']] = 1
+            filtered_items.append(item)
+        else:
+            if quality_count[item['quality']] < int(config['resultsPerQuality']):
+                quality_count[item['quality']] += 1
+                filtered_items.append(item)
+
+    print("Item count changed from " + str(len(items)) + " to " + str(len(filtered_items)))
+    return filtered_items
+
 
 def sort_quality(item):
     order = {"4k": 0, "1080p": 1, "720p": 2, "480p": 3}
@@ -70,4 +90,6 @@ def filter_items(items, item_type=None, config=None):
         items = items_sort(items, config)
     if config['exclusion'] is not None:
         items = quality_exclusion(items, config)
+    if config['resultsPerQuality'] is not None:
+        items = results_per_quality(items, config)
     return items
