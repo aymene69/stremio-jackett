@@ -47,7 +47,7 @@ def process_stream(stream, cached, stream_type, season, episode, config):
 
     return {
         "name": name,
-        "title": f"{stream['title']}\r\n{get_emoji(stream['language'])}👥{stream['seeders']}📂"
+        "title": f"{stream['title']}\r\n{get_emoji(stream['language'])}   👥 {stream['seeders']}   📂 "
                  f"{round(int(stream['size']) / 1024 / 1024 / 1024, 2)}GB",
         "url": f"{config['addonHost']}/{base64.b64encode(json.dumps(config).encode('utf-8')).decode('utf-8')}/playback/"
                f"{base64.b64encode(json.dumps(query).encode('utf-8')).decode('utf-8')}/{stream['title'].replace(' ', '.')}"
