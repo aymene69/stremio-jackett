@@ -52,7 +52,7 @@ async def get_manifest():
     return {
         "id": "community.aymene69.jackett",
         "icon": "https://i.imgur.com/tVjqEJP.png",
-        "version": "3.0.0",
+        "version": "3.0.5",
         "catalogs": [],
         "resources": ["stream"],
         "types": ["movie", "series"],
