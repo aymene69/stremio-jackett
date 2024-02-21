@@ -2,6 +2,7 @@ import base64
 import json
 
 from fastapi import FastAPI, Request, HTTPException
+from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.responses import HTMLResponse
@@ -211,3 +212,11 @@ async def get_playback(config: str, query: str, title: str):
     except Exception as e:
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
+
+@app.get("/{config}/nocache")
+async def get_nocache():
+    return FileResponse("nocache.mp4", media_type="video/mp4")
+
+@app.get("/nocache")
+async def get_nocache():
+    return FileResponse("nocache.mp4", media_type="video/mp4")
