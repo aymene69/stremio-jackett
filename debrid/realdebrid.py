@@ -38,8 +38,8 @@ def get_stream_link_rd(query, config):
         print("Selected file")
         tries = 0
         while True:
-            if tries > 1:
-                return config['addonHost'] + "/nocache/"
+            if tries > 0:
+                return "https://github.com/aymene69/stremio-jackett/raw/main/nocache.mp4"
             print("Getting link")
             url = "https://api.real-debrid.com/rest/1.0/torrents/info/" + torrent_id
             response = requests.get(url, headers=headers)
@@ -72,8 +72,8 @@ def get_stream_link_rd(query, config):
         print("Selected file")
         tries = 0
         while True:
-            if tries > 1:
-                return config['addonHost'] + "/nocache/"
+            if tries > 0:
+                return "https://github.com/aymene69/stremio-jackett/raw/main/nocache.mp4"
             print("Getting link")
             url = "https://api.real-debrid.com/rest/1.0/torrents/info/" + torrent_id
             response = requests.get(url, headers=headers)

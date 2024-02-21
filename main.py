@@ -76,7 +76,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         print("Getting config")
         print("Got config")
         print("Getting cached results")
-        cached = search_cache(name)
+        cached = filter_items(search_cache(name), "movie", config=config)
         print("Got cached results")
         if len(cached) >= int(config['maxResults']):
             print("Cached results found")
@@ -113,7 +113,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         print("Getting config")
         print("Got config")
         print("Getting cached results")
-        cached = search_cache(name)
+        cached = filter_items(search_cache(name), "series", config=config)
         print("Got cached results")
         if len(cached) >= int(config['maxResults']):
             print("Cached results found")
@@ -212,11 +212,3 @@ async def get_playback(config: str, query: str, title: str):
     except Exception as e:
         print(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
-
-@app.get("/{config}/nocache")
-async def get_nocache():
-    return FileResponse("nocache.mp4", media_type="video/mp4")
-
-@app.get("/nocache")
-async def get_nocache():
-    return FileResponse("nocache.mp4", media_type="video/mp4")

@@ -10,8 +10,8 @@ def get_stream_link_ad(query, config):
     data = response.json()
     tries = 0
     while True:
-        if tries > 1:
-            return config['addonHost'] + "/nocache/"
+        if tries > 0:
+            return "https://github.com/aymene69/stremio-jackett/raw/main/nocache.mp4"
         url = ("https://api.alldebrid.com/v4/magnet/status?agent=jackett&apikey=" + config['debridKey'] + "&id=" +
                str(data["data"]['magnets'][0]['id']))
         response = requests.get(url)

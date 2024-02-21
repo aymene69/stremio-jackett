@@ -63,7 +63,7 @@ def filter_items(items, item_type=None, config=None):
         return items
     print("Started filtering torrents")
     items = filter_language(items, config['language'])
-    if config['maxSize'] != 0:
+    if int(config['maxSize']) != 0:
         if item_type == "movie":
             items = max_size(items, config)
     if config['sort'] is not None:
