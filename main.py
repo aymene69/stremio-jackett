@@ -10,6 +10,7 @@ from fastapi.templating import Jinja2Templates
 
 import starlette.status as status
 
+from constants import BYPASS_CACHE, NO_RESULTS
 from utils.get_content import get_name
 from utils.get_cached import search_cache
 from utils.jackett import search
@@ -78,14 +79,14 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         print("Getting cached results")
         cached = filter_items(search_cache(name), "movie", config=config)
         print("Got cached results")
-        if len(cached) >= int(config['maxResults']):
+        if not BYPASS_CACHE and len(cached) >= int(config['maxResults']):
             print("Cached results found")
             print("Processing cached results")
             stream_list = process_results(cached[:int(config['maxResults'])], True, "movie", config=config)
             print("Processed cached results")
             if len(stream_list) == 0:
                 print("No results found")
-                return {"streams": [{"url": "#", "title": "No results found"}]}
+                return NO_RESULTS
             return {"streams": stream_list}
         else:
             print("No cached results found")
@@ -103,7 +104,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
             print("Processed results")
             if len(stream_list) == 0:
                 print("No results found")
-                return {"streams": [{"url": "#", "title": "No results found"}]}
+                return NO_RESULTS
             return {"streams": stream_list}
     if stream_type == "series":
         print("Series request")
@@ -115,7 +116,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         print("Getting cached results")
         cached = filter_items(search_cache(name), "series", config=config)
         print("Got cached results")
-        if len(cached) >= int(config['maxResults']):
+        if not BYPASS_CACHE and len(cached) >= int(config['maxResults']):
             print("Cached results found")
             if len(cached) == 1:
                 print("Processing cached results")
@@ -123,7 +124,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
                 print("Processed cached results")
                 if len(stream_list) == 0:
                     print("No results found")
-                    return {"streams": [{"url": "#", "title": "No results found"}]}
+                    return NO_RESULTS
                 return {"streams": stream_list}
             else:
                 print("Processing cached results")
@@ -132,7 +133,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
                 print("Processed cached results")
                 if len(stream_list) == 0:
                     print("No results found")
-                    return {"streams": [{"url": "#", "title": "No results found"}]}
+                    return NO_RESULTS
                 return {"streams": stream_list}
         else:
             print("No cached results found")
@@ -152,7 +153,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
             print("Processed results")
             if len(stream_list) == 0:
                 print("No results found")
-                return {"streams": [{"url": "#", "title": "No results found"}]}
+                return NO_RESULTS
             return {"streams": stream_list}
 
 
