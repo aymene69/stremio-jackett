@@ -2,6 +2,8 @@ def filter_language(torrents, language):
     print(f"Filtering torrents by language: {language}")
     filtered_torrents = []
     for torrent in torrents:
+        if not torrent['language']:
+            continue
         if torrent['language'] == language:
             filtered_torrents.append(torrent)
         if torrent['language'] == "multi":
@@ -18,7 +20,7 @@ def max_size(items, config):
     if config['maxSize'] is None:
         return items
     filtered_items = []
-    size = config['maxSize'] * 1024 ** 3
+    size = int(config['maxSize']) * 1024 ** 3
     for item in items:
         if int(item['size']) <= size:
             filtered_items.append(item)
