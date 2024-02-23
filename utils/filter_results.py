@@ -96,7 +96,7 @@ def filter_items(items, item_type=None, config=None, cached=False, season=None, 
         return items
     if config['language'] is None:
         return items
-    if cached:
+    if cached and item_type == "series":
         items = filter_season_episode(items, season, episode)
     print("Started filtering torrents")
     items = filter_language(items, config['language'])
