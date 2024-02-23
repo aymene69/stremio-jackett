@@ -117,9 +117,14 @@ def parse_xml(xml_content, query, config):
                 "type": "movie",
             }
             items_list.append(item_dict)
+
         if query['type'] == "series":
+            if config['language'] == "ru":
+                if "S" + str(int(query['season'].replace("S",""))) + "E" + str(int(query['episode'].replace("E", ""))) not in title:
+                    if re.search(r'\bS\d+\b', title) is None:
+                        continue
             if query['season'] + query['episode'] not in title:
-                if re.search(r'\bS\d{2}\b', title) == None:
+                if re.search(rf'\b{re.escape(query["season"])}\b', title) is None:
                     continue
 
             item_dict = {

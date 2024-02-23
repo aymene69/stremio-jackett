@@ -81,13 +81,17 @@ def items_sort(items, config):
         return sorted(items, key=lambda x: int(x['size']), reverse=True)
 
 
-def filter_season_episode(items, season, episode):
+def filter_season_episode(items, season, episode, config):
     filtered_items = []
     for item in items:
-        if season + episode in item['title']:
-            filtered_items.append(item)
-        if re.search(r'\bS\d{2}\b', item['title']):
-            filtered_items.append(item)
+        if config['language'] == "ru":
+            if "S" + str(int(season.replace("S", ""))) + "E" + str(
+                    int(episode.replace("E", ""))) not in item['title']:
+                if re.search(rf'\bS{re.escape(str(int(season.replace("S", ""))))}\b', item['title']) is None:
+                    continue
+        if season + episode not in item['title']:
+            if re.search(rf'\b{season}\b', item['title']) is None:
+                continue
     return filtered_items
 
 
@@ -97,7 +101,7 @@ def filter_items(items, item_type=None, config=None, cached=False, season=None, 
     if config['language'] is None:
         return items
     if cached and item_type == "series":
-        items = filter_season_episode(items, season, episode)
+        items = filter_season_episode(items, season, episode, config)
     print("Started filtering torrents")
     items = filter_language(items, config['language'])
     if int(config['maxSize']) != 0:
