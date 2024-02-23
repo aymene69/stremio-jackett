@@ -21,6 +21,11 @@ def get_emoji(language):
     return emoji_dict.get(language, "🇬🇧")
 
 
+def filter_by_availability(item):
+    availability = item["name"][0]
+    return 0 if availability == "+" else 1
+
+
 def process_stream(stream, cached, stream_type, season, episode, config):
     try:
         if "availability" not in stream and not cached:
@@ -72,4 +77,4 @@ def process_results(items, cached, stream_type, season=None, episode=None, confi
             if result is not None:
                 stream_list.append(result)
 
-    return stream_list
+    return sorted(stream_list, key=filter_by_availability)
