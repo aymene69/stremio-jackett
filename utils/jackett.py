@@ -1,5 +1,7 @@
 import requests
 import json
+
+from constants import NO_RESULTS, JACKETT_ERROR
 from utils.parse_xml import parse_xml
 
 host = "https://jackett.aymene.tech"
@@ -7,11 +9,6 @@ api = "8zhy2rf8djop7g4qh4xv5zr3mnqfxtr8"
 type = "movie"
 title = "Reacher"
 year = "2023"
-
-no_config = {'streams': [{'url': "#", 'title': "No configuration found"}]}
-no_results = {'streams': [{'url': "#", 'title': "No results found"}]}
-error = {'streams': [{'url': "#", 'title': "An error occured"}]}
-
 
 def search(query, config):
     if config is None:
@@ -27,9 +24,9 @@ def search(query, config):
             if data:
                 return json.loads(data)
             else:
-                return no_results
+                return NO_RESULTS
         except requests.exceptions.RequestException as e:
-            return error
+            return JACKETT_ERROR
     elif query['type'] == "series":
         url_ep = (f"{config['jackettHost']}/api/v2.0/indexers/all/results/torznab/api?apikey={config['jackettApiKey']}"
                   f"&t=tvsearch&cat=5000&q={query['title']}+{query['season']}{query['episode']}")
@@ -46,6 +43,6 @@ def search(query, config):
             if data:
                 return json.loads(data)
             else:
-                return no_results
+                return NO_RESULTS
         except requests.exceptions.RequestException as e:
-            return error
+            return JACKETT_ERROR
