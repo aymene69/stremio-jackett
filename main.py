@@ -52,7 +52,7 @@ async def get_manifest():
     return {
         "id": "community.aymene69.jackett",
         "icon": "https://i.imgur.com/tVjqEJP.png",
-        "version": "3.0.5",
+        "version": "3.0.7",
         "catalogs": [],
         "resources": ["stream"],
         "types": ["movie", "series"],
@@ -76,7 +76,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         print("Getting config")
         print("Got config")
         print("Getting cached results")
-        cached = filter_items(search_cache(name), "movie", config=config)
+        cached = filter_items(search_cache(name), "movie", config=config, cached=True)
         print("Got cached results")
         if len(cached) >= int(config['maxResults']):
             print("Cached results found")
@@ -113,7 +113,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         print("Getting config")
         print("Got config")
         print("Getting cached results")
-        cached = filter_items(search_cache(name), "series", config=config)
+        cached = filter_items(search_cache(name), "series", config=config, cached=True, season=name['season'], episode=name['episode'])
         print("Got cached results")
         if len(cached) >= int(config['maxResults']):
             print("Cached results found")

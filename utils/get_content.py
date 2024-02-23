@@ -4,7 +4,7 @@ import requests
 def get_name(id, type, config):
     if type == "movie":
         full_id = id.split(":")
-        url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={config['tmdbApi']}&external_source=imdb_id"
+        url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={config['tmdbApi']}&external_source=imdb_id&language={config['language']}"
         response = requests.get(url)
         data = response.json()
         result = {
@@ -16,7 +16,7 @@ def get_name(id, type, config):
         return result
     else:
         full_id = id.split(":")
-        url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={config['tmdbApi']}&external_source=imdb_id"
+        url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={config['tmdbApi']}&external_source=imdb_id&language={config['language']}"
         response = requests.get(url)
         data = response.json()
         result = {

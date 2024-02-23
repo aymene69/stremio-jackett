@@ -1,3 +1,6 @@
+import re
+
+
 def filter_language(torrents, language):
     print(f"Filtering torrents by language: {language}")
     filtered_torrents = []
@@ -78,11 +81,23 @@ def items_sort(items, config):
         return sorted(items, key=lambda x: int(x['size']), reverse=True)
 
 
-def filter_items(items, item_type=None, config=None):
+def filter_season_episode(items, season, episode):
+    filtered_items = []
+    for item in items:
+        if season + episode in item['title']:
+            filtered_items.append(item)
+        if re.search(r'\bS\d{2}\b', item['title']):
+            filtered_items.append(item)
+    return filtered_items
+
+
+def filter_items(items, item_type=None, config=None, cached=False, season=None, episode=None):
     if config is None:
         return items
     if config['language'] is None:
         return items
+    if cached:
+        items = filter_season_episode(items, season, episode)
     print("Started filtering torrents")
     items = filter_language(items, config['language'])
     if int(config['maxSize']) != 0:
