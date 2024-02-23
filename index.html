@@ -30,7 +30,7 @@
         <form style="background-color: rgba(255,255,255,0.68);padding: 2rem;border-radius: 1rem">
             <img src="https://user-images.githubusercontent.com/27040483/28728094-99f3e3f6-73c7-11e7-8f8d-28912dc6ac0d.png" alt="logo" style="width: 100px;height: 100px;">
           <div class="space-y-12">
-              <p style="text-align: center">Stremio-Jackett v3.0.8</p>
+              <p style="text-align: center">Stremio-Jackett v3.0.9</p>
               <h1 class="text-base font-semibold leading-7 text-gray-900" style="text-align: center;font-size: 2rem;">Addon configuration</h1>
 
 
@@ -42,14 +42,14 @@
                 <div class="sm:col-span-3">
                   <label for="jackett-host" class="block text-sm font-medium leading-6 text-gray-900">Jackett Host</label>
                   <div class="mt-2">
-                    <input oninput="updateLink()" type="text" name="jackett-host" id="jackett-host" autocomplete="jackett-host" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  I.e: http(s)://jackett.com without / at end">
+                    <input oninput="" type="text" name="jackett-host" id="jackett-host" autocomplete="jackett-host" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  I.e: http(s)://jackett.com without / at end">
                   </div>
                 </div>
 
                 <div class="sm:col-span-3">
                   <label for="jackett-api" class="block text-sm font-medium leading-6 text-gray-900">Jackett API key</label>
                   <div class="mt-2">
-                    <input oninput="updateLink()" type="text" name="jackett-api" id="jackett-api" autocomplete="jackett-api" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  Your Jackett API key">
+                    <input oninput="" type="text" name="jackett-api" id="jackett-api" autocomplete="jackett-api" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  Your Jackett API key">
                   </div>
                 </div>
               </div>
@@ -64,7 +64,7 @@
                 <div class="sm:col-span-3">
                 <label for="service" class="block text-sm font-medium leading-6 text-gray-900">Debrid Provider</label>
                 <div class="mt-2">
-                  <select onchange="updateLink()" id="service" name="service" autocomplete="service" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                  <select onchange="" id="service" name="service" autocomplete="service" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
                     <option value="realdebrid">Real-Debrid</option>
                     <option value="alldebrid">All-Debrid</option>
                   </select>
@@ -73,7 +73,7 @@
                 <div class="sm:col-span-3">
                   <label for="debrid-api" class="block text-sm font-medium leading-6 text-gray-900">Debrid API key</label>
                   <div class="mt-2">
-                    <input oninput="updateLink()" type="text" name="debrid-api" id="debrid-api" autocomplete="debrid-api" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  Your Debrid API key">
+                    <input oninput="" type="text" name="debrid-api" id="debrid-api" autocomplete="debrid-api" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  Your Debrid API key">
                   </div>
                 </div>
               </div>
@@ -87,7 +87,7 @@
                 <div class="col-span-full">
                   <label for="tmdb-api" class="block text-sm font-medium leading-6 text-gray-900">TMDB API key</label>
                   <div class="mt-2">
-                    <input oninput="updateLink()" type="text" name="tmdb-api" id="tmdb-api" autocomplete="tmdb-api" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  Your TMDB API key">
+                    <input oninput="" type="text" name="tmdb-api" id="tmdb-api" autocomplete="tmdb-api" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  Your TMDB API key">
                   </div>
                 </div>
               </div>
@@ -105,7 +105,7 @@
     <div class="mt-6 space-y-6">
         <div class="relative flex gap-x-3">
             <div class="flex h-6 items-center">
-                <input oninput="updateLink()" id="quality" name="sorting" value="quality" type="radio" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked>
+                <input oninput="" id="quality" name="sorting" value="quality" type="radio" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked>
             </div>
             <div class="text-sm leading-6">
                 <label for="quality" class="font-medium text-gray-900">Quality</label>
@@ -114,7 +114,7 @@
         </div>
         <div class="relative flex gap-x-3">
             <div class="flex h-6 items-center">
-                <input oninput="updateLink()" id="sizedesc" name="sorting" value="sizedesc" type="radio" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                <input oninput="" id="sizedesc" name="sorting" value="sizedesc" type="radio" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
             </div>
             <div class="text-sm leading-6">
                 <label for="sizedesc" class="font-medium text-gray-900">Size descending</label>
@@ -123,7 +123,7 @@
         </div>
         <div class="relative flex gap-x-3">
             <div class="flex h-6 items-center">
-                <input oninput="updateLink()" id="sizeasc" name="sorting" value="sizeasc" type="radio" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                <input oninput="" id="sizeasc" name="sorting" value="sizeasc" type="radio" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
             </div>
             <div class="text-sm leading-6">
                 <label for="sizeasc" class="font-medium text-gray-900">Size ascending</label>
@@ -138,22 +138,22 @@
                   <p class="mt-1 text-sm leading-6 text-gray-600">Check qualities that you want to exclude</p>
                   <div class="mt-6 space-y-6">
                     <div class="flex items-center gap-x-3">
-                      <input oninput="updateLink()" id="4k" name="4k" type="checkbox" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                      <input oninput="" id="4k" name="4k" type="checkbox" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
                       <label for="4k" class="block text-sm font-medium leading-6 text-gray-900">4k</label>
                     </div>
 
                     <div class="flex items-center gap-x-3">
-                      <input oninput="updateLink()" id="1080p" name="1080p" type="checkbox" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                      <input oninput="" id="1080p" name="1080p" type="checkbox" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
                       <label for="1080p" class="block text-sm font-medium leading-6 text-gray-900">1080p</label>
                     </div>
 
                     <div class="flex items-center gap-x-3">
-                      <input oninput="updateLink()" id="720p" name="720p" type="checkbox" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                      <input oninput="" id="720p" name="720p" type="checkbox" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
                       <label for="720p" class="block text-sm font-medium leading-6 text-gray-900">720p</label>
                     </div>
 
                     <div class="flex items-center gap-x-3">
-                      <input oninput="updateLink()" id="480p" name="480p" type="checkbox" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                      <input oninput="" id="480p" name="480p" type="checkbox" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
                       <label for="480p" class="block text-sm font-medium leading-6 text-gray-900">480p</label>
                     </div>
                   </div>
@@ -165,7 +165,7 @@
                         <p class="mt-1 text-sm leading-6 text-gray-600">Choose your language</p>
 
                 <div class="mt-2">
-                  <select onchange="updateLink()" id="language" name="language" autocomplete="language" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                  <select onchange="" id="language" name="language" autocomplete="language" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
                       <option value="en">🇬🇧</option>
                       <option value="fr">🇫🇷</option>
                       <option value="es">🇪🇸</option>
@@ -186,7 +186,7 @@
                         <p class="mt-1 text-sm leading-6 text-gray-600">Set a maximum size for your results in GB.</p>
 
                 <div class="mt-2">
-                    <input oninput="updateLink()" type="text" name="maxSize" id="maxSize" autocomplete="maxSize" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  5">
+                    <input oninput="" type="text" name="maxSize" id="maxSize" autocomplete="maxSize" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  5">
                 </div>
               </div>
 
@@ -198,7 +198,7 @@
                         <p class="mt-1 text-sm leading-6 text-gray-600">Set the amount of maximum results you want per quality.</p>
 
                         <div class="mt-2">
-                            <input oninput="updateLink()" type="text" name="resultsPerQuality" id="resultsPerQuality" autocomplete="resultsPerQuality" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  5">
+                            <input oninput="" type="text" name="resultsPerQuality" id="resultsPerQuality" autocomplete="resultsPerQuality" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  5">
                         </div>
                     </div>
 
@@ -210,7 +210,7 @@
                         <p class="mt-1 text-sm leading-6 text-gray-600">Set the amount of maximum results you want.</p>
 
                 <div class="mt-2">
-                    <input oninput="updateLink()" type="text" name="maxResults" id="maxResults" autocomplete="maxResults" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  5">
+                    <input oninput="" type="text" name="maxResults" id="maxResults" autocomplete="maxResults" class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6" placeholder="  5">
                 </div>
               </div>
 
@@ -219,7 +219,8 @@
           </div>
 
           <div class="mt-6 flex items-center justify-center gap-x-6">
-              <a id="install" href="#" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg--500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Install</a>
+              <a id="install" href="#" onclick="return getLink('link')" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg--500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Install</a>
+              <a id="copy" href="#" onclick="return getLink('copy')" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg--500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Copy</a>
           </div>
         </form>
     </div>
@@ -261,11 +262,11 @@
             if (data.exclusion.includes('480p')) {
                 document.getElementById('480p').checked = true;
             }
-            updateLink();
+            ;
         }
     }
     loadData();
-    function updateLink() {
+    function getLink(method) {
         const addonHost = new URL(window.location.href).protocol.replace(':', '') + "://" + new URL(window.location.href).host
         const jackettHost = document.getElementById('jackett-host').value;
         const jackettApi = document.getElementById('jackett-api').value;
@@ -326,11 +327,24 @@
             'exclusion': qualityExclusion,
             tmdbApi
         };
+        if (jackettHost === '' || jackettApi === '' || debridApi === '' || tmdbApi === '') {
+            alert('Please fill all the fields');
+            return false;
+        }
+        let stremio_link = `stremio://${window.location.host}/${btoa(JSON.stringify(data))}/manifest.json`;
 
-        link.href = `stremio://${
-						window.location.host
-					}/${btoa(JSON.stringify(data))}/manifest.json`;
+        if (method === 'link') {
+            window.open(stremio_link, "_blank");
+        }
+        if (method === 'copy') {
+            navigator.clipboard.writeText(stremio_link);
+            alert('Link copied to clipboard');
+            return false;
+        }
     }
+
+
+
 
 </script>
 </html>
