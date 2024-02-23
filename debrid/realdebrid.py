@@ -10,17 +10,21 @@ def get_stream_link_rd(query, config):
     print("Getting config")
     print("Got config")
     print("Adding magnet to Real-Debrid")
-    url = "https://api.real-debrid.com/rest/1.0/torrents/addMagnet"
+    torrent_id = is_already_added(magnet, config)
     headers = {
         "Authorization": f"Bearer {config['debridKey']}"
     }
-    data = {
-        "magnet": magnet
-    }
-    response = requests.post(url, headers=headers, data=data)
-    data = response.json()
-    torrent_id = data['id']
-    print("Added magnet to Real-Debrid. ID: " + torrent_id)
+    if torrent_id:
+        print("Torrent already added to Real-Debrid. ID: " + torrent_id)
+    else:
+        url = "https://api.real-debrid.com/rest/1.0/torrents/addMagnet"
+        data = {
+            "magnet": magnet
+        }
+        response = requests.post(url, headers=headers, data=data)
+        data = response.json()
+        torrent_id = data['id']
+        print("Added magnet to Real-Debrid. ID: " + torrent_id)
     print("Getting torrent info")
     url = "https://api.real-debrid.com/rest/1.0/torrents/info/" + torrent_id
     response = requests.get(url, headers=headers)
@@ -94,3 +98,17 @@ def get_stream_link_rd(query, config):
         print("Unrestricted link")
         return data['download']
 
+
+def is_already_added(magnet, config):
+    hash = magnet.split("urn:btih:")[1].split("&")[0].lower()
+    print("Getting Real-Debrid torrents")
+    url = "https://api.real-debrid.com/rest/1.0/torrents"
+    headers = {
+        "Authorization": f"Bearer {config['debridKey']}"
+    }
+    response = requests.get(url, headers=headers)
+    data = response.json()
+    for torrent in data:
+        if torrent['hash'] == hash:
+            return torrent['id']
+    return None
