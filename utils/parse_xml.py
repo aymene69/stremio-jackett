@@ -54,6 +54,7 @@ def get_emoji(language):
         "pt": "🇵🇹",
         "ru": "🇷🇺",
         "in": "🇮🇳",
+        "nl": "🇳🇱",
         "multi": "🌍"
     }
     return emoji_dict.get(language, "🇬🇧")
@@ -68,7 +69,8 @@ def detect_language(torrent_name):
         "it": r'\b(ITALIAN|IT|ITA)\b',
         "pt": r'\b(PORTUGUESE|PT|POR)\b',
         "ru": r'\b(RUSSIAN|RU|RUS)\b',
-        "in": r'\b(INDIAN|IN|HINDI|TELUGU|TAMIL|KANNADA|MALAYALAM|PUNJABI|MARATHI|BENGALI|GUJARATI|URDU|ODIA|ASSAMESE|KONKANI|MANIPURI|NEPALI|SANSKRIT|SINHALA|SINDHI|TIBETAN|BHOJPURI|DHIVEHI|KASHMIRI|KURUKH|MAITHILI|NEWARI|RAJASTHANI|SANTALI|SINDHI|TULU)\b'
+        "in": r'\b(INDIAN|IN|HINDI|TELUGU|TAMIL|KANNADA|MALAYALAM|PUNJABI|MARATHI|BENGALI|GUJARATI|URDU|ODIA|ASSAMESE|KONKANI|MANIPURI|NEPALI|SANSKRIT|SINHALA|SINDHI|TIBETAN|BHOJPURI|DHIVEHI|KASHMIRI|KURUKH|MAITHILI|NEWARI|RAJASTHANI|SANTALI|SINDHI|TULU)\b',
+        "nl": r'\b(DUTCH|NL|NLD)\b',
     }
 
     for language, pattern in language_patterns.items():

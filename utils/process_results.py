@@ -15,6 +15,7 @@ def get_emoji(language):
         "pt": "🇵🇹",
         "ru": "🇷🇺",
         "in": "🇮🇳",
+        "nl": "🇳🇱",
         "multi": "🌍"
     }
     return emoji_dict.get(language, "🇬🇧")
