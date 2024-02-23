@@ -39,7 +39,11 @@ def process_stream(stream, cached, stream_type, season, episode, config):
     if stream_type == "series":
         query['season'] = season
         query['episode'] = episode
-
+    if availability == "AUTH_BLOCKED":
+        return {"name": "AUTH_BLOCKED",
+                "title": "New connection on AllDebrid.\r\nPlease authorize the connection\r\non your email",
+                "url": "#"
+        }
     if availability:
         indexer = stream.get('indexer', 'Cached')
         name = f"+{indexer} ({detect_quality(stream['title'])} - {detect_quality_spec(stream['title'])})"

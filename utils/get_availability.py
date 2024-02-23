@@ -35,6 +35,9 @@ def get_availability_cached(stream, type, seasonEpisode=None, config=None):
             'debridKey'] + "&magnets[]=" + stream['magnet']
         response = requests.get(url)
         data = response.json()
+        if data['status'] == "error":
+            if data['error']['code'] == "AUTH_BLOCKED":
+                return "AUTH_BLOCKED"
         if data["data"]["magnets"][0]["instant"]:
             if type == "movie":
                 return True
