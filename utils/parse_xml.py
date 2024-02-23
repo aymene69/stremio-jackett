@@ -101,11 +101,6 @@ def parse_xml(xml_content, query, config):
                             namespaces={'torznab': 'http://torznab.com/schemas/2015/feed'}).attrib['value']
         if seeders == "0":
             continue
-        try:
-            if query['season'] not in title:
-                continue
-        except:
-            pass
         item_dict = {}
         if query['type'] == "movie":
             item_dict = {
@@ -123,6 +118,10 @@ def parse_xml(xml_content, query, config):
             }
             items_list.append(item_dict)
         if query['type'] == "series":
+            if query['season'] + query['episode'] not in title:
+                if re.search(r'\bS\d{2}\b', title) == None:
+                    continue
+
             item_dict = {
                 "title": title,
                 "name": name,

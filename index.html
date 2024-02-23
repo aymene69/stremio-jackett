@@ -331,10 +331,10 @@
             alert('Please fill all the fields');
             return false;
         }
-        let stremio_link = `stremio://${window.location.host}/${btoa(JSON.stringify(data))}/manifest.json`;
+        let stremio_link = `${window.location.host}/${btoa(JSON.stringify(data))}/manifest.json`;
 
         if (method === 'link') {
-            window.open(stremio_link, "_blank");
+            window.open(`stremio://${stremio_link}`, "_blank");
         }
         if (method === 'copy') {
             navigator.clipboard.writeText(stremio_link);

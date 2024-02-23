@@ -77,7 +77,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         print("Getting config")
         print("Got config")
         print("Getting cached results")
-        cached = filter_items(search_cache(name), "movie", config=config, cached=True)
+        cached = []
         print("Got cached results")
         if len(cached) >= int(config['maxResults']):
             print("Cached results found")
