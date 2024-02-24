@@ -61,7 +61,7 @@ async def get_manifest():
         "catalogs": [],
         "resources": ["stream"],
         "types": ["movie", "series"],
-        "name": "Jackett - Development",
+        "name": "Jackett",
         "description": "Stremio Jackett Addon",
         "behaviorHints": {
             "configurable": True,
