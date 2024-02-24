@@ -219,8 +219,8 @@
           </div>
 
           <div class="mt-6 flex items-center justify-center gap-x-6">
-              <a id="install" href="#" onclick="return getLink('link')" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg--500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Install</a>
-              <a id="copy" href="#" onclick="return getLink('copy')" class="rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg--500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Copy</a>
+              <a id="install" onclick="return getLink('link')" class="cursor-pointer rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg--500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Install</a>
+              <a id="copy" onclick="return getLink('copy')" class="cursor-pointer rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg--500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Copy</a>
           </div>
         </form>
     </div>
@@ -262,7 +262,6 @@
             if (data.exclusion.includes('480p')) {
                 document.getElementById('480p').checked = true;
             }
-            ;
         }
     }
     loadData();
@@ -335,11 +334,20 @@
 
         if (method === 'link') {
             window.open(`stremio://${stremio_link}`, "_blank");
-        }
-        if (method === 'copy') {
-            navigator.clipboard.writeText(stremio_link);
-            alert('Link copied to clipboard');
-            return false;
+        } else if (method === 'copy') {
+            const link = window.location.protocol + '//' + stremio_link;
+
+            if (!navigator.clipboard) {
+                alert('Your browser does not support clipboard');
+                console.log(link);
+                return;
+            }
+
+            navigator.clipboard.writeText(link).then(() => {
+                alert('Link copied to clipboard');
+            }, () => {
+                alert('Error copying link to clipboard');
+            });
         }
     }
 
