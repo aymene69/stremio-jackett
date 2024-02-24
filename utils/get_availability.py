@@ -131,7 +131,7 @@ def get_torrent_info(item, config):
     if response.status_code == 200:
         logger.info("Successfully retrieved torrent info")
     else:
-        logger.error("Failed to retrieve torrent info after", max_retries, "attempts")
+        logger.error("Failed to retrieve torrent info after " + str(max_retries) + " attempts")
     logger.info("Got torrent info")
     torrent = bencode.bdecode(response.content)
     trackers = []
