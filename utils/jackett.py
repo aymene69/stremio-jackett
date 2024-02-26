@@ -37,8 +37,6 @@ def search(query, config):
         url_season = (
             f"{config['jackettHost']}/api/v2.0/indexers/all/results/torznab/api?apikey={config['jackettApiKey']}"
             f"&t=tvsearch&cat=5000&q={query['title']}&season={str(int(query['season'].replace('S','')))}")
-        print(url_ep)
-        print(url_season)
         try:
             response_ep = requests.get(url_ep)
             response_ep.raise_for_status()
