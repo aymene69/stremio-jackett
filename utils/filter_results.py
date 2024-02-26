@@ -149,9 +149,11 @@ def filter_season_episode(items, season, episode, config):
                     int(episode.replace("E", ""))) not in item['title']:
                 if re.search(rf'\bS{re.escape(str(int(season.replace("S", ""))))}\b', item['title']) is None:
                     continue
-        if season + episode not in item['title']:
+        if re.search(rf'\b{season}\s?{episode}\b', item['title']) is None:
             if re.search(rf'\b{season}\b', item['title']) is None:
                 continue
+
+        filtered_items.append(item)
     return filtered_items
 
 
