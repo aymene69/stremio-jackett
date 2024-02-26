@@ -1,12 +1,13 @@
 import base64
 import json
 import logging
+import re
 
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-
+from fastapi.middleware.wsgi import WSGIMiddleware
 import starlette.status as status
 
 from constants import NO_RESULTS
@@ -23,6 +24,19 @@ from debrid.alldebrid import get_stream_link_ad
 
 app = FastAPI()
 
+
+class LogFilterMiddleware:
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        request = Request(scope, receive)
+        path = request.url.path
+        sensible_path = re.sub(r'/ey.*?/', '/<SENSITIVE_DATA>/', path)
+        logger.info(f"{request.method} {sensible_path}")
+        return await self.app(scope, receive, send)
+
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -30,6 +44,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+app.add_middleware(LogFilterMiddleware)
 
 templates = Jinja2Templates(directory=".")
 
