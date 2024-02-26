@@ -20,6 +20,10 @@ from utils.jackett import search
 from utils.logger import setup_logger
 from utils.process_results import process_results
 
+
+print("Started Stremio-Jackett")
+
+
 app = FastAPI()
 
 
@@ -31,7 +35,7 @@ class LogFilterMiddleware:
         request = Request(scope, receive)
         path = request.url.path
         sensible_path = re.sub(r'/ey.*?/', '/<SENSITIVE_DATA>/', path)
-        logger.info(f"{request.method} {sensible_path}")
+        logger.info(f"{request.method} - {sensible_path}")
         return await self.app(scope, receive, send)
 
 
@@ -90,7 +94,7 @@ formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(pathname)s:%(lineno
 async def get_results(config: str, stream_type: str, stream_id: str):
     stream_id = stream_id.replace(".json", "")
     config = json.loads(base64.b64decode(config).decode('utf-8'))
-
+    print(config)
     logger.info(stream_type + " request")
     logger.info("Getting name and properties")
     name = get_name(stream_id, stream_type, config=config)
