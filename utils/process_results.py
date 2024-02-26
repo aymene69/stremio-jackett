@@ -56,13 +56,13 @@ def process_stream(stream, cached, stream_type, season, episode, config):
     else:
         indexer = stream.get('indexer', 'Cached')
         name = f"-{indexer} ({detect_quality(stream['title'])} - {detect_quality_spec(stream['title'])})"
-
+    configb64 = base64.b64encode(json.dumps(config).encode('utf-8')).decode('utf-8').replace('=', '%3D')
+    queryb64 = base64.b64encode(json.dumps(query).encode('utf-8')).decode('utf-8').replace('=', '%3D')
     return {
         "name": name,
         "title": f"{stream['title']}\r\n{get_emoji(stream['language'])}   👥 {stream['seeders']}   📂 "
                  f"{round(int(stream['size']) / 1024 / 1024 / 1024, 2)}GB",
-        "url": f"{config['addonHost']}/{base64.b64encode(json.dumps(config).encode('utf-8')).decode('utf-8')}/playback/"
-               f"{base64.b64encode(json.dumps(query).encode('utf-8')).decode('utf-8')}/{stream['title'].replace(' ', '.')}"
+        "url": f"{config['addonHost']}/playback/{configb64}/{queryb64}/{stream['title'].replace(' ', '.')}"
     }
 
 

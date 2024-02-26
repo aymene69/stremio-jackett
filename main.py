@@ -3,10 +3,8 @@ import json
 import logging
 
 from fastapi import FastAPI, Request, HTTPException
-from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
-from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 
 import starlette.status as status
@@ -37,6 +35,7 @@ templates = Jinja2Templates(directory=".")
 
 logger = setup_logger(__name__)
 
+
 @app.get("/")
 async def root():
     return RedirectResponse(url="/configure")
@@ -57,7 +56,7 @@ async def get_manifest():
     return {
         "id": "community.aymene69.jackett",
         "icon": "https://i.imgur.com/tVjqEJP.png",
-        "version": "3.0.9",
+        "version": "3.0.10",
         "catalogs": [],
         "resources": ["stream"],
         "types": ["movie", "series"],
@@ -168,7 +167,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
             return {"streams": stream_list}
 
 
-@app.head("/{config}/playback/{query}/{title}")
+@app.get("/playback/{config}/{query}/{title}")
 async def get_playback(config: str, query: str, title: str):
     try:
         if not query or not title:
@@ -196,7 +195,7 @@ async def get_playback(config: str, query: str, title: str):
         logger.error(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
 
-@app.get("/{config}/playback/{query}/{title}")
+@app.head("/playback/{config}/{query}/{title}")
 async def get_playback(config: str, query: str, title: str):
     try:
         if not query or not title:
