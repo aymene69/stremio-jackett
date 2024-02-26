@@ -169,7 +169,7 @@ async def get_playback(config: str, query: str, title: str):
             raise HTTPException(status_code=500, detail="Invalid service configuration.")
 
         logger.info("Got link: " + link)
-        return RedirectResponse(url=link, status_code=status.HTTP_302_FOUND)
+        return RedirectResponse(url=link, status_code=status.HTTP_301_MOVED_PERMANENTLY)
 
     except Exception as e:
         logger.error(f"An error occurred: {e}")
