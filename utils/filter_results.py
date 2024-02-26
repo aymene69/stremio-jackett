@@ -81,24 +81,23 @@ def quality_exclusion(streams, config):
         return streams
 
     filtered_items = []
-    excluded_qualities = config['exclusion']
-    rips = "rips" in excluded_qualities
-    cams = "cams" in excluded_qualities
+    excluded_qualities = [quality.upper() for quality in config['exclusion']]
+    rips = "RIPS" in excluded_qualities
+    cams = "CAM" in excluded_qualities
 
     for stream in streams:
         if stream['quality'] not in excluded_qualities:
             detection = detect_quality_spec(stream['title'])
             if detection is not None:
                 for item in detection:
-                    if rips and item in RIPS:
+                    if rips and item.upper() in RIPS:
                         break
-                    if cams and item in CAMS:
+                    if cams and item.upper() in CAMS:
                         break
                 else:
                     filtered_items.append(stream)
         else:
             filtered_items.append(stream)
-
     return filtered_items
 
 
