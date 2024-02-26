@@ -5,6 +5,41 @@ from utils.logger import setup_logger
 logger = setup_logger(__name__)
 
 
+def detect_quality_spec(torrent_name):
+    quality_patterns = {
+        "HDR": r'\b(HDR|HDR10|HDR10PLUS|HDR10PLUS|HDR10PLUS)\b',
+        "DTS": r'\b(DTS|DTS-HD)\b',
+        "DDP": r'\b(DDP|DDP5.1|DDP7.1)\b',
+        "DD": r'\b(DD|DD5.1|DD7.1)\b',
+        "SDR": r'\b(SDR|SDRIP)\b',
+        "WEBDL": r'\b(WEBDL|WEB-DL|WEB)\b',
+        "BLURAY": r'\b(BLURAY|BLU-RAY|BD)\b',
+        "DVDRIP": r'\b(DVDRIP|DVDR)\b',
+        "CAM": r'\b(CAM|CAMRIP|CAM-RIP)\b',
+        "TS": r'\b(TS|TELESYNC|TELESYNC)\b',
+        "TC": r'\b(TC|TELECINE|TELECINE)\b',
+        "R5": r'\b(R5|R5LINE|R5-LINE)\b',
+        "DVDSCR": r'\b(DVDSCR|DVD-SCR)\b',
+        "HDTV": r'\b(HDTV|HDTVRIP|HDTV-RIP)\b',
+        "PDTV": r'\b(PDTV|PDTVRIP|PDTV-RIP)\b',
+        "DSR": r'\b(DSR|DSRRIP|DSR-RIP)\b',
+        "WORKPRINT": r'\b(WORKPRINT|WP)\b',
+        "VHSRIP": r'\b(VHSRIP|VHS-RIP)\b',
+        "VODRIP": r'\b(VODRIP|VOD-RIP)\b',
+        "TVRIP": r'\b(TVRIP|TV-RIP)\b',
+        "WEBRIP": r'\b(WEBRIP|WEB-RIP)\b',
+        "BRRIP": r'\b(BRRIP|BR-RIP)\b',
+        "BDRIP": r'\b(BDRIP|BD-RIP)\b',
+        "HDCAM": r'\b(HDCAM|HD-CAM)\b',
+        "HDRIP": r'\b(HDRIP|HD-RIP)\b',
+    }
+    qualities = []
+    for quality, pattern in quality_patterns.items():
+        if re.search(pattern, torrent_name, re.IGNORECASE):
+            qualities.append(quality)
+    return qualities if qualities else None
+
+
 def filter_language(torrents, language):
     logger.info(f"Filtering torrents by language: {language}")
     filtered_torrents = []
@@ -37,16 +72,35 @@ def max_size(items, config):
     return filtered_items
 
 
-def quality_exclusion(items, config):
+def quality_exclusion(streams, config):
     logger.info("Started filtering quality")
+    RIPS = ["HDRIP", "BRRIP", "BDRIP", "HDCAM", "WEBRIP", "TVRIP", "VODRIP", "HDRIP"]
+    CAMS = ["CAM", "TS", "TC", "R5", "DVDSCR", "HDTV", "PDTV", "DSR", "WORKPRINT", "VHSRIP"]
     if config is None:
-        return items
+        return streams
     if config['exclusion'] is None:
-        return items
+        return streams
     filtered_items = []
-    for item in items:
-        if item['quality'] not in config['exclusion']:
-            filtered_items.append(item)
+    rips = False
+    cams = False
+    for stream in streams:
+        if stream['quality'] not in config['exclusion']:
+            if "rips" in config['exclusion']:
+                detection = detect_quality_spec(stream['title'])
+                if detection is not None:
+                    for item in detection:
+                        if item in RIPS:
+                            rips = True
+            if "cams" in config['exclusion']:
+                detection = detect_quality_spec(stream['title'])
+                if detection is not None:
+                    for item in detection:
+                        if item in CAMS:
+                            cams = True
+
+            if not rips and not cams:
+                filtered_items.append(stream)
+
     return filtered_items
 
 

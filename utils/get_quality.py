@@ -17,7 +17,7 @@ def detect_quality(torrent_name):
 
 def detect_quality_spec(torrent_name):
     quality_patterns = {
-        "HDR": r'\b(HDR|HDRIP|HDR10)\b',
+        "HDR": r'\b(HDR|HDR10|HDR10PLUS|HDR10PLUS|HDR10PLUS)\b',
         "DTS": r'\b(DTS|DTS-HD)\b',
         "DDP": r'\b(DDP|DDP5.1|DDP7.1)\b',
         "DD": r'\b(DD|DD5.1|DD7.1)\b',
@@ -41,6 +41,7 @@ def detect_quality_spec(torrent_name):
         "BRRIP": r'\b(BRRIP|BR-RIP)\b',
         "BDRIP": r'\b(BDRIP|BD-RIP)\b',
         "HDCAM": r'\b(HDCAM|HD-CAM)\b',
+        "HDRIP": r'\b(HDRIP|HD-RIP)\b',
     }
 
     qualities = []

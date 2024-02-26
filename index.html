@@ -156,6 +156,17 @@
                       <input oninput="" id="480p" name="480p" type="checkbox" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
                       <label for="480p" class="block text-sm font-medium leading-6 text-gray-900">480p</label>
                     </div>
+
+                    <div class="flex items-center gap-x-3">
+                      <input oninput="" id="rips" name="rips" type="checkbox" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                      <label for="rips" class="block text-sm font-medium leading-6 text-gray-900">RIPs (HDRip, WEBRip, etc.)</label>
+                    </div>
+
+                    <div class="flex items-center gap-x-3">
+                      <input oninput="" id="cam" name="cam" type="checkbox" class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                      <label for="cam" class="block text-sm font-medium leading-6 text-gray-900">480p</label>
+                    </div>
+
                   </div>
                 </fieldset>
               </div>
@@ -262,6 +273,12 @@
             if (data.exclusion.includes('480p')) {
                 document.getElementById('480p').checked = true;
             }
+            if (data.exclusion.includes('rips')) {
+                document.getElementById('rips').checked = true;
+            }
+            if (data.exclusion.includes('cam')) {
+                document.getElementById('cam').checked = true;
+            }
         }
     }
     loadData();
@@ -290,6 +307,12 @@
         }
         if (document.getElementById('480p').checked) {
             qualityExclusion.push('480p');
+        }
+        if (document.getElementById('rips').checked) {
+            qualityExclusion.push('rips');
+        }
+        if (document.getElementById('cam').checked) {
+            qualityExclusion.push('cam');
         }
         let qualityChecked = document.getElementById('quality').checked;
         let sizedescChecked = document.getElementById('sizedesc').checked;
