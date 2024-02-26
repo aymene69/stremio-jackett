@@ -83,7 +83,10 @@ def get_stream_link_rd(query, config):
     if type == "series":
         logger.info("Selecting series file")
         filtered_files = [file for file in data['files'] if
-                          json.loads(query)['season'] + json.loads(query)['episode'] in file['path']]
+                          json.loads(query)['season'].lower() + json.loads(query)['episode'].lower() in file['path'].lower()]
+        if not filtered_files:
+            logger.error("No files found for season " + json.loads(query)['season'] + " episode " + json.loads(query)['episode'])
+            return None
         file = max(filtered_files, key=lambda x: x['bytes'])
         logger.info("File name: " + file['path'])
         url = "https://api.real-debrid.com/rest/1.0/torrents/selectFiles/" + torrent_id
