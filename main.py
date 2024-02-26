@@ -21,9 +21,6 @@ from utils.logger import setup_logger
 from utils.process_results import process_results
 
 
-print("Started Stremio-Jackett")
-
-
 app = FastAPI()
 
 
@@ -90,11 +87,13 @@ formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(pathname)s:%(lineno
                               '%m-%d %H:%M:%S')
 
 
+logger.info("Started Jackett Addon")
+
+
 @app.get("/{config}/stream/{stream_type}/{stream_id}")
 async def get_results(config: str, stream_type: str, stream_id: str):
     stream_id = stream_id.replace(".json", "")
     config = json.loads(base64.b64decode(config).decode('utf-8'))
-    print(config)
     logger.info(stream_type + " request")
     logger.info("Getting name and properties")
     name = get_name(stream_id, stream_type, config=config)
@@ -149,35 +148,6 @@ async def get_results(config: str, stream_type: str, stream_id: str):
 
 
 @app.get("/playback/{config}/{query}/{title}")
-async def get_playback(config: str, query: str, title: str):
-    try:
-        if not query or not title:
-            raise HTTPException(status_code=400, detail="Query and title are required.")
-        config = json.loads(base64.b64decode(config).decode('utf-8'))
-        logger.info("Decoding query")
-        query = base64.b64decode(query).decode('utf-8')
-        logger.info(query)
-        logger.info("Decoded query")
-
-        service = config['service']
-        if service == "realdebrid":
-            logger.info("Getting Real-Debrid link")
-            link = get_stream_link_rd(query, config=config)
-        elif service == "alldebrid":
-            logger.info("Getting All-Debrid link")
-            link = get_stream_link_ad(query, config=config)
-        else:
-            raise HTTPException(status_code=500, detail="Invalid service configuration.")
-
-        logger.info("Got link: " + link)
-        return RedirectResponse(url=link, status_code=status.HTTP_302_FOUND)
-
-    except Exception as e:
-        logger.error(f"An error occurred: {e}")
-        raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
-
-
-@app.head("/playback/{config}/{query}/{title}")
 async def get_playback(config: str, query: str, title: str):
     try:
         if not query or not title:
