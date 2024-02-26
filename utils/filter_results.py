@@ -74,8 +74,8 @@ def max_size(items, config):
 
 def quality_exclusion(streams, config):
     logger.info("Started filtering quality")
-    RIPS = ["HDRIP", "BRRIP", "BDRIP", "HDCAM", "WEBRIP", "TVRIP", "VODRIP", "HDRIP"]
-    CAMS = ["CAM", "TS", "TC", "R5", "DVDSCR", "HDTV", "PDTV", "DSR", "WORKPRINT", "VHSRIP"]
+    RIPS = ["HDRIP", "BRRIP", "BDRIP", "WEBRIP", "TVRIP", "VODRIP", "HDRIP"]
+    CAMS = ["CAM", "TS", "TC", "R5", "DVDSCR", "HDTV", "PDTV", "DSR", "WORKPRINT", "VHSRIP", "HDCAM"]
 
     if config is None or config['exclusion'] is None:
         return streams
