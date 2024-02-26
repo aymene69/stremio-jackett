@@ -3,10 +3,10 @@ import re
 
 def detect_quality(torrent_name):
     quality_patterns = {
-        "4k": r'\b(2160P|2160P|UHD|4K)\b',
-        "1080p": r'\b(1080P|1080P|FHD|FULLHD|HD|HIGHDEFINITION)\b',
-        "720p": r'\b(720P|720P|HD|HIGHDEFINITION)\b',
-        "480p": r'\b(480P|480P|SD|STANDARDDEFINITION)\b'
+        "4k": r'\b(2160P|UHD|4K)\b',
+        "1080p": r'\b(1080P|FHD|FULLHD|HD|HIGHDEFINITION)\b',
+        "720p": r'\b(720P|HD|HIGHDEFINITION)\b',
+        "480p": r'\b(480P|SD|STANDARDDEFINITION)\b'
     }
 
     for quality, pattern in quality_patterns.items():
