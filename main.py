@@ -101,7 +101,10 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     logger.info("Getting config")
     logger.info("Got config")
     logger.info("Getting cached results")
-    cached_results = search_cache(name)
+    if config['cache'] == "true":
+        cached_results = search_cache(name)
+    else:
+        cached_results = []
     logger.info("Got " + str(len(cached_results)) + " cached results")
     logger.info("Filtering cached results")
     filtered_cached_results = filter_items(cached_results, stream_type, config=config, cached=True,
@@ -148,15 +151,6 @@ async def get_results(config: str, stream_type: str, stream_id: str):
 
 
 @app.get("/playback/{config}/{query}/{title}")
-async def get_playback_get(config: str, query: str, title: str):
-    return await get_playback(config, query, title)
-
-
-@app.head("/playback/{config}/{query}/{title}")
-async def get_playback_head(config: str, query: str, title: str):
-    return await get_playback(config, query, title)
-
-
 async def get_playback(config: str, query: str, title: str):
     try:
         if not query or not title:

@@ -94,6 +94,21 @@
             </div>
 
             <div class="border-b border-gray-900/10 pb-12">
+              <h2 class="text-base font-semibold leading-7 text-gray-900">Caching</h2>
+              <p class="mt-1 text-sm leading-6 text-gray-600">You will enter here informations about the cache</p>
+                <br>
+                <div class="relative flex gap-x-3">
+            <div class="flex h-6 items-center">
+                <input oninput="" id="cache" name="cache" value="cache" type="checkbox" class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked>
+            </div>
+            <div class="text-sm leading-6">
+                <label for="sizedesc" class="font-medium text-gray-900">Enable cache</label>
+                <p class="text-gray-500">Enable caching for faster results</p>
+            </div>
+        </div>
+            </div>
+
+            <div class="border-b border-gray-900/10 pb-12">
               <h2 class="text-base font-semibold leading-7 text-gray-900">Filtering</h2>
               <p class="mt-1 text-sm leading-6 text-gray-600">Set-up here your filtering parameters. Suiting results is a must :)</p>
 
@@ -252,6 +267,7 @@
             document.getElementById('maxSize').value = data.maxSize;
             document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
             document.getElementById('maxResults').value = data.maxResults;
+            document.getElementById('cache').checked = data.cache;
             if (data.sort === 'quality') {
                 document.getElementById('quality').checked = true;
             }
@@ -295,6 +311,7 @@
         let resultsPerQuality = document.getElementById('resultsPerQuality').value;
         let maxResults = document.getElementById('maxResults').value;
         let link = document.getElementById('install');
+        const cache = document.getElementById('cache').checked;
         const qualityExclusion = [];
         if (document.getElementById('4k').checked) {
             qualityExclusion.push('4k');
@@ -347,7 +364,8 @@
             resultsPerQuality,
             maxResults,
             'exclusion': qualityExclusion,
-            tmdbApi
+            tmdbApi,
+            cache
         };
         if (jackettHost === '' || jackettApi === '' || debridApi === '' || tmdbApi === '') {
             alert('Please fill all the fields');
