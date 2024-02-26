@@ -1,10 +1,17 @@
 import re
 
+from utils.logger import setup_logger
+
+logger = setup_logger(__name__)
+
 
 def filter_language(torrents, language):
-    print(f"Filtering torrents by language: {language}")
+    logger.info(f"Filtering torrents by language: {language}")
     filtered_torrents = []
     for torrent in torrents:
+        if type(torrent) is str:
+            logger.error(f"Torrent is a string: {torrent}")
+            continue
         if not torrent['language']:
             continue
         if torrent['language'] == language:
@@ -17,7 +24,7 @@ def filter_language(torrents, language):
 
 
 def max_size(items, config):
-    print("Started filtering size")
+    logger.info("Started filtering size")
     if config is None:
         return items
     if config['maxSize'] is None:
@@ -31,7 +38,7 @@ def max_size(items, config):
 
 
 def quality_exclusion(items, config):
-    print("Started filtering quality")
+    logger.info("Started filtering quality")
     if config is None:
         return items
     if config['exclusion'] is None:
@@ -42,8 +49,9 @@ def quality_exclusion(items, config):
             filtered_items.append(item)
     return filtered_items
 
+
 def results_per_quality(items, config):
-    print("Started filtering results per quality (" + str(config['resultsPerQuality']) + " results per quality)")
+    logger.info("Started filtering results per quality (" + str(config['resultsPerQuality']) + " results per quality)")
     if config is None:
         return items
     if config['resultsPerQuality'] is None or int(config['resultsPerQuality']) == 0:
@@ -59,7 +67,7 @@ def results_per_quality(items, config):
                 quality_count[item['quality']] += 1
                 filtered_items.append(item)
 
-    print("Item count changed from " + str(len(items)) + " to " + str(len(filtered_items)))
+    logger.info("Item count changed from " + str(len(items)) + " to " + str(len(filtered_items)))
     return filtered_items
 
 
@@ -102,7 +110,7 @@ def filter_items(items, item_type=None, config=None, cached=False, season=None, 
         return items
     if cached and item_type == "series":
         items = filter_season_episode(items, season, episode, config)
-    print("Started filtering torrents")
+    logger.info("Started filtering torrents")
     items = filter_language(items, config['language'])
     if int(config['maxSize']) != 0:
         if item_type == "movie":

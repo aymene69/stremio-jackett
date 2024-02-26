@@ -3,8 +3,11 @@ import bencode
 import hashlib
 import concurrent.futures
 
+from utils.logger import setup_logger
 
-format = [".mkv", ".mp4", ".avi", ".mov", ".flv", ".wmv", ".webm", ".mpg", ".mpeg", ".m4v", ".3gp", ".3g2", ".ogv", ".ogg", ".drc", ".gif", ".gifv", ".mng", ".avi", ".mov", ".qt", ".wmv", ".yuv", ".rm", ".rmvb", ".asf", ".amv", ".mp4", ".m4p", ".m4v", ".mpg", ".mp2", ".mpeg", ".mpe", ".mpv", ".mpg", ".mpeg", ".m2v", ".m4v", ".svi", ".3gp", ".3g2", ".mxf", ".roq", ".nsv", ".flv", ".f4v", ".f4p", ".f4a", ".f4b"]
+logger = setup_logger(__name__)
+
+format = {".mkv", ".mp4", ".avi", ".mov", ".flv", ".wmv", ".webm", ".mpg", ".mpeg", ".m4v", ".3gp", ".3g2", ".ogv", ".ogg", ".drc", ".gif", ".gifv", ".mng", ".avi", ".mov", ".qt", ".wmv", ".yuv", ".rm", ".rmvb", ".asf", ".amv", ".mp4", ".m4p", ".m4v", ".mpg", ".mp2", ".mpeg", ".mpe", ".mpv", ".mpg", ".mpeg", ".m2v", ".m4v", ".svi", ".3gp", ".3g2", ".mxf", ".roq", ".nsv", ".flv", ".f4v", ".f4p", ".f4a", ".f4b"}
 
 max_retries = 5
 
@@ -119,17 +122,17 @@ def get_torrent_info(item, config):
         }
         return torrent_info
     response = requests.get(item['link'])
-    print("Getting torrent info")
+    logger.info("Getting torrent info")
     attempts = 0
     while response.status_code != 200 and attempts < max_retries:
-        print("Retrying")
+        logger.info("Retrying")
         response = requests.get(item['link'])
         attempts += 1
     if response.status_code == 200:
-        print("Successfully retrieved torrent info")
+        logger.info("Successfully retrieved torrent info")
     else:
-        print("Failed to retrieve torrent info after", max_retries, "attempts")
-    print("Got torrent info")
+        logger.error("Failed to retrieve torrent info after " + str(max_retries) + " attempts")
+    logger.info("Got torrent info")
     torrent = bencode.bdecode(response.content)
     trackers = []
     if 'announce-list' in torrent:
@@ -173,7 +176,7 @@ def get_torrent_info(item, config):
         "availability": availability
 
     }
-    print("Returning torrent info")
+    logger.info("Returning torrent info")
     return torrent_info
 
 
@@ -217,10 +220,10 @@ def get_availability(torrent, config):
                 }
                 return torrent_info
             else:
-                print(f"Failed to get torrent info for {torrent['title']}")
+                logger.error(f"Failed to get torrent info for {torrent['title']}")
                 return None
         except:
-            print(f"Failed to get torrent info for {torrent['title']}")
+            logger.error(f"Failed to get torrent info for {torrent['title']}")
             return None
 
 

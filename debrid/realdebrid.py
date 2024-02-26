@@ -2,10 +2,14 @@ import requests
 import json
 import time
 
+from utils.logger import setup_logger
+
+logger = setup_logger(__name__)
+
 
 def is_already_added(magnet, config):
     hash = magnet.split("urn:btih:")[1].split("&")[0].lower()
-    print("Getting Real-Debrid torrents")
+    logger.info("Getting Real-Debrid torrents")
     url = "https://api.real-debrid.com/rest/1.0/torrents"
     headers = {
         "Authorization": f"Bearer {config['debridKey']}"
@@ -18,21 +22,17 @@ def is_already_added(magnet, config):
     return None
 
 
-
 def get_stream_link_rd(query, config):
-    print("Started getting Real-Debrid link")
+    logger.info("Started getting Real-Debrid link")
     magnet = json.loads(query)['magnet']
     type = json.loads(query)['type']
-    print("Getting config")
-    print("Got config")
-    print("Adding magnet to Real-Debrid")
+    logger.info("Adding magnet to Real-Debrid")
     torrent_id = is_already_added(magnet, config)
-    print(torrent_id)
     headers = {
         "Authorization": f"Bearer {config['debridKey']}"
     }
     if torrent_id:
-        print("Torrent already added to Real-Debrid. ID: " + torrent_id)
+        logger.info("Torrent already added to Real-Debrid. ID: " + torrent_id)
     else:
         url = "https://api.real-debrid.com/rest/1.0/torrents/addMagnet"
         data = {
@@ -41,27 +41,27 @@ def get_stream_link_rd(query, config):
         response = requests.post(url, headers=headers, data=data)
         data = response.json()
         torrent_id = data['id']
-        print("Added magnet to Real-Debrid. ID: " + torrent_id)
-    print("Getting torrent info")
+        logger.info("Added magnet to Real-Debrid. ID: " + torrent_id)
+    logger.info("Getting torrent info")
     url = "https://api.real-debrid.com/rest/1.0/torrents/info/" + torrent_id
     response = requests.get(url, headers=headers)
     data = response.json()
-    print("Got torrent info")
+    logger.info("Got torrent info")
     if type == "movie":
-        print("Selecting movie file")
+        logger.info("Selecting movie file")
         file = max(data['files'], key=lambda x: x['bytes'])
-        print("File name: " + file['path'])
+        logger.info("File name: " + file['path'])
         url = "https://api.real-debrid.com/rest/1.0/torrents/selectFiles/" + torrent_id
         data_payload = {
             "files": file['id']
         }
         requests.post(url, headers=headers, data=data_payload)
-        print("Selected file")
+        logger.info("Selected file")
         tries = 0
         while True:
             if tries > 0:
                 return "https://github.com/aymene69/stremio-jackett/raw/main/nocache.mp4"
-            print("Getting link")
+            logger.info("Getting link")
             url = "https://api.real-debrid.com/rest/1.0/torrents/info/" + torrent_id
             response = requests.get(url, headers=headers)
             data = response.json()
@@ -70,47 +70,48 @@ def get_stream_link_rd(query, config):
                 break
             tries += 1
             time.sleep(5)
-        print("Got link")
-        print("Unrestricting link")
+        logger.info("Got link")
+        logger.info("Unrestricting link")
         url = "https://api.real-debrid.com/rest/1.0/unrestrict/link"
         data = {
             "link": link
         }
         response = requests.post(url, headers=headers, data=data)
         data = response.json()
-        print("Unrestricted link")
+        logger.info("Unrestricted link")
         return data['download']
     if type == "series":
-        print("Selecting series file")
-        filtered_files = [file for file in data['files'] if json.loads(query)['season'] + json.loads(query)['episode'] in file['path']]
+        logger.info("Selecting series file")
+        filtered_files = [file for file in data['files'] if
+                          json.loads(query)['season'] + json.loads(query)['episode'] in file['path']]
         file = max(filtered_files, key=lambda x: x['bytes'])
-        print("File name: " + file['path'])
+        logger.info("File name: " + file['path'])
         url = "https://api.real-debrid.com/rest/1.0/torrents/selectFiles/" + torrent_id
         data_payload = {
             "files": file['id']
         }
         requests.post(url, headers=headers, data=data_payload)
-        print("Selected file")
+        logger.info("Selected file")
         tries = 0
         while True:
             if tries > 0:
                 return "https://github.com/aymene69/stremio-jackett/raw/main/nocache.mp4"
-            print("Getting link")
+            logger.info("Getting link")
             url = "https://api.real-debrid.com/rest/1.0/torrents/info/" + torrent_id
             response = requests.get(url, headers=headers)
             data = response.json()
             if data['links']:
                 link = data['links'][0]
                 break
-            tries +=1
+            tries += 1
             time.sleep(5)
-        print("Got link")
-        print("Unrestricting link")
+        logger.info("Got link")
+        logger.info("Unrestricting link")
         url = "https://api.real-debrid.com/rest/1.0/unrestrict/link"
         data = {
             "link": link
         }
         response = requests.post(url, headers=headers, data=data)
         data = response.json()
-        print("Unrestricted link")
+        logger.info("Unrestricted link")
         return data['download']
