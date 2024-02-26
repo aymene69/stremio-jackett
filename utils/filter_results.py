@@ -76,30 +76,28 @@ def quality_exclusion(streams, config):
     logger.info("Started filtering quality")
     RIPS = ["HDRIP", "BRRIP", "BDRIP", "HDCAM", "WEBRIP", "TVRIP", "VODRIP", "HDRIP"]
     CAMS = ["CAM", "TS", "TC", "R5", "DVDSCR", "HDTV", "PDTV", "DSR", "WORKPRINT", "VHSRIP"]
-    if config is None:
-        return streams
-    if config['exclusion'] is None:
-        return streams
-    filtered_items = []
-    rips = False
-    cams = False
-    for stream in streams:
-        if stream['quality'] not in config['exclusion']:
-            if "rips" in config['exclusion']:
-                detection = detect_quality_spec(stream['title'])
-                if detection is not None:
-                    for item in detection:
-                        if item in RIPS:
-                            rips = True
-            if "cams" in config['exclusion']:
-                detection = detect_quality_spec(stream['title'])
-                if detection is not None:
-                    for item in detection:
-                        if item in CAMS:
-                            cams = True
 
-            if not rips and not cams:
-                filtered_items.append(stream)
+    if config is None or config['exclusion'] is None:
+        return streams
+
+    filtered_items = []
+    excluded_qualities = config['exclusion']
+    rips = "rips" in excluded_qualities
+    cams = "cams" in excluded_qualities
+
+    for stream in streams:
+        if stream['quality'] not in excluded_qualities:
+            detection = detect_quality_spec(stream['title'])
+            if detection is not None:
+                for item in detection:
+                    if rips and item in RIPS:
+                        break
+                    if cams and item in CAMS:
+                        break
+                else:
+                    filtered_items.append(stream)
+        else:
+            filtered_items.append(stream)
 
     return filtered_items
 
