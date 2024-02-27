@@ -28,8 +28,10 @@ from utils.jackett import search
 from utils.logger import setup_logger
 from utils.process_results import process_results
 
-
-app = FastAPI()
+root_path = os.environ.get("ROOT_PATH", "")
+if not root_path.startswith("/"):
+    root_path = "/" + root_path
+app = FastAPI(root_path=root_path)
 
 VERSION = "v"
 
