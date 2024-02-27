@@ -33,7 +33,7 @@ if root_path and not root_path.startswith("/"):
     root_path = "/" + root_path
 app = FastAPI(root_path=root_path)
 
-VERSION = "v"
+VERSION = "1.0.0"
 
 
 class LogFilterMiddleware:
@@ -202,7 +202,7 @@ async def update_app():
         response = requests.get(url)
         data = response.json()
         latest_version = data['tag_name']
-        if current_version == "vv":
+        if current_version == "v1.0.0":
             latest_version = current_version
         if latest_version != current_version:
             logger.info("New version available: " + latest_version)
