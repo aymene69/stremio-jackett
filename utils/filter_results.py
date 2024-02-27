@@ -157,7 +157,6 @@ def filter_season_episode(items, season, episode, config):
 
 
 def filter_items(items, item_type=None, config=None, cached=False, season=None, episode=None):
-    logger.info("Started filtering torrents " + str(config))
     if config is None:
         return items
     if config['language'] is None:
