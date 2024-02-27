@@ -86,7 +86,7 @@ def quality_exclusion(streams, config):
     cams = "CAM" in excluded_qualities
 
     for stream in streams:
-        if stream['quality'] not in excluded_qualities:
+        if stream['quality'].upper() not in excluded_qualities:
             detection = detect_quality_spec(stream['title'])
             if detection is not None:
                 for item in detection:
@@ -96,8 +96,8 @@ def quality_exclusion(streams, config):
                         break
                 else:
                     filtered_items.append(stream)
-        else:
-            filtered_items.append(stream)
+            else:
+                filtered_items.append(stream)
     return filtered_items
 
 
@@ -157,6 +157,7 @@ def filter_season_episode(items, season, episode, config):
 
 
 def filter_items(items, item_type=None, config=None, cached=False, season=None, episode=None):
+    logger.info("Started filtering torrents " + str(config))
     if config is None:
         return items
     if config['language'] is None:
