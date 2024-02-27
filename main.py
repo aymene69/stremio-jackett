@@ -2,6 +2,13 @@ import base64
 import json
 import logging
 import re
+import asyncio
+import requests
+import zipfile
+import os
+import shutil
+
+from aiocron import crontab
 
 import starlette.status as status
 from fastapi import FastAPI, Request, HTTPException
@@ -23,6 +30,8 @@ from utils.process_results import process_results
 
 
 app = FastAPI()
+
+VERSION = "v"
 
 
 class LogFilterMiddleware:
@@ -72,7 +81,7 @@ async def get_manifest():
     return {
         "id": "community.aymene69.jackett",
         "icon": "https://i.imgur.com/tVjqEJP.png",
-        "version": "3.1.0",
+        "version": VERSION,
         "catalogs": [],
         "resources": ["stream"],
         "types": ["movie", "series"],
@@ -182,3 +191,59 @@ async def get_playback(config: str, query: str, title: str):
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
+
+
+async def my_task():
+    try:
+        current_version = "v" + VERSION
+        url = "https://api.github.com/repos/aymene69/stremio-jackett/releases/latest"
+        response = requests.get(url)
+        data = response.json()
+        latest_version = data['tag_name']
+        if current_version == "vv":
+            latest_version = current_version
+        if latest_version != current_version:
+            logger.info("New version available: " + latest_version)
+            logger.info("Updating...")
+            logger.info("Getting update zip...")
+            update_zip = requests.get(data['zipball_url'])
+            with open("update.zip", "wb") as file:
+                file.write(update_zip.content)
+            logger.info("Update zip downloaded")
+            logger.info("Extracting update...")
+            with zipfile.ZipFile("update.zip", 'r') as zip_ref:
+                zip_ref.extractall("update")
+            logger.info("Update extracted")
+
+            extracted_folder = os.listdir("update")[0]
+            extracted_folder_path = os.path.join("update", extracted_folder)
+            for item in os.listdir(extracted_folder_path):
+                s = os.path.join(extracted_folder_path, item)
+                d = os.path.join(".", item)
+                if os.path.isdir(s):
+                    shutil.copytree(s, d, dirs_exist_ok=True)
+                else:
+                    shutil.copy2(s, d)
+            logger.info("Files copied")
+
+            logger.info("Cleaning up...")
+            shutil.rmtree("update")
+            os.remove("update.zip")
+            logger.info("Cleaned up")
+            logger.info("Updated !")
+
+    except Exception as e:
+        print(f"Error during update: {e}")
+
+@crontab("* * * * *")
+async def schedule_task():
+    await my_task()
+
+async def main():
+    await asyncio.gather(
+        schedule_task()
+    )
+
+# Démarrage de l'application
+if __name__ == "__main__":
+    asyncio.run(main())
