@@ -37,17 +37,13 @@ def cache_torrents(torrents, type, config):
                     results.append(torrent_info)
             except:
                 pass
-        try:
-            if type == "movie":
-                response = requests.post(CACHER_URL + "pushResult/movie", data=json.dumps(results, indent=4))
-                if response.status_code != 200:
-                    logger.error("Failed to cache movie results")
-            if type == "series":
-                response = requests.post(CACHER_URL + "pushResult/series", data=json.dumps(results, indent=4))
-                if response.status_code != 200:
-                    logger.error("Failed to cache series results")
-        except:
-            pass
+    try:
+        response = requests.post(CACHER_URL + "pushResult/" + type, data=json.dumps(results, indent=4))
+        if response.status_code != 200:
+            logger.error("Failed to cache " + type + " results")
+    except:
+        logger.error("Failed to cache results")
+        pass
 
 
 def get_emoji(language):
