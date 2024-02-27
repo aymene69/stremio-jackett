@@ -104,7 +104,6 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     logger.info("Getting cached results")
     if config['cache']:
         cached_results = search_cache(name)
-        print(len(cached_results))
     else:
         cached_results = []
     logger.info("Got " + str(len(cached_results)) + " cached results")
