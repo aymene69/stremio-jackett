@@ -50,6 +50,14 @@ def get_availability_cached(stream, type, seasonEpisode=None, config=None):
                         return True
                 return False
             return True
+    if config["service"] == "premiumize":
+        url = "https://www.premiumize.me/api/cache/check?items%5B%5D=" + stream['magnet'] + "&type=torrent&apikey=" + config['debridKey']
+        response = requests.get(url)
+        data = response.json()
+        if data['response'][0]:
+                return True
+        else:
+            return False
 
 
 def is_available(magnet, type, seasonEpisode=None, config=None):
@@ -87,6 +95,14 @@ def is_available(magnet, type, seasonEpisode=None, config=None):
                         return True
                 return False
             return True
+    if config["service"] == "premiumize":
+        url = "https://www.premiumize.me/api/cache/check?items%5B%5D=" + magnet + "&type=torrent&apikey=" + config['debridKey']
+        response = requests.get(url)
+        data = response.json()
+        if data['response'][0]:
+                return True
+        else:
+            return False
 
 
 def get_torrent_info(item, config):

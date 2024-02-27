@@ -12,6 +12,7 @@ from fastapi.templating import Jinja2Templates
 from constants import NO_RESULTS
 from debrid.alldebrid import get_stream_link_ad
 from debrid.realdebrid import get_stream_link_rd
+from debrid.premiumize import get_stream_link_pm
 from utils.filter_results import filter_items
 from utils.get_availability import availability
 from utils.get_cached import search_cache
@@ -71,7 +72,7 @@ async def get_manifest():
     return {
         "id": "community.aymene69.jackett",
         "icon": "https://i.imgur.com/tVjqEJP.png",
-        "version": "3.0.10",
+        "version": "3.1.0",
         "catalogs": [],
         "resources": ["stream"],
         "types": ["movie", "series"],
@@ -101,8 +102,9 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     logger.info("Getting config")
     logger.info("Got config")
     logger.info("Getting cached results")
-    if config['cache'] == "true":
+    if config['cache']:
         cached_results = search_cache(name)
+        print(len(cached_results))
     else:
         cached_results = []
     logger.info("Got " + str(len(cached_results)) + " cached results")
@@ -110,6 +112,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     filtered_cached_results = filter_items(cached_results, stream_type, config=config, cached=True,
                                            season=name['season'] if stream_type == "series" else None,
                                            episode=name['episode'] if stream_type == "series" else None)
+
     logger.info("Filtered cached results")
     if len(filtered_cached_results) >= int(config['maxResults']):
         logger.info("Cached results found")
@@ -168,6 +171,9 @@ async def get_playback(config: str, query: str, title: str):
         elif service == "alldebrid":
             logger.info("Getting All-Debrid link")
             link = get_stream_link_ad(query, config=config)
+        elif service == "premiumize":
+            logger.info("Getting Premiumize link")
+            link = get_stream_link_pm(query, config=config)
         else:
             raise HTTPException(status_code=500, detail="Invalid service configuration.")
 

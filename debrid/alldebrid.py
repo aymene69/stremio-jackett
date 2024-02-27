@@ -2,6 +2,7 @@ import requests
 import json
 import time
 
+
 def get_stream_link_ad(query, config):
     magnet = json.loads(query)['magnet']
     stream_type = json.loads(query)['type']
