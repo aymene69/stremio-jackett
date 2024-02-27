@@ -29,7 +29,7 @@ from utils.logger import setup_logger
 from utils.process_results import process_results
 
 root_path = os.environ.get("ROOT_PATH", "")
-if not root_path.startswith("/"):
+if root_path != "":
     root_path = "/" + root_path
 app = FastAPI(root_path=root_path)
 
