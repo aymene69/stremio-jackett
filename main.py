@@ -193,7 +193,7 @@ async def get_playback(config: str, query: str, title: str):
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
 
 
-async def my_task():
+async def update_app():
     try:
         current_version = "v" + VERSION
         url = "https://api.github.com/repos/aymene69/stremio-jackett/releases/latest"
@@ -235,15 +235,17 @@ async def my_task():
     except Exception as e:
         print(f"Error during update: {e}")
 
+
 @crontab("* * * * *")
 async def schedule_task():
-    await my_task()
+    await update_app()
+
 
 async def main():
     await asyncio.gather(
         schedule_task()
     )
 
-# Démarrage de l'application
+
 if __name__ == "__main__":
     asyncio.run(main())
