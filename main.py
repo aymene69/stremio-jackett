@@ -33,7 +33,8 @@ if root_path and not root_path.startswith("/"):
     root_path = "/" + root_path
 app = FastAPI(root_path=root_path)
 
-VERSION = "1.0.0"
+VERSION = "3.0.11"
+isDev = os.environ.get("NODE_ENV", "") == "development"
 
 
 class LogFilterMiddleware:
@@ -56,7 +57,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.add_middleware(LogFilterMiddleware)
+if not isDev:
+    app.add_middleware(LogFilterMiddleware)
 
 templates = Jinja2Templates(directory=".")
 
@@ -87,7 +89,7 @@ async def get_manifest():
         "catalogs": [],
         "resources": ["stream"],
         "types": ["movie", "series"],
-        "name": "Jackett",
+        "name": "Jackett" + " (Dev)" if isDev else "",
         "description": "Stremio Jackett Addon",
         "behaviorHints": {
             "configurable": True,
@@ -238,7 +240,7 @@ async def update_app():
         print(f"Error during update: {e}")
 
 
-@crontab("* * * * *")
+@crontab("* * * * *", start=not os.environ.get("DISABLE_AUTOMATIC_UPDATES"))
 async def schedule_task():
     await update_app()
 
