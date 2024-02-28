@@ -172,7 +172,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
 
 
 @app.get("/playback/{config}/{query}/{title}")
-async def get_playback(config: str, query: str, title: str):
+async def get_playback(config: str, query: str, title: str, request: Request):
     try:
         if not query or not title:
             raise HTTPException(status_code=400, detail="Query and title are required.")
@@ -185,7 +185,8 @@ async def get_playback(config: str, query: str, title: str):
         service = config['service']
         if service == "realdebrid":
             logger.info("Getting Real-Debrid link")
-            link = get_stream_link_rd(query, config=config)
+            source_ip = request.client.host
+            link = get_stream_link_rd(query, source_ip, config=config)
         elif service == "alldebrid":
             logger.info("Getting All-Debrid link")
             link = get_stream_link_ad(query, config=config)

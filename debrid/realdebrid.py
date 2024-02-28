@@ -22,7 +22,7 @@ def is_already_added(magnet, config):
     return None
 
 
-def get_stream_link_rd(query, config):
+def get_stream_link_rd(query, source_ip, config):
     logger.info("Started getting Real-Debrid link")
     magnet = json.loads(query)['magnet']
     type = json.loads(query)['type']
@@ -36,7 +36,8 @@ def get_stream_link_rd(query, config):
     else:
         url = "https://api.real-debrid.com/rest/1.0/torrents/addMagnet"
         data = {
-            "magnet": magnet
+            "magnet": magnet,
+            "ip": source_ip
         }
         response = requests.post(url, headers=headers, data=data)
         data = response.json()
@@ -53,7 +54,8 @@ def get_stream_link_rd(query, config):
         logger.info("File name: " + file['path'])
         url = "https://api.real-debrid.com/rest/1.0/torrents/selectFiles/" + torrent_id
         data_payload = {
-            "files": file['id']
+            "files": file['id'],
+            "ip": source_ip
         }
         requests.post(url, headers=headers, data=data_payload)
         logger.info("Selected file")
@@ -74,7 +76,8 @@ def get_stream_link_rd(query, config):
         logger.info("Unrestricting link")
         url = "https://api.real-debrid.com/rest/1.0/unrestrict/link"
         data = {
-            "link": link
+            "link": link,
+            "ip": source_ip
         }
         response = requests.post(url, headers=headers, data=data)
         data = response.json()
@@ -91,7 +94,8 @@ def get_stream_link_rd(query, config):
         logger.info("File name: " + file['path'])
         url = "https://api.real-debrid.com/rest/1.0/torrents/selectFiles/" + torrent_id
         data_payload = {
-            "files": file['id']
+            "files": file['id'],
+            "ip": source_ip
         }
         requests.post(url, headers=headers, data=data_payload)
         logger.info("Selected file")
@@ -112,7 +116,8 @@ def get_stream_link_rd(query, config):
         logger.info("Unrestricting link")
         url = "https://api.real-debrid.com/rest/1.0/unrestrict/link"
         data = {
-            "link": link
+            "link": link,
+            "ip": source_ip
         }
         response = requests.post(url, headers=headers, data=data)
         data = response.json()
