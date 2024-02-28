@@ -8,6 +8,8 @@ import zipfile
 import os
 import shutil
 
+from dotenv import load_dotenv
+
 from aiocron import crontab
 
 import starlette.status as status
@@ -28,14 +30,15 @@ from utils.jackett import search
 from utils.logger import setup_logger
 from utils.process_results import process_results
 
+load_dotenv()
+
 root_path = os.environ.get("ROOT_PATH", None)
 if root_path and not root_path.startswith("/"):
     root_path = "/" + root_path
 app = FastAPI(root_path=root_path)
 
 VERSION = "3.0.11"
-isDev = os.environ.get("NODE_ENV", "") == "development"
-
+isDev = os.getenv("NODE_ENV") == "development"
 
 class LogFilterMiddleware:
     def __init__(self, app):
@@ -199,45 +202,45 @@ async def get_playback(config: str, query: str, title: str):
 
 async def update_app():
     try:
-        current_version = "v" + VERSION
-        url = "https://api.github.com/repos/aymene69/stremio-jackett/releases/latest"
-        response = requests.get(url)
-        data = response.json()
-        latest_version = data['tag_name']
-        if current_version == "v1.0.0":
-            latest_version = current_version
-        if latest_version != current_version:
-            logger.info("New version available: " + latest_version)
-            logger.info("Updating...")
-            logger.info("Getting update zip...")
-            update_zip = requests.get(data['zipball_url'])
-            with open("update.zip", "wb") as file:
-                file.write(update_zip.content)
-            logger.info("Update zip downloaded")
-            logger.info("Extracting update...")
-            with zipfile.ZipFile("update.zip", 'r') as zip_ref:
-                zip_ref.extractall("update")
-            logger.info("Update extracted")
+        if not isDev:
+            current_version = "v" + VERSION
+            url = "https://api.github.com/repos/aymene69/stremio-jackett/releases/latest"
+            response = requests.get(url)
+            data = response.json()
+            latest_version = data['tag_name']
+            if latest_version != current_version:
+                logger.info("New version available: " + latest_version)
+                logger.info("Updating...")
+                logger.info("Getting update zip...")
+                update_zip = requests.get(data['zipball_url'])
+                with open("update.zip", "wb") as file:
+                    file.write(update_zip.content)
+                logger.info("Update zip downloaded")
+                logger.info("Extracting update...")
+                with zipfile.ZipFile("update.zip", 'r') as zip_ref:
+                    zip_ref.extractall("update")
+                logger.info("Update extracted")
 
-            extracted_folder = os.listdir("update")[0]
-            extracted_folder_path = os.path.join("update", extracted_folder)
-            for item in os.listdir(extracted_folder_path):
-                s = os.path.join(extracted_folder_path, item)
-                d = os.path.join(".", item)
-                if os.path.isdir(s):
-                    shutil.copytree(s, d, dirs_exist_ok=True)
-                else:
-                    shutil.copy2(s, d)
-            logger.info("Files copied")
+                extracted_folder = os.listdir("update")[0]
+                extracted_folder_path = os.path.join("update", extracted_folder)
+                for item in os.listdir(extracted_folder_path):
+                    s = os.path.join(extracted_folder_path, item)
+                    d = os.path.join(".", item)
+                    if os.path.isdir(s):
+                        shutil.copytree(s, d, dirs_exist_ok=True)
+                    else:
+                        shutil.copy2(s, d)
+                logger.info("Files copied")
 
-            logger.info("Cleaning up...")
-            shutil.rmtree("update")
-            os.remove("update.zip")
-            logger.info("Cleaned up")
-            logger.info("Updated !")
-
+                logger.info("Cleaning up...")
+                shutil.rmtree("update")
+                os.remove("update.zip")
+                logger.info("Cleaned up")
+                logger.info("Updated !")
+        else:
+            logger.info("Development mode active. Skipping update.")
     except Exception as e:
-        print(f"Error during update: {e}")
+        logger.error(f"Error during update: {e}")
 
 
 @crontab("* * * * *", start=not os.environ.get("DISABLE_AUTOMATIC_UPDATES"))
