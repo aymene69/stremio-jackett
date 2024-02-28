@@ -241,7 +241,7 @@ async def update_app():
         logger.error(f"Error during update: {e}")
 
 
-@crontab("* * * * *", start=not os.environ.get("DISABLE_AUTOMATIC_UPDATES"))
+@crontab("* * * * *", start=not isDev)
 async def schedule_task():
     await update_app()
 
