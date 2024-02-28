@@ -39,8 +39,10 @@ def cache_torrents(torrents, type, config):
                 pass
     try:
         response = requests.post(CACHER_URL + "pushResult/" + type, data=json.dumps(results, indent=4))
-        if response.status_code != 200:
-            logger.error("Failed to cache " + type + " results")
+        if response.status_code == 200:
+            logger.info("Cached " + str(len(results)) + " " + type + " results")
+        else:
+            logger.error("Failed to cache " + type + " results: " + str(response))
     except:
         logger.error("Failed to cache results")
         pass

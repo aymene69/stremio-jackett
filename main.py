@@ -141,7 +141,10 @@ async def get_results(config: str, stream_type: str, stream_id: str):
             return NO_RESULTS
         return {"streams": stream_list}
     else:
-        logger.info("No cached results found")
+        if len(filtered_cached_results) > 0:
+            logger.info("Not enough cached results found (results: " + str(len(filtered_cached_results)) + ")")
+        else:
+            logger.info("No cached results found")
         logger.info("Searching for results on Jackett")
         search_results = []
         if stream_type == "movie":
