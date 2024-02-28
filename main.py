@@ -37,7 +37,7 @@ if root_path and not root_path.startswith("/"):
     root_path = "/" + root_path
 app = FastAPI(root_path=root_path)
 
-VERSION = "3.0.11"
+VERSION = "3.0.13"
 isDev = os.getenv("NODE_ENV") == "development"
 
 class LogFilterMiddleware:
@@ -92,7 +92,7 @@ async def get_manifest():
         "catalogs": [],
         "resources": ["stream"],
         "types": ["movie", "series"],
-        "name": "Jackett" + " (Dev)" if isDev else "",
+        "name": "Jackett" + (" (Dev)" if isDev else ""),
         "description": "Stremio Jackett Addon",
         "behaviorHints": {
             "configurable": True,
