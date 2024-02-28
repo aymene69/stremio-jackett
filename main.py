@@ -237,8 +237,6 @@ async def update_app():
                 os.remove("update.zip")
                 logger.info("Cleaned up")
                 logger.info("Updated !")
-        else:
-            logger.info("Development mode active. Skipping update.")
     except Exception as e:
         logger.error(f"Error during update: {e}")
 
