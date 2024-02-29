@@ -1,123 +1,33 @@
-import requests
-import bencode
-import hashlib
 import concurrent.futures
+import hashlib
+
+import bencode
+import requests
 
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
-format = {".mkv", ".mp4", ".avi", ".mov", ".flv", ".wmv", ".webm", ".mpg", ".mpeg", ".m4v", ".3gp", ".3g2", ".ogv", ".ogg", ".drc", ".gif", ".gifv", ".mng", ".avi", ".mov", ".qt", ".wmv", ".yuv", ".rm", ".rmvb", ".asf", ".amv", ".mp4", ".m4p", ".m4v", ".mpg", ".mp2", ".mpeg", ".mpe", ".mpv", ".mpg", ".mpeg", ".m2v", ".m4v", ".svi", ".3gp", ".3g2", ".mxf", ".roq", ".nsv", ".flv", ".f4v", ".f4p", ".f4a", ".f4b"}
+format = {".mkv", ".mp4", ".avi", ".mov", ".flv", ".wmv", ".webm", ".mpg", ".mpeg", ".m4v", ".3gp", ".3g2", ".ogv",
+          ".ogg", ".drc", ".gif", ".gifv", ".mng", ".avi", ".mov", ".qt", ".wmv", ".yuv", ".rm", ".rmvb", ".asf",
+          ".amv", ".mp4", ".m4p", ".m4v", ".mpg", ".mp2", ".mpeg", ".mpe", ".mpv", ".mpg", ".mpeg", ".m2v", ".m4v",
+          ".svi", ".3gp", ".3g2", ".mxf", ".roq", ".nsv", ".flv", ".f4v", ".f4p", ".f4a", ".f4b"}
 
 max_retries = 5
 
-def get_availability_cached(stream, type, seasonEpisode=None, config=None):
-    if config["service"] == "realdebrid":
-        hash = stream['magnet'].split("urn:btih:")[1].split("&")[0]
-        url = "https://api.real-debrid.com/rest/1.0/torrents/instantAvailability/" + hash
-        headers = {
-            "Authorization": f"Bearer {config['debridKey']}"
-        }
-        response = requests.get(url, headers=headers)
-        data = response.json()
-        results = next(iter(data.items()))[1]
-        if len(results) > 0:
-            if type == "movie":
-                return True
-            if type == "series":
-                for result in results['rd']:
-                    for file in result.items():
-                        if seasonEpisode in file[1]['filename']:
-                            return True
-                return False
-            return True
-        else:
-            return False
-    if config["service"] == "alldebrid":
-        url = "https://api.alldebrid.com/v4/magnet/instant?agent=jackett&apikey=" + config[
-            'debridKey'] + "&magnets[]=" + stream['magnet']
-        response = requests.get(url)
-        data = response.json()
-        if data['status'] == "error":
-            if data['error']['code'] == "AUTH_BLOCKED":
-                return "AUTH_BLOCKED"
-        if data["data"]["magnets"][0]["instant"]:
-            if type == "movie":
-                return True
-            if type == "series":
-                for file in data["data"]["magnets"][0]["files"]:
-                    if seasonEpisode in file["n"]:
-                        return True
-                return False
-            return True
-    if config["service"] == "premiumize":
-        url = "https://www.premiumize.me/api/cache/check?items%5B%5D=" + stream['magnet'] + "&type=torrent&apikey=" + config['debridKey']
-        response = requests.get(url)
-        data = response.json()
-        if data['response'][0]:
-                return True
-        else:
-            return False
 
-
-def is_available(magnet, type, seasonEpisode=None, config=None):
-    if config["service"] == "realdebrid":
-        hash = magnet.split("urn:btih:")[1].split("&")[0]
-        url = "https://api.real-debrid.com/rest/1.0/torrents/instantAvailability/" + hash
-        headers = {
-            "Authorization": f"Bearer {config['debridKey']}"
-        }
-        response = requests.get(url, headers=headers)
-        data = response.json()
-        results = next(iter(data.items()))[1]
-        if len(results) > 0:
-            if type == "movie":
-                return True
-            if type == "series":
-                for result in results['rd']:
-                    for file in result.items():
-                        if seasonEpisode in file[1]['filename']:
-                            return True
-                return False
-            return True
-        else:
-            return False
-    if config["service"] == "alldebrid":
-        url = "https://api.alldebrid.com/v4/magnet/instant?agent=jackett&apikey=" + config['debridKey'] + "&magnets[]=" + magnet
-        response = requests.get(url)
-        data = response.json()
-        if data["data"]["magnets"][0]["instant"]:
-            if type == "movie":
-                return True
-            if type == "series":
-                for file in data["data"]["magnets"][0]["files"]:
-                    if seasonEpisode in file["n"]:
-                        return True
-                return False
-            return True
-    if config["service"] == "premiumize":
-        url = "https://www.premiumize.me/api/cache/check?items%5B%5D=" + magnet + "&type=torrent&apikey=" + config['debridKey']
-        response = requests.get(url)
-        data = response.json()
-        if data['response'][0]:
-                return True
-        else:
-            return False
-
-
-def get_torrent_info(item, config):
+def get_torrent_info(item, debrid_service):
     if item['link'].startswith("magnet:"):
         magnet_link = item['link']
         trackers = magnet_link.split("&tr=")[1:]
         try:
             season = item['season']
             episode = item['episode']
-            availability = is_available(magnet_link, item['type'], item['season'] + item['episode'],
-                                        config=config)
+            availability = debrid_service.get_availability(magnet_link, item['type'], item['season'] + item['episode'])
         except:
             season = None
             episode = None
-            availability = is_available(magnet_link, item['type'], config=config)
+            availability = debrid_service.get_availability(magnet_link, item['type'])
         torrent_info = {
             "name": item['name'],
             "title": item['title'],
@@ -168,11 +78,11 @@ def get_torrent_info(item, config):
     try:
         season = item['season']
         episode = item['episode']
-        availability = is_available(magnet, item['type'], item['season'] + item['episode'], config=config)
+        availability = debrid_service.get_availability(magnet, item['type'], item['season'] + item['episode'])
     except:
         season = None
         episode = None
-        availability = is_available(magnet, item['type'], config=config)
+        availability = debrid_service.get_availability(magnet, item['type'])
     torrent_info = {
         "name": item['name'],
         "title": item['title'],
@@ -196,11 +106,9 @@ def get_torrent_info(item, config):
     return torrent_info
 
 
-def get_availability(torrent, config):
-    if config is None:
-        return None
+def get_availability(torrent, debrid_service):
     try:
-        torrent_info = get_torrent_info(torrent, config)
+        torrent_info = get_torrent_info(torrent, debrid_service)
         return torrent_info
     except:
         try:
@@ -211,11 +119,11 @@ def get_availability(torrent, config):
                 try:
                     season = torrent['season']
                     episode = torrent['episode']
-                    availability = is_available(magnet_link, torrent['type'], torrent['season'] + torrent['episode'], config=config)
+                    availability = debrid_service.get_availability(magnet_link, torrent['type'], torrent['season'] + torrent['episode'])
                 except:
                     season = None
                     episode = None
-                    availability = is_available(magnet_link, torrent['type'], config=config)
+                    availability = debrid_service.get_availability(magnet_link, torrent['type'])
                 torrent_info = {
                     "name": torrent['name'],
                     "title": torrent['title'],
@@ -249,4 +157,3 @@ def availability(items, config):
     with concurrent.futures.ThreadPoolExecutor(max_workers=int(config['maxResults'])) as executor:
         results = list(executor.map(lambda item: get_availability(item, config), items))
     return results
-

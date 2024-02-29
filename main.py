@@ -1,18 +1,16 @@
+import asyncio
 import base64
 import json
 import logging
-import re
-import asyncio
-import requests
-import zipfile
 import os
+import re
 import shutil
+import zipfile
 
-from dotenv import load_dotenv
-
-from aiocron import crontab
-
+import requests
 import starlette.status as status
+from aiocron import crontab
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
@@ -115,6 +113,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     logger.info("Got name and properties: " + str(name['title']))
     logger.info("Getting config")
     logger.info("Got config")
+    debrid_service = get_debrid_service(config)
     logger.info("Getting cached results")
     if config['cache']:
         cached_results = search_cache(name)
@@ -132,7 +131,8 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         logger.info("Processing cached results")
         stream_list = process_results(filtered_cached_results[:int(config['maxResults'])], True, stream_type,
                                       name['season'] if stream_type == "series" else None,
-                                      name['episode'] if stream_type == "series" else None, config=config)
+                                      name['episode'] if stream_type == "series" else None,
+                                      debrid_service=debrid_service, config=config)
         logger.info("Processed cached results")
         if len(stream_list) == 0:
             logger.info("No results found")
@@ -161,7 +161,8 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         logger.info("Processing results")
         stream_list = process_results(results[:int(config['maxResults'])], False, stream_type,
                                       name['season'] if stream_type == "series" else None,
-                                      name['episode'] if stream_type == "series" else None, config=config)
+                                      name['episode'] if stream_type == "series" else None,
+                                      debrid_service=debrid_service, config=config)
         logger.info("Processed results (results: " + str(len(stream_list)) + ")")
         if len(stream_list) == 0:
             logger.info("No results found")

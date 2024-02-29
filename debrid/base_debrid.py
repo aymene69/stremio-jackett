@@ -42,3 +42,6 @@ class BaseDebrid:
 
     def add_magnet(self, magnet):
         raise NotImplementedError
+
+    def get_availability(self, stream, stream_type, season_episode=None):
+        raise NotImplementedError

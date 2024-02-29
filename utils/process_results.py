@@ -1,7 +1,7 @@
-import concurrent.futures
 import base64
+import concurrent.futures
 import json
-from utils.get_availability import get_availability_cached
+
 from utils.get_quality import detect_quality, detect_quality_spec
 
 
@@ -26,7 +26,7 @@ def filter_by_availability(item):
     return 0 if availability == "+" else 1
 
 
-def process_stream(stream, cached, stream_type, season, episode, config):
+def process_stream(stream, cached, stream_type, season, episode, debrid_service, config):
     try:
         if "availability" not in stream and not cached:
             return None
@@ -35,9 +35,9 @@ def process_stream(stream, cached, stream_type, season, episode, config):
 
     if cached:
         if season is None and episode is None:
-            availability = get_availability_cached(stream, stream_type, config=config)
+            availability = debrid_service.get_availability(stream, stream_type)
         else:
-            availability = get_availability_cached(stream, stream_type, season + episode, config=config)
+            availability = debrid_service.get_availability(stream, stream_type, season + episode)
     else:
         availability = stream.get('availability', False)
 
@@ -49,7 +49,7 @@ def process_stream(stream, cached, stream_type, season, episode, config):
         return {"name": "AUTH_BLOCKED",
                 "title": "New connection on AllDebrid.\r\nPlease authorize the connection\r\non your email",
                 "url": "#"
-        }
+                }
     if availability:
         indexer = stream.get('indexer', 'Cached')
         name = f"+{indexer} ({detect_quality(stream['title'])} - {detect_quality_spec(stream['title'])})"
@@ -66,12 +66,13 @@ def process_stream(stream, cached, stream_type, season, episode, config):
     }
 
 
-def process_results(items, cached, stream_type, season=None, episode=None, config=None):
+def process_results(items, cached, stream_type, season=None, episode=None, debrid_service=None, config=None):
     stream_list = []
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         results = executor.map(process_stream, items, [cached] * len(items), [stream_type] * len(items),
-                               [season] * len(items), [episode] * len(items), [config] * len(items))
+                               [season] * len(items), [episode] * len(items), [debrid_service] * len(items),
+                               [config] * len(items))
 
         for result in results:
             if result is not None:

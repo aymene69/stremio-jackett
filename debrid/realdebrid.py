@@ -8,39 +8,36 @@ from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
+
 class RealDebrid(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
         self.base_url = "https://api.real-debrid.com"
+        self.headers = {"Authorization": f"Bearer {self.config['debridKey']}"}
 
     def add_magnet(self, magnet):
         url = f"{self.base_url}/rest/1.0/torrents/addMagnet"
-        headers = {"Authorization": f"Bearer {self.config['debridKey']}"}
         data = {"magnet": magnet}
-        return self.get_json_response(url, method='post', headers=headers, data=data)
+        return self.get_json_response(url, method='post', headers=self.headers, data=data)
 
     def get_torrent_info(self, torrent_id):
         url = f"{self.base_url}/rest/1.0/torrents/info/{torrent_id}"
-        headers = {"Authorization": f"Bearer {self.config['debridKey']}"}
-        return self.get_json_response(url, headers=headers)
+        return self.get_json_response(url, headers=self.headers)
 
     def select_files(self, torrent_id, file_id):
         url = f"{self.base_url}/rest/1.0/torrents/selectFiles/{torrent_id}"
-        headers = {"Authorization": f"Bearer {self.config['debridKey']}"}
         data = {"files": file_id}
-        requests.post(url, headers=headers, data=data)
+        requests.post(url, headers=self.headers, data=data)
 
     def unrestrict_link(self, link):
         url = f"{self.base_url}/rest/1.0/unrestrict/link"
-        headers = {"Authorization": f"Bearer {self.config['debridKey']}"}
         data = {"link": link}
-        return self.get_json_response(url, method='post', headers=headers, data=data)
+        return self.get_json_response(url, method='post', headers=self.headers, data=data)
 
     def is_already_added(self, magnet):
         hash = magnet.split("urn:btih:")[1].split("&")[0].lower()
         url = f"{self.base_url}/rest/1.0/torrents"
-        headers = {"Authorization": f"Bearer {self.config['debridKey']}"}
-        torrents = self.get_json_response(url, headers=headers)
+        torrents = self.get_json_response(url, headers=self.headers)
         for torrent in torrents:
             if torrent['hash'].lower() == hash:
                 return torrent['id']
@@ -52,6 +49,23 @@ class RealDebrid(BaseDebrid):
             if torrent_info and 'links' in torrent_info:
                 return torrent_info['links']
             time.sleep(5)
+
+    def get_availability(self, stream, stream_type, season_episode=None):
+        hash = stream['magnet'].split("urn:btih:")[1].split("&")[0]
+        url = "https://api.real-debrid.com/rest/1.0/torrents/instantAvailability/" + hash
+        data = self.get_json_response(url, headers=self.headers)
+        results = next(iter(data.items()))[1]
+        if len(results) == 0:
+            return False
+        if type == "movie":
+            return True
+        if type == "series":
+            for result in results['rd']:
+                for file in result.items():
+                    if season_episode in file[1]['filename']:
+                        return True
+            return False
+        return True
 
     def get_stream_link(self, query):
         query_details = json.loads(query)
