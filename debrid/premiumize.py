@@ -30,7 +30,7 @@ class Premiumize(BaseDebrid):
         magnet = query_details['magnet']
         stream_type = query_details['type']
 
-        transfer_data = self.create_transfer(magnet)
+        transfer_data = self.add_magnet(magnet)
         if not transfer_data or 'id' not in transfer_data:
             return "Error: Failed to create transfer."
 

@@ -1,7 +1,8 @@
 # alldebrid.py
 import json
 
-from base_debrid import BaseDebrid
+from debrid.base_debrid import BaseDebrid
+
 
 class AllDebrid(BaseDebrid):
     def __init__(self, config):
@@ -24,13 +25,14 @@ class AllDebrid(BaseDebrid):
         query_details = json.loads(query)
         magnet = query_details['magnet']
         stream_type = query_details['type']
-        data = self.upload_magnet(magnet)
+        data = self.add_magnet(magnet)
         if not data:
             return "Error: Failed to upload magnet."
 
         magnet_id = data["data"]['magnets'][0]['id']
 
-        if not self.wait_for_ready_status(lambda: self.check_magnet_status(magnet_id)["data"]["magnets"]["status"] == "Ready"):
+        if not self.wait_for_ready_status(
+                lambda: self.check_magnet_status(magnet_id)["data"]["magnets"]["status"] == "Ready"):
             return "https://github.com/aymene69/stremio-jackett/raw/main/nocache.mp4"
 
         # Logic to select the appropriate link based on type
@@ -38,11 +40,12 @@ class AllDebrid(BaseDebrid):
             link = max(data["data"]["magnets"]['links'], key=lambda x: x['size'])['link']
         elif stream_type == "series":
             season_episode = query_details['season'] + query_details['episode']
-            link = next((link["link"] for link in data["data"]["magnets"]["links"] if season_episode in link["filename"]), None)
+            link = next(
+                (link["link"] for link in data["data"]["magnets"]["links"] if season_episode in link["filename"]), None)
         else:
             return "Error: Unsupported stream type."
 
-        unlocked_link_data = self.unlock_link(link)
+        unlocked_link_data = self.unrestrict_link(link)
         if not unlocked_link_data:
             return "Error: Failed to unlock link."
 

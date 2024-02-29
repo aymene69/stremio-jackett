@@ -18,8 +18,13 @@ class BaseDebrid:
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")
 
-        if response.status_code == 200:
-            return response.json()
+        # Check if the request was successful
+        if response.ok:
+            try:
+                return response.json()
+            except ValueError:
+                self.logger.error(f"Failed to parse response as JSON: {response.text}")
+                return None
         else:
             self.logger.error(f"Request failed with status code {response.status_code}")
             return None

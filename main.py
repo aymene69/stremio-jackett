@@ -19,9 +19,7 @@ from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
 
 from constants import NO_RESULTS
-from debrid.alldebrid import get_stream_link_ad
-from debrid.realdebrid import get_stream_link_rd
-from debrid.premiumize import get_stream_link_pm
+from debrid.get_debrid_service import get_debrid_service
 from utils.filter_results import filter_items
 from utils.get_availability import availability
 from utils.get_cached import search_cache
@@ -39,6 +37,7 @@ app = FastAPI(root_path=root_path)
 
 VERSION = "3.0.13"
 isDev = os.getenv("NODE_ENV") == "development"
+
 
 class LogFilterMiddleware:
     def __init__(self, app):
@@ -102,7 +101,6 @@ async def get_manifest():
 
 formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
                               '%m-%d %H:%M:%S')
-
 
 logger.info("Started Jackett Addon")
 
@@ -182,19 +180,8 @@ async def get_playback(config: str, query: str, title: str, request: Request):
         logger.info(query)
         logger.info("Decoded query")
 
-        service = config['service']
-        if service == "realdebrid":
-            logger.info("Getting Real-Debrid link")
-            source_ip = request.client.host
-            link = get_stream_link_rd(query, source_ip, config=config)
-        elif service == "alldebrid":
-            logger.info("Getting All-Debrid link")
-            link = get_stream_link_ad(query, config=config)
-        elif service == "premiumize":
-            logger.info("Getting Premiumize link")
-            link = get_stream_link_pm(query, config=config)
-        else:
-            raise HTTPException(status_code=500, detail="Invalid service configuration.")
+        debrid_service = get_debrid_service(config)
+        link = debrid_service.get_stream_link(query)
 
         logger.info("Got link: " + link)
         return RedirectResponse(url=link, status_code=status.HTTP_301_MOVED_PERMANENTLY)
