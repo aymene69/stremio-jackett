@@ -1,8 +1,8 @@
-import base64
 import concurrent.futures
 import json
 
 from utils.get_quality import detect_quality, detect_quality_spec
+from utils.string_encoding import encodeb64
 
 
 def get_emoji(language):
@@ -35,9 +35,9 @@ def process_stream(stream, cached, stream_type, season, episode, debrid_service,
 
     if cached:
         if season is None and episode is None:
-            availability = debrid_service.get_availability(stream, stream_type)
+            availability = debrid_service.get_availability(stream['magnet'], stream_type)
         else:
-            availability = debrid_service.get_availability(stream, stream_type, season + episode)
+            availability = debrid_service.get_availability(stream['magnet'], stream_type, season + episode)
     else:
         availability = stream.get('availability', False)
 
@@ -56,8 +56,8 @@ def process_stream(stream, cached, stream_type, season, episode, debrid_service,
     else:
         indexer = stream.get('indexer', 'Cached')
         name = f"-{indexer} ({detect_quality(stream['title'])} - {detect_quality_spec(stream['title'])})"
-    configb64 = base64.b64encode(json.dumps(config).encode('utf-8')).decode('utf-8').replace('=', '%3D')
-    queryb64 = base64.b64encode(json.dumps(query).encode('utf-8')).decode('utf-8').replace('=', '%3D')
+    configb64 = encodeb64(json.dumps(config)).replace('=', '%3D')
+    queryb64 = encodeb64(json.dumps(query)).replace('=', '%3D')
     return {
         "name": name,
         "title": f"{stream['title']}\r\n{get_emoji(stream['language'])}   👥 {stream['seeders']}   📂 "

@@ -146,14 +146,15 @@ def get_availability(torrent, debrid_service):
             else:
                 logger.error(f"Failed to get torrent info for {torrent['title']}")
                 return None
-        except:
+        except Exception as e:
+            logger.error(f"An error occurred: {e}")
             logger.error(f"Failed to get torrent info for {torrent['title']}")
             return None
 
 
-def availability(items, config):
+def availability(items, debrid_service, config):
     results = []
     items = items[:int(config['maxResults'])]
     with concurrent.futures.ThreadPoolExecutor(max_workers=int(config['maxResults'])) as executor:
-        results = list(executor.map(lambda item: get_availability(item, config), items))
+        results = list(executor.map(lambda item: get_availability(item, debrid_service), items))
     return results

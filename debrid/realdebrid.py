@@ -50,8 +50,8 @@ class RealDebrid(BaseDebrid):
                 return torrent_info['links']
             time.sleep(5)
 
-    def get_availability(self, stream, stream_type, season_episode=None):
-        hash = stream['magnet'].split("urn:btih:")[1].split("&")[0]
+    def get_availability(self, magnet, stream_type, season_episode=None):
+        hash = magnet.split("urn:btih:")[1].split("&")[0]
         url = "https://api.real-debrid.com/rest/1.0/torrents/instantAvailability/" + hash
         data = self.get_json_response(url, headers=self.headers)
         results = next(iter(data.items()))[1]

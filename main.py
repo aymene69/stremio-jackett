@@ -1,6 +1,4 @@
 import asyncio
-import base64
-import json
 import logging
 import os
 import re
@@ -24,7 +22,9 @@ from utils.get_cached import search_cache
 from utils.get_content import get_name
 from utils.jackett import search
 from utils.logger import setup_logger
+from utils.parse_config import parse_config
 from utils.process_results import process_results
+from utils.string_encoding import decodeb64
 
 load_dotenv()
 
@@ -106,13 +106,11 @@ logger.info("Started Jackett Addon")
 @app.get("/{config}/stream/{stream_type}/{stream_id}")
 async def get_results(config: str, stream_type: str, stream_id: str):
     stream_id = stream_id.replace(".json", "")
-    config = json.loads(base64.b64decode(config).decode('utf-8'))
+    config = parse_config(config)
     logger.info(stream_type + " request")
     logger.info("Getting name and properties")
     name = get_name(stream_id, stream_type, config=config)
     logger.info("Got name and properties: " + str(name['title']))
-    logger.info("Getting config")
-    logger.info("Got config")
     debrid_service = get_debrid_service(config)
     logger.info("Getting cached results")
     if config['cache']:
@@ -156,7 +154,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         filtered_results = filter_items(search_results, stream_type, config=config)
         logger.info("Filtered results")
         logger.info("Checking availability")
-        results = availability(filtered_results, config=config) + filtered_cached_results
+        results = availability(filtered_results, debrid_service, config=config) + filtered_cached_results
         logger.info("Checked availability (results: " + str(len(results)) + ")")
         logger.info("Processing results")
         stream_list = process_results(results[:int(config['maxResults'])], False, stream_type,
@@ -175,9 +173,9 @@ async def get_playback(config: str, query: str, title: str, request: Request):
     try:
         if not query or not title:
             raise HTTPException(status_code=400, detail="Query and title are required.")
-        config = json.loads(base64.b64decode(config).decode('utf-8'))
+        config = parse_config(config)
         logger.info("Decoding query")
-        query = base64.b64decode(query).decode('utf-8')
+        query = decodeb64(query)
         logger.info(query)
         logger.info("Decoded query")
 
