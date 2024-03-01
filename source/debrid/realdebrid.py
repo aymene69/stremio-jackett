@@ -52,7 +52,7 @@ class RealDebrid(BaseDebrid):
 
     def get_availability(self, magnet, stream_type, season_episode=None):
         hash = magnet.split("urn:btih:")[1].split("&")[0]
-        url = "https://api.real-debrid.com/rest/1.0/torrents/instantAvailability/" + hash
+        url = f"{self.base_url}/rest/1.0/torrents/instantAvailability/" + hash
         data = self.get_json_response(url, headers=self.headers)
         results = next(iter(data.items()))[1]
         if len(results) == 0:

@@ -1,6 +1,7 @@
 # Assuming the BaseDebrid class and necessary imports are already defined as shown previously
 import json
 
+from constants import NO_CACHE_VIDEO_URL
 from debrid.base_debrid import BaseDebrid
 
 
@@ -39,7 +40,7 @@ class Premiumize(BaseDebrid):
         if not self.wait_for_ready_status(lambda: any(
                 item['id'] == transfer_id and item['status'] == "finished" for item in
                 self.list_transfers().get('transfers', []))):
-            return "https://github.com/aymene69/stremio-jackett/raw/main/nocache.mp4"
+            return NO_CACHE_VIDEO_URL
 
         # Assuming the transfer is complete, we need to find whether it's a file or a folder
         transfers = self.list_transfers()

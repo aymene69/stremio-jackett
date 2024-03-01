@@ -1,6 +1,7 @@
 # alldebrid.py
 import json
 
+from constants import NO_CACHE_VIDEO_URL
 from debrid.base_debrid import BaseDebrid
 
 
@@ -33,7 +34,7 @@ class AllDebrid(BaseDebrid):
 
         if not self.wait_for_ready_status(
                 lambda: self.check_magnet_status(magnet_id)["data"]["magnets"]["status"] == "Ready"):
-            return "https://github.com/aymene69/stremio-jackett/raw/main/nocache.mp4"
+            return NO_CACHE_VIDEO_URL
 
         # Logic to select the appropriate link based on type
         if stream_type == "movie":

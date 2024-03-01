@@ -2,8 +2,10 @@ import concurrent.futures
 import json
 
 from utils.get_quality import detect_quality, detect_quality_spec
+from utils.logger import setup_logger
 from utils.string_encoding import encodeb64
 
+logger = setup_logger(__name__)
 
 def get_emoji(language):
     emoji_dict = {
