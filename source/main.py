@@ -80,6 +80,7 @@ async def configure(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
 
+@app.get("/manifest.json")
 @app.get("/{params}/manifest.json")
 async def get_manifest():
     return {
@@ -93,6 +94,7 @@ async def get_manifest():
         "description": "Stremio Jackett Addon",
         "behaviorHints": {
             "configurable": True,
+            "configurationRequired": True
         }
     }
 
