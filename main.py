@@ -1,18 +1,16 @@
+import asyncio
 import base64
 import json
 import logging
-import re
-import asyncio
-import requests
-import zipfile
 import os
+import re
 import shutil
+import zipfile
 
-from dotenv import load_dotenv
-
-from aiocron import crontab
-
+import requests
 import starlette.status as status
+from aiocron import crontab
+from dotenv import load_dotenv
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
@@ -20,8 +18,8 @@ from fastapi.templating import Jinja2Templates
 
 from constants import NO_RESULTS
 from debrid.alldebrid import get_stream_link_ad
-from debrid.realdebrid import get_stream_link_rd
 from debrid.premiumize import get_stream_link_pm
+from debrid.realdebrid import get_stream_link_rd
 from utils.filter_results import filter_items
 from utils.get_availability import availability
 from utils.get_cached import search_cache
@@ -39,6 +37,7 @@ app = FastAPI(root_path=root_path)
 
 VERSION = "3.0.13"
 isDev = os.getenv("NODE_ENV") == "development"
+
 
 class LogFilterMiddleware:
     def __init__(self, app):
@@ -93,7 +92,8 @@ async def get_manifest():
         "resources": ["stream"],
         "types": ["movie", "series"],
         "name": "Jackett" + (" (Dev)" if isDev else ""),
-        "description": "Stremio Jackett Addon",
+        "description": "Elevate your Stremio experience with seamless access to Jackett torrent links, effortlessly "
+                       "fetching torrents for your selected movies within the Stremio interface.",
         "behaviorHints": {
             "configurable": True,
         }
@@ -102,7 +102,6 @@ async def get_manifest():
 
 formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
                               '%m-%d %H:%M:%S')
-
 
 logger.info("Started Jackett Addon")
 
@@ -148,10 +147,12 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         logger.info("Searching for results on Jackett")
         search_results = []
         if stream_type == "movie":
-            search_results = search({"type": name['type'], "title": name['title'], "year": name['year']}, config=config)
+            search_results = search({"type": name['type'], "title": name['title'], "year": name['year']},
+                                    config=config)
         elif stream_type == "series":
             search_results = search(
-                {"type": name['type'], "title": name['title'], "season": name['season'], "episode": name['episode']},
+                {"type": name['type'], "title": name['title'], "season": name['season'],
+                 "episode": name['episode']},
                 config=config)
         logger.info("Got " + str(len(search_results)) + " results from Jackett")
         logger.info("Filtering results")
