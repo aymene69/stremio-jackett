@@ -60,10 +60,6 @@ def filter_language(torrents, language):
 
 def max_size(items, config):
     logger.info("Started filtering size")
-    if config is None:
-        return items
-    if config['maxSize'] is None:
-        return items
     filtered_items = []
     size = int(config['maxSize']) * 1024 ** 3
     for item in items:
@@ -72,13 +68,23 @@ def max_size(items, config):
     return filtered_items
 
 
+def exclusion_keywords(streams, config):
+    logger.info("Started filtering exclusion keywords")
+    filtered_items = []
+    excluded_keywords = [keyword.upper() for keyword in config['exclusionKeywords']]
+    for stream in streams:
+        for keyword in excluded_keywords:
+            if keyword in stream['title'].upper():
+                break
+        else:
+            filtered_items.append(stream)
+    return filtered_items
+
+
 def quality_exclusion(streams, config):
     logger.info("Started filtering quality")
     RIPS = ["HDRIP", "BRRIP", "BDRIP", "WEBRIP", "TVRIP", "VODRIP", "HDRIP"]
     CAMS = ["CAM", "TS", "TC", "R5", "DVDSCR", "HDTV", "PDTV", "DSR", "WORKPRINT", "VHSRIP", "HDCAM"]
-
-    if config is None or config['exclusion'] is None:
-        return streams
 
     filtered_items = []
     excluded_qualities = [quality.upper() for quality in config['exclusion']]
@@ -103,10 +109,6 @@ def quality_exclusion(streams, config):
 
 def results_per_quality(items, config):
     logger.info("Started filtering results per quality (" + str(config['resultsPerQuality']) + " results per quality)")
-    if config is None:
-        return items
-    if config['resultsPerQuality'] is None or int(config['resultsPerQuality']) == 0:
-        return items
     filtered_items = []
     quality_count = {}
     for item in items:
@@ -128,10 +130,6 @@ def sort_quality(item):
 
 
 def items_sort(items, config):
-    if config is None:
-        return items
-    if config['sort'] is None:
-        return items
     if config['sort'] == "quality":
         return sorted(items, key=sort_quality)
     if config['sort'] == "sizeasc":
@@ -170,8 +168,11 @@ def filter_items(items, item_type=None, config=None, cached=False, season=None, 
             items = max_size(items, config)
     if config['sort'] is not None:
         items = items_sort(items, config)
+    if config['exclusionKeywords'] is not None and len(config['exclusionKeywords']) > 0:
+        logger.info(f"Exclusion keywords: {config['exclusionKeywords']}")
+        items = exclusion_keywords(items, config)
     if config['exclusion'] is not None:
         items = quality_exclusion(items, config)
-    if config['resultsPerQuality'] is not None:
+    if config['resultsPerQuality'] is not None and int(config['resultsPerQuality']) > 0:
         items = results_per_quality(items, config)
     return items
