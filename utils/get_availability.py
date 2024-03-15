@@ -2,8 +2,10 @@ import requests
 import bencode
 import hashlib
 import concurrent.futures
+import base64
 
 from utils.logger import setup_logger
+from debrid.realdebrid import series_file_filter
 
 logger = setup_logger(__name__)
 
@@ -58,6 +60,33 @@ def get_availability_cached(stream, type, seasonEpisode=None, config=None):
                 return True
         else:
             return False
+
+def is_valid_magnet(magnet, config):
+    if config["service"] == "realdebrid":
+        hash = magnet.split("urn:btih:")[1].split("&")[0]
+        url = "https://api.real-debrid.com/rest/1.0/torrents/instantAvailability/" + hash
+        headers = {
+            "Authorization": f"Bearer {config['debridKey']}"
+        }
+        response = requests.get(url, headers=headers)
+
+        if response.status_code != 200:
+            return False
+
+    if config["service"] == "alldebrid":
+        url = "https://api.alldebrid.com/v4/magnet/instant?agent=jackett&apikey=" + config['debridKey'] + "&magnets[]=" + magnet
+        response = requests.get(url)
+
+        if response.status_code != 200:
+            return False
+    
+    if config["service"] == "premiumize":
+        url = "https://www.premiumize.me/api/cache/check?items%5B%5D=" + magnet + "&type=torrent&apikey=" + config['debridKey']
+        response = requests.get(url)
+        if response.status_code != 200:
+            return False
+    
+    return True
 
 
 def is_available(magnet, type, seasonEpisode=None, config=None):
@@ -150,21 +179,43 @@ def get_torrent_info(item, config):
         logger.error("Failed to retrieve torrent info after " + str(max_retries) + " attempts")
     logger.info("Got torrent info")
     torrent = bencode.bdecode(response.content)
-    trackers = []
+
+    #To avoid duplicates, lets use a set
+    trackers = set()
     if 'announce-list' in torrent:
         for tracker in torrent['announce-list']:
             if len(tracker) > 0:
-                trackers.append("tracker:" + tracker[0])
+                trackers.add("tracker:" + tracker[0])
+    
     if 'announce' in torrent:
-        trackers.append("tracker:" + torrent['announce'])
+        #Some torrents have lists for these for some reason
+        if isinstance(torrent['announce'], list):
+            for tracker in torrent['announce']:
+                trackers.add("tracker:" + tracker)
+        else:
+            trackers.add("tracker:" + torrent['announce'])
+
     files = []
     if 'files' in torrent['info']:
         for file in torrent['info']['files']:
             if file['path'][-1].lower().endswith(tuple(format)):
                 files.append(file['path'][-1])
 
-    hash = hashlib.sha1(bencode.bencode(torrent['info'])).hexdigest()
-    magnet = "magnet:?xt=urn:btih:" + hash + "&dn=" + torrent['info']['name'] + "&tr=" + "&tr=".join(trackers)
+    # BitTorrent info hash (BTIH)
+    # These are hex-encoded SHA-1 hash sums of the "info" sections of BitTorrent metafiles as used by   BitTorrent to identify downloadable files or sets of files. For backwards compatibility with existing links, clients should also support the Base32 encoded version of the hash.[3]
+    # xt=urn:btih:[ BitTorrent Info Hash (Hex) ]
+    # Some clients require Base32 of info_hash
+                
+    hashcontents = bencode.bencode(torrent['info'])
+    base32Hash = base64.b32encode(hashlib.sha1(hashcontents).digest()).decode()
+    hexHash = hashlib.sha1(hashcontents).hexdigest()
+
+    magnet = hexMagnet = "magnet:?xt=urn:btih:" + hexHash + "&dn=" + torrent['info']['name'] + ( "&tr=".join(trackers) if trackers else "")
+    base32Magnet = "magnet:?xt=urn:btih:" + base32Hash + "&dn=" + torrent['info']['name'] + ( "&tr=".join(trackers) if trackers else "")
+
+    if not is_valid_magnet(hexMagnet, config):
+        magnet = base32Magnet
+
     try:
         season = item['season']
         episode = item['episode']
@@ -202,7 +253,8 @@ def get_availability(torrent, config):
     try:
         torrent_info = get_torrent_info(torrent, config)
         return torrent_info
-    except:
+    except Exception as e:
+        logger.error('Error at %s', 'division', exc_info=e)
         try:
             response = requests.get(torrent['link'], allow_redirects=False)
             if response.status_code == 302:
