@@ -201,7 +201,7 @@ async def get_playback(config: str, query: str, title: str, request: Request):
         return RedirectResponse(url=link, status_code=status.HTTP_301_MOVED_PERMANENTLY)
 
     except Exception as e:
-        logger.error(f"An error occurred: {e}")
+        logger.error('An error occured %s', 'division', exc_info=e)
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
 
 

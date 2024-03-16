@@ -176,3 +176,52 @@ def filter_items(items, item_type=None, config=None, cached=False, season=None, 
     if config['resultsPerQuality'] is not None and int(config['resultsPerQuality']) > 0:
         items = results_per_quality(items, config)
     return items
+
+def series_file_filter(files, season, episode):
+    if season == None or episode == None:
+        return []
+
+    season = season.lower()
+    episode = episode.lower()
+
+    filtered_files = []
+    
+    # Main filter
+    for file in files:
+        if season + episode in file['path'].lower():
+            filtered_files.append(file)
+
+
+    if len(filtered_files) != 0:
+        return filtered_files
+    
+    # Secondary fallback filter
+    for file in files:
+        filepath = file['path'].lower()
+        if season in filepath and episode in filepath:
+            filtered_files.append(file)
+
+    if len(filtered_files) != 0:
+        return filtered_files
+    
+    # Third fallback filter
+    season = season[1:]
+    episode = episode[1:]
+    for file in files:
+        filepath = file['path'].lower()
+        if season in filepath and episode in filepath and filepath.index(season) > filepath.index(episode):
+            filtered_files.append(file) 
+    
+    if len(filtered_files) != 0:
+        return filtered_files
+    
+    # Last fallback filter
+    if season[0] == '0': season = season[1:]
+    if episode[0] == '0': episode = episode[1:]
+
+    for file in files:
+        filepath = file['path'].lower()
+        if season in filepath and episode in filepath and filepath.index(season) > filepath.index(episode):
+            filtered_files.append(file) 
+
+    return filtered_files
