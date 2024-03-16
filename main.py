@@ -27,6 +27,7 @@ from utils.get_content import get_name
 from utils.jackett import search
 from utils.logger import setup_logger
 from utils.process_results import process_results
+from utils.direct_torrent import get_torrent_stream
 
 load_dotenv()
 
@@ -159,12 +160,27 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         filtered_results = filter_items(search_results, stream_type, config=config)
         logger.info("Filtered results")
         logger.info("Checking availability")
+
+        #Direct torrent route
+        if config['directTorrent']:
+            streams = []
+            for result in filtered_results:
+                torrent_stream = get_torrent_stream(result)
+                if torrent_stream:
+                    streams.append(torrent_stream)
+
+            return {
+                "streams": streams
+            }
+
+        #Debrid route
         results = availability(filtered_results, config=config) + filtered_cached_results
         logger.info("Checked availability (results: " + str(len(results)) + ")")
         logger.info("Processing results")
         stream_list = process_results(results[:int(config['maxResults'])], False, stream_type,
                                       name['season'] if stream_type == "series" else None,
                                       name['episode'] if stream_type == "series" else None, config=config)
+        
         logger.info("Processed results (results: " + str(len(stream_list)) + ")")
         if len(stream_list) == 0:
             logger.info("No results found")

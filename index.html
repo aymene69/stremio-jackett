@@ -98,6 +98,22 @@
             </div>
 
             <div class="border-b border-gray-900/10 pb-12">
+                <h2 class="text-base font-semibold leading-7 text-gray-900">Direct torrenting support</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-600">You may opt out of debirid servicies and stream from torrents directly. <br><b class="text-red-500">WARNING: This may be very dangerous depending on the laws of your country!</b></p>
+                <br>
+                <div class="relative flex gap-x-3">
+                    <div class="flex h-6 items-center">
+                        <input oninput="" id="direct-torrent" name="direct-torrent" value="direct-torrent" type="checkbox"
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                    </div>
+                    <div class="text-sm leading-6">
+                        <label for="direct-torrent" class="font-medium text-gray-900">Enable direct torrenting</label>
+                        <p class="text-gray-500">Direct torrenting speeds up search query and playback start times.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-b border-gray-900/10 pb-12">
                 <h2 class="text-base font-semibold leading-7 text-gray-900">TMDB Informations</h2>
                 <p class="mt-1 text-sm leading-6 text-gray-600">You will enter here informations about TMDB. You can
                     find your API key in "Settings" after registering <a href="https://www.themoviedb.org/signup"
@@ -332,6 +348,7 @@
             document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
             document.getElementById('maxResults').value = data.maxResults;
             document.getElementById('cache').checked = data.cache;
+            document.getElementById('direct-torrent').checked = data.directTorrent;
             if (data.sort === 'quality') {
                 document.getElementById('quality').checked = true;
             }
@@ -377,6 +394,7 @@
         let resultsPerQuality = document.getElementById('resultsPerQuality').value;
         let maxResults = document.getElementById('maxResults').value;
         const cache = document.getElementById('cache').checked;
+        const directTorrent = document.getElementById('direct-torrent').checked;
         const qualityExclusion = [];
         if (document.getElementById('4k').checked) {
             qualityExclusion.push('4k');
@@ -432,9 +450,10 @@
             maxResults,
             'exclusion': qualityExclusion,
             tmdbApi,
-            cache
+            cache,
+            directTorrent
         };
-        if (jackettHost === '' || jackettApi === '' || debridApi === '' || tmdbApi === '') {
+        if (jackettHost === '' || jackettApi === '' || (debridApi === '' && !directTorrent) || tmdbApi === '') {
             alert('Please fill all the fields');
             return false;
         }

@@ -5,7 +5,7 @@ from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
-
+#TODO: Caching does not work with direct torrenting
 def search_cache(query):
     logger.info(query)
     logger.info("Searching for cached " + query['type'] + " results")
