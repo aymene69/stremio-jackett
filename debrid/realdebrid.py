@@ -3,6 +3,7 @@ import json
 import time
 
 from utils.logger import setup_logger
+from utils.filter_results import series_file_filter
 
 logger = setup_logger(__name__)
 
@@ -85,10 +86,14 @@ def get_stream_link_rd(query, source_ip, config):
         return data['download']
     if type == "series":
         logger.info("Selecting series file")
-        filtered_files = [file for file in data['files'] if
-                          json.loads(query)['season'].lower() + json.loads(query)['episode'].lower() in file['path'].lower()]
+        
+        season = json.loads(query)['season']
+        episode = json.loads(query)['episode']
+        
+        filtered_files = series_file_filter(data["files"], season, episode)
+
         if not filtered_files:
-            logger.error("No files found for season " + json.loads(query)['season'] + " episode " + json.loads(query)['episode'])
+            logger.error("No files found for season " + season + " episode " + episode)
             return None
         file = max(filtered_files, key=lambda x: x['bytes'])
         logger.info("File name: " + file['path'])

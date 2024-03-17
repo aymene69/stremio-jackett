@@ -156,23 +156,82 @@ def filter_season_episode(items, season, episode, config):
 
 def filter_items(items, item_type=None, config=None, cached=False, season=None, episode=None):
     if config is None:
+        logger.debug('Config is None!')
         return items
+    
     if config['language'] is None:
+        logger.debug('Language is not set in config!')
         return items
+    
     if cached and item_type == "series":
         items = filter_season_episode(items, season, episode, config)
+
     logger.info("Started filtering torrents")
     items = filter_language(items, config['language'])
+    
     if int(config['maxSize']) != 0:
         if item_type == "movie":
             items = max_size(items, config)
+    
     if config['sort'] is not None:
         items = items_sort(items, config)
+    
     if config['exclusionKeywords'] is not None and len(config['exclusionKeywords']) > 0:
         logger.info(f"Exclusion keywords: {config['exclusionKeywords']}")
         items = exclusion_keywords(items, config)
+    
     if config['exclusion'] is not None:
         items = quality_exclusion(items, config)
+    
     if config['resultsPerQuality'] is not None and int(config['resultsPerQuality']) > 0:
         items = results_per_quality(items, config)
     return items
+
+def series_file_filter(files, season, episode):
+    if season == None or episode == None:
+        return []
+
+    season = season.lower()
+    episode = episode.lower()
+
+    filtered_files = []
+    
+    # Main filter
+    for file in files:
+        if season + episode in file['path'].lower():
+            filtered_files.append(file)
+
+
+    if len(filtered_files) != 0:
+        return filtered_files
+    
+    # Secondary fallback filter
+    for file in files:
+        filepath = file['path'].lower()
+        if season in filepath and episode in filepath:
+            filtered_files.append(file)
+
+    if len(filtered_files) != 0:
+        return filtered_files
+    
+    # Third fallback filter
+    season = season[1:]
+    episode = episode[1:]
+    for file in files:
+        filepath = file['path'].lower()
+        if season in filepath and episode in filepath and filepath.index(season) > filepath.index(episode):
+            filtered_files.append(file) 
+    
+    if len(filtered_files) != 0:
+        return filtered_files
+    
+    # Last fallback filter
+    if season[0] == '0': season = season[1:]
+    if episode[0] == '0': episode = episode[1:]
+
+    for file in files:
+        filepath = file['path'].lower()
+        if season in filepath and episode in filepath and filepath.index(season) > filepath.index(episode):
+            filtered_files.append(file) 
+
+    return filtered_files
