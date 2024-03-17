@@ -91,7 +91,8 @@ async def get_manifest():
         "resources": ["stream"],
         "types": ["movie", "series"],
         "name": "Jackett" + (" (Dev)" if isDev else ""),
-        "description": "Stremio Jackett Addon",
+        "description": "Elevate your Stremio experience with seamless access to Jackett torrent links, effortlessly "
+                       "fetching torrents for your selected movies within the Stremio interface.",
         "behaviorHints": {
             "configurable": True,
             "configurationRequired": True
