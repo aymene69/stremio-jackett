@@ -23,6 +23,8 @@ from debrid.realdebrid import get_stream_link_rd
 from utils.filter_results import filter_items
 from utils.get_availability import availability
 from utils.get_cached import search_cache
+from utils.get_cached import get_cached_results
+from utils.get_cached import process_cached_results
 from utils.get_content import get_name
 from utils.jackett import search
 from utils.logger import setup_logger
@@ -37,7 +39,7 @@ if root_path and not root_path.startswith("/"):
 app = FastAPI(root_path=root_path)
 
 VERSION = "3.0.13"
-isDev = os.getenv("NODE_ENV") == "development"
+isDev = True
 
 
 class LogFilterMiddleware:
@@ -51,7 +53,6 @@ class LogFilterMiddleware:
         logger.info(f"{request.method} - {sensible_path}")
         return await self.app(scope, receive, send)
 
-
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -64,8 +65,10 @@ if not isDev:
     app.add_middleware(LogFilterMiddleware)
 
 templates = Jinja2Templates(directory=".")
-
 logger = setup_logger(__name__)
+formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
+                              '%m-%d %H:%M:%S')
+logger.info("Started Jackett Addon")
 
 
 @app.get("/")
@@ -100,92 +103,69 @@ async def get_manifest():
         }
     }
 
-
-formatter = logging.Formatter('[%(asctime)s] p%(process)s {%(pathname)s:%(lineno)d} %(levelname)s - %(message)s',
-                              '%m-%d %H:%M:%S')
-
-logger.info("Started Jackett Addon")
-
-
 @app.get("/{config}/stream/{stream_type}/{stream_id}")
 async def get_results(config: str, stream_type: str, stream_id: str):
     stream_id = stream_id.replace(".json", "")
+    
+    logger.info("Getting config")
     config = json.loads(base64.b64decode(config).decode('utf-8'))
+    logger.info("Got config")
+
     logger.info(stream_type + " request")
     logger.info("Getting name and properties")
-    name = get_name(stream_id, stream_type, config=config)
+    name = get_name(stream_id, stream_type, config['tmdbApi'], config['language'])
     logger.info("Got name and properties: " + str(name['title']))
-    logger.info("Getting config")
-    logger.info("Got config")
-    logger.info("Getting cached results")
+    
+    # Cache part
+    filtered_cached_results = []
     if config['cache']:
-        cached_results = search_cache(name)
-    else:
-        cached_results = []
-    logger.info("Got " + str(len(cached_results)) + " cached results")
-    logger.info("Filtering cached results")
-    filtered_cached_results = filter_items(cached_results, stream_type, config=config, cached=True,
-                                           season=name['season'] if stream_type == "series" else None,
-                                           episode=name['episode'] if stream_type == "series" else None)
-
-    logger.info("Filtered cached results")
-    if len(filtered_cached_results) >= int(config['maxResults']):
-        logger.info("Cached results found")
-        logger.info("Processing cached results")
-        stream_list = process_results(filtered_cached_results[:int(config['maxResults'])], True, stream_type,
-                                      name['season'] if stream_type == "series" else None,
-                                      name['episode'] if stream_type == "series" else None, config=config)
-        logger.info("Processed cached results")
-        if len(stream_list) == 0:
-            logger.info("No results found")
-            return NO_RESULTS
-        return {"streams": stream_list}
-    else:
-        if len(filtered_cached_results) > 0:
-            logger.info("Not enough cached results found (results: " + str(len(filtered_cached_results)) + ")")
-        else:
-            logger.info("No cached results found")
-        logger.info("Searching for results on Jackett")
-        search_results = []
-        if stream_type == "movie":
-            search_results = search({"type": name['type'], "title": name['title'], "year": name['year']},
-                                    config=config)
-        elif stream_type == "series":
-            search_results = search(
-                {"type": name['type'], "title": name['title'], "season": name['season'],
-                 "episode": name['episode']},
-                config=config)
-        logger.info("Got " + str(len(search_results)) + " results from Jackett")
-        logger.info("Filtering results")
-        filtered_results = filter_items(search_results, stream_type, config=config)
-        logger.info("Filtered results")
-        logger.info("Checking availability")
-
-        #Direct torrent route
-        if config['directTorrent']:
-            streams = []
-            for result in filtered_results:
-                torrent_stream = get_torrent_stream(result)
-                if torrent_stream:
-                    streams.append(torrent_stream)
-
-            return {
-                "streams": streams
-            }
-
-        #Debrid route
-        results = availability(filtered_results, config=config) + filtered_cached_results
-        logger.info("Checked availability (results: " + str(len(results)) + ")")
-        logger.info("Processing results")
-        stream_list = process_results(results[:int(config['maxResults'])], False, stream_type,
-                                      name['season'] if stream_type == "series" else None,
-                                      name['episode'] if stream_type == "series" else None, config=config)
+        filtered_cached_results = get_cached_results(name, stream_type, config)
+        cached_result_count = len(filtered_cached_results)
         
-        logger.info("Processed results (results: " + str(len(stream_list)) + ")")
-        if len(stream_list) == 0:
-            logger.info("No results found")
-            return NO_RESULTS
-        return {"streams": stream_list}
+        if cached_result_count >= int(config['maxResults']):
+            return process_cached_results(filtered_cached_results, stream_type, name, config)
+        elif cached_result_count > 0:
+            logger.info("Not enough cached results found (results: " + str(cached_result_count) + ")")
+        else:
+            logger.info('No cached result found')
+    
+    # Jackett search part
+    logger.info("Searching for results on Jackett")
+    search_results = search(name, config) 
+    logger.info("Got " + str(len(search_results)) + " results from Jackett")
+    
+    logger.info("Filtering results")
+    filtered_results = filter_items(search_results, stream_type, config)
+    logger.info("Filtered results")
+    
+    logger.info("Checking availability")
+
+    #TODO: Direct torrenting should be a option that MAY be used, if a given torrent is not already in debrid
+    
+    #Direct torrent route
+    if config['directTorrent']:
+        streams = []
+        for result in filtered_results:
+            torrent_stream = get_torrent_stream(result)
+            if torrent_stream:
+                streams.append(torrent_stream)
+        return {
+            "streams": streams
+        }
+    
+    #Debrid route
+    results = availability(filtered_results, config=config) + filtered_cached_results
+    logger.info("Checked availability (results: " + str(len(results)) + ")")
+    logger.info("Processing results")
+    stream_list = process_results(results[:int(config['maxResults'])], False, stream_type,
+                                  name['season'] if stream_type == "series" else None,
+                                  name['episode'] if stream_type == "series" else None, config=config)
+    
+    logger.info("Processed results (results: " + str(len(stream_list)) + ")")
+    if len(stream_list) == 0:
+        logger.info("No results found")
+        return NO_RESULTS
+    return {"streams": stream_list}
 
 
 @app.get("/playback/{config}/{query}/{title}")

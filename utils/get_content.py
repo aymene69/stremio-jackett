@@ -4,7 +4,6 @@ from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
-
 def replace_weird_characters(string):
     corresp = {
         'ō': 'o', 'ā': 'a', 'ă': 'a', 'ą': 'a', 'ć': 'c', 'č': 'c', 'ç': 'c',
@@ -21,7 +20,7 @@ def replace_weird_characters(string):
         'ų': 'u', 'ű': 'u', 'ŵ': 'w', 'ý': 'y', 'ÿ': 'y', 'ŷ': 'y',
         'ž': 'z', 'ż': 'z', 'ź': 'z', 'æ': 'ae', 'ǎ': 'a', 'ǧ': 'g',
         'ə': 'e', 'ƒ': 'f', 'ǐ': 'i', 'ǒ': 'o', 'ǔ': 'u', 'ǚ': 'u',
-        'ǜ': 'u', 'ǹ': 'n', 'ǻ': 'a', 'ǽ': 'ae', 'ǿ': 'o',
+        'ǜ': 'u', 'ǹ': 'n', 'ǻ': 'a', 'ǽ': 'ae', 'ǿ': 'o', 'á':'a'
     }
 
     for weird_char in corresp:
@@ -29,35 +28,33 @@ def replace_weird_characters(string):
 
     return string
 
-
-
-def get_name(id, type, config):
+# Get name should always contain english, plus the additional
+def get_name(id, type, tmbdApiKey, language):
     logger.info("Getting metadata for " + type + " with id " + id)
 
+    full_id = id.split(":")
+    url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={tmbdApiKey}&external_source=imdb_id&language={language}"
+    
+    response = requests.get(url)
+    data = response.json()
+
+    result = {}
     if type == "movie":
-        full_id = id.split(":")
-        url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={config['tmdbApi']}&external_source=imdb_id&language={config['language']}"
-        response = requests.get(url)
-        data = response.json()
         result = {
             "title": replace_weird_characters(data["movie_results"][0]["title"]),
             "year": data["movie_results"][0]["release_date"][:4],
             "type": "movie",
-            "language": config['language']
-        }
-        logger.info("Got metadata for " + type + " with id " + id)
-        return result
+            "language": language
+        }   
     else:
-        full_id = id.split(":")
-        url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={config['tmdbApi']}&external_source=imdb_id&language={config['language']}"
-        response = requests.get(url)
-        data = response.json()
         result = {
             "title": replace_weird_characters(data["tv_results"][0]["name"]),
             "season": "S{:02d}".format(int(full_id[1])),
             "episode": "E{:02d}".format(int(full_id[2])),
             "type": "series",
-            "language": config['language']
+            "language": language
         }
-        logger.info("Got metadata for " + type + " with id " + id)
-        return result
+    
+    logger.info("Got metadata for " + type + " with id " + id)
+
+    return result

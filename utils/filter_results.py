@@ -156,23 +156,33 @@ def filter_season_episode(items, season, episode, config):
 
 def filter_items(items, item_type=None, config=None, cached=False, season=None, episode=None):
     if config is None:
+        logger.debug('Config is None!')
         return items
+    
     if config['language'] is None:
+        logger.debug('Language is not set in config!')
         return items
+    
     if cached and item_type == "series":
         items = filter_season_episode(items, season, episode, config)
+
     logger.info("Started filtering torrents")
     items = filter_language(items, config['language'])
+    
     if int(config['maxSize']) != 0:
         if item_type == "movie":
             items = max_size(items, config)
+    
     if config['sort'] is not None:
         items = items_sort(items, config)
+    
     if config['exclusionKeywords'] is not None and len(config['exclusionKeywords']) > 0:
         logger.info(f"Exclusion keywords: {config['exclusionKeywords']}")
         items = exclusion_keywords(items, config)
+    
     if config['exclusion'] is not None:
         items = quality_exclusion(items, config)
+    
     if config['resultsPerQuality'] is not None and int(config['resultsPerQuality']) > 0:
         items = results_per_quality(items, config)
     return items
