@@ -131,10 +131,9 @@ def parse_xml(xml_content, query, config):
                 if "S" + str(int(query['season'].replace("S",""))) + "E" + str(int(query['episode'].replace("E", ""))) not in title:
                     if re.search(r'\bS\d+\b', title) is None:
                         continue
-            # I don't think, that this is neccessary with the changes I've made down the line
-            # if query['season'] + query['episode'] not in title:
-            #     if re.search(rf'\b{re.escape(query["season"])}\b', title) is None:
-            #         continue
+            if query['season'] + query['episode'] not in title:
+                if re.search(rf'\b{re.escape(query["season"])}\b', title) is None:
+                    continue
 
             item_dict = {
                 "title": title,

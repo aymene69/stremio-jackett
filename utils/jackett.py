@@ -38,7 +38,6 @@ def search(query, config):
             f"{config['jackettHost']}/api/v2.0/indexers/all/results/torznab/api?apikey={config['jackettApiKey']}"
             f"&t=tvsearch&cat=5000&q={query['title']}&season={str(int(query['season'].replace('S','')))}")
         try:
-            # Main query
             response_ep = requests.get(url_ep)
             response_ep.raise_for_status()
             response_season = requests.get(url_season)
@@ -50,24 +49,7 @@ def search(query, config):
             data_season = parse_xml(response_season.text,
                                     {"type": "series", "season": query['season'], "episode": query['episode'],
                                      "seasonfile": True}, config=config)
-            data = json.dumps(json.loads(data_ep) + json.loads(data_season), indent=4)
-            
-            if data and data != '[]':
-                return json.loads(data)
-            
-            # Fallback query
-            logger.info("Fallback series query")
-            url_title = (
-                f"{config['jackettHost']}/api/v2.0/indexers/all/results/torznab/api?apikey={config['jackettApiKey']}"
-                f"&t=tvsearch&cat=5000&q={query['title']}")
-            
-            response_title = requests.get(url_title)
-            response_title.raise_for_status()
-            
-            data = parse_xml(response_title.text,
-                                    {"type": "series", "season": query['season'], "episode": query['episode'],
-                                     "seasonfile": True}, config=config)
-            
+            data = json.dumps(json.loads(data_ep) + json.loads(data_season), indent=4)          
             if data:
                 return json.loads(data)
             else:
