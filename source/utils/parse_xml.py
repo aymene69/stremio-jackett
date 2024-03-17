@@ -7,7 +7,7 @@ import threading
 from constants import CACHER_URL
 from debrid.get_debrid_service import get_debrid_service
 from utils.get_availability import get_availability
-from utils.get_quality import detect_quality, detect_quality_spec
+from utils.get_quality import detect_quality, detect_and_format_quality_spec
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -98,7 +98,7 @@ def parse_xml(xml_content, media, config):
     for item in root.findall('.//item'):
 
         title = item.find('title').text
-        name = item.find('jackettindexer').text + " - " + detect_quality(title) + " " + detect_quality_spec(title)
+        name = item.find('jackettindexer').text + " - " + detect_quality(title) + " " + detect_and_format_quality_spec(title)
         size = item.find('size').text
         link = item.find('link').text
         indexer = item.find('jackettindexer').text
@@ -116,7 +116,7 @@ def parse_xml(xml_content, media, config):
                 "seeders": seeders,
                 "language": detect_language(title),
                 "quality": detect_quality(title),
-                "qualitySpec": detect_quality_spec(title),
+                "qualitySpec": detect_and_format_quality_spec(title),
                 "year": media.year,
                 "indexer": indexer,
                 "type": "movie",
@@ -140,7 +140,7 @@ def parse_xml(xml_content, media, config):
                 "seeders": seeders,
                 "language": detect_language(title),
                 "quality": detect_quality(title),
-                "qualitySpec": detect_quality_spec(title),
+                "qualitySpec": detect_and_format_quality_spec(title),
                 "season": media.season,
                 "episode": media.episode,
                 "indexer": indexer,

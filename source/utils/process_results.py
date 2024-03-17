@@ -1,7 +1,7 @@
 import concurrent.futures
 import json
 
-from utils.get_quality import detect_quality, detect_quality_spec
+from utils.get_quality import detect_quality, detect_and_format_quality_spec
 from utils.logger import setup_logger
 from utils.string_encoding import encodeb64
 
@@ -54,10 +54,10 @@ def process_stream(stream, cached, stream_type, season, episode, debrid_service,
                 }
     if availability:
         indexer = stream.get('indexer', 'Cached')
-        name = f"+{indexer} ({detect_quality(stream['title'])} - {detect_quality_spec(stream['title'])})"
+        name = f"+{indexer} ({detect_quality(stream['title'])} - {detect_and_format_quality_spec(stream['title'])})"
     else:
         indexer = stream.get('indexer', 'Cached')
-        name = f"-{indexer} ({detect_quality(stream['title'])} - {detect_quality_spec(stream['title'])})"
+        name = f"-{indexer} ({detect_quality(stream['title'])} - {detect_and_format_quality_spec(stream['title'])})"
     configb64 = encodeb64(json.dumps(config)).replace('=', '%3D')
     queryb64 = encodeb64(json.dumps(query)).replace('=', '%3D')
     return {
