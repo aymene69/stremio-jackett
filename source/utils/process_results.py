@@ -1,9 +1,11 @@
 import concurrent.futures
-import base64
 import json
-from utils.get_availability import get_availability_cached
-from utils.get_quality import detect_quality, detect_quality_spec
 
+from utils.get_quality import detect_quality, detect_and_format_quality_spec
+from utils.logger import setup_logger
+from utils.string_encoding import encodeb64
+
+logger = setup_logger(__name__)
 
 def get_emoji(language):
     emoji_dict = {
@@ -26,7 +28,7 @@ def filter_by_availability(item):
     return 0 if availability == "+" else 1
 
 
-def process_stream(stream, cached, stream_type, season, episode, config):
+def process_stream(stream, cached, stream_type, season, episode, debrid_service, config):
     try:
         if "availability" not in stream and not cached:
             return None
@@ -35,9 +37,9 @@ def process_stream(stream, cached, stream_type, season, episode, config):
 
     if cached:
         if season is None and episode is None:
-            availability = get_availability_cached(stream, stream_type, config=config)
+            availability = debrid_service.get_availability(stream['magnet'], stream_type)
         else:
-            availability = get_availability_cached(stream, stream_type, season + episode, config=config)
+            availability = debrid_service.get_availability(stream['magnet'], stream_type, season + episode)
     else:
         availability = stream.get('availability', False)
 
@@ -49,15 +51,15 @@ def process_stream(stream, cached, stream_type, season, episode, config):
         return {"name": "AUTH_BLOCKED",
                 "title": "New connection on AllDebrid.\r\nPlease authorize the connection\r\non your email",
                 "url": "#"
-        }
+                }
     if availability:
         indexer = stream.get('indexer', 'Cached')
-        name = f"+{indexer} ({detect_quality(stream['title'])} - {detect_quality_spec(stream['title'])})"
+        name = f"+{indexer} ({detect_quality(stream['title'])} - {detect_and_format_quality_spec(stream['title'])})"
     else:
         indexer = stream.get('indexer', 'Cached')
-        name = f"-{indexer} ({detect_quality(stream['title'])} - {detect_quality_spec(stream['title'])})"
-    configb64 = base64.b64encode(json.dumps(config).encode('utf-8')).decode('utf-8').replace('=', '%3D')
-    queryb64 = base64.b64encode(json.dumps(query).encode('utf-8')).decode('utf-8').replace('=', '%3D')
+        name = f"-{indexer} ({detect_quality(stream['title'])} - {detect_and_format_quality_spec(stream['title'])})"
+    configb64 = encodeb64(json.dumps(config)).replace('=', '%3D')
+    queryb64 = encodeb64(json.dumps(query)).replace('=', '%3D')
     return {
         "name": name,
         "title": f"{stream['title']}\r\n{get_emoji(stream['language'])}   👥 {stream['seeders']}   📂 "
@@ -66,12 +68,13 @@ def process_stream(stream, cached, stream_type, season, episode, config):
     }
 
 
-def process_results(items, cached, stream_type, season=None, episode=None, config=None):
+def process_results(items, cached, stream_type, season=None, episode=None, debrid_service=None, config=None):
     stream_list = []
 
     with concurrent.futures.ThreadPoolExecutor() as executor:
         results = executor.map(process_stream, items, [cached] * len(items), [stream_type] * len(items),
-                               [season] * len(items), [episode] * len(items), [config] * len(items))
+                               [season] * len(items), [episode] * len(items), [debrid_service] * len(items),
+                               [config] * len(items))
 
         for result in results:
             if result is not None:

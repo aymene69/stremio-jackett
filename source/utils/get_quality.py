@@ -15,6 +15,11 @@ def detect_quality(torrent_name):
     return "Unknown"
 
 
+def detect_and_format_quality_spec(torrent_name):
+    qualities = detect_quality_spec(torrent_name)
+    return "/".join(qualities) if qualities else "Unknown"
+
+
 def detect_quality_spec(torrent_name):
     quality_patterns = {
         "HDR": r'\b(HDR|HDR10|HDR10PLUS|HDR10PLUS|HDR10PLUS)\b',
@@ -48,4 +53,4 @@ def detect_quality_spec(torrent_name):
     for quality, pattern in quality_patterns.items():
         if re.search(pattern, torrent_name, re.IGNORECASE):
             qualities.append(quality)
-    return "/".join(qualities) if qualities else "Unknown"
+    return qualities if qualities else None

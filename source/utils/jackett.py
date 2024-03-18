@@ -9,20 +9,20 @@ from utils.parse_xml import parse_xml
 logger = setup_logger(__name__)
 
 
-def search(query, config):
+def search(media, config):
     if config is None:
         return NO_CONFIG
 
-    logger.info("Started Jackett search for " + query['type'] + " " + query['title'])
+    logger.info("Started Jackett search for " + media.type + " " + media.title)
 
-    if query['type'] == "movie":
+    if media.type == "movie":
 
         url = (f"{config['jackettHost']}/api/v2.0/indexers/all/results/torznab/api?apikey={config['jackettApiKey']}"
-               f"&t=movie&cat=2000&q={query['title']}&year={query['year']}")
+               f"&t=movie&cat=2000&q={media.title}&year={media.year}")
         try:
             response = requests.get(url)
             response.raise_for_status()
-            data = parse_xml(response.text, {"type": "movie", "year": query['year']}, config=config)
+            data = parse_xml(response.text, media, config=config)
             if data:
                 return json.loads(data)
             else:
@@ -30,24 +30,20 @@ def search(query, config):
         except requests.exceptions.RequestException as e:
             logger.error(e)
             return []
-    elif query['type'] == "series":
+    elif media.type == "series":
         url_ep = (f"{config['jackettHost']}/api/v2.0/indexers/all/results/torznab/api?apikey={config['jackettApiKey']}"
-                  f"&t=tvsearch&cat=5000&q={query['title']}&season={str(int(query['season'].replace('S','')))}"
-                  f"&ep={str(int(query['episode'].replace('E','')))}")
+                  f"&t=tvsearch&cat=5000&q={media.title}&season={str(int(media.season.replace('S','')))}"
+                  f"&ep={str(int(media.episode.replace('E','')))}")
         url_season = (
             f"{config['jackettHost']}/api/v2.0/indexers/all/results/torznab/api?apikey={config['jackettApiKey']}"
-            f"&t=tvsearch&cat=5000&q={query['title']}&season={str(int(query['season'].replace('S','')))}")
+            f"&t=tvsearch&cat=5000&q={media.title}&season={str(int(media.season.replace('S','')))}")
         try:
             response_ep = requests.get(url_ep)
             response_ep.raise_for_status()
             response_season = requests.get(url_season)
             response_season.raise_for_status()
-            data_ep = parse_xml(response_ep.text,
-                                {"type": "series", "season": query['season'], "episode": query['episode'],
-                                 "seasonfile": False}, config=config)
-            data_season = parse_xml(response_season.text,
-                                    {"type": "series", "season": query['season'], "episode": query['episode'],
-                                     "seasonfile": True}, config=config)
+            data_ep = parse_xml(response_ep.text, media, config=config)
+            data_season = parse_xml(response_season.text, media, config=config)
             data = json.dumps(json.loads(data_ep) + json.loads(data_season), indent=4)
             if data:
                 return json.loads(data)
