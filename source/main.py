@@ -121,12 +121,14 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     else:
         cached_results = []
     logger.info("Got " + str(len(cached_results)) + " cached results")
-    logger.info("Filtering cached results")
-    filtered_cached_results = filter_items(cached_results, media.type, config=config, cached=True,
-                                           season=media.season if media.type == "series" else None,
-                                           episode=media.episode if media.type == "series" else None)
+    filtered_cached_results = []
+    if len(cached_results) > 0:
+        logger.info("Filtering cached results")
+        filtered_cached_results = filter_items(cached_results, media.type, config=config, cached=True,
+                                               season=media.season if media.type == "series" else None,
+                                               episode=media.episode if media.type == "series" else None)
 
-    logger.info("Filtered cached results")
+        logger.info("Filtered cached results")
     # TODO: if we have results per quality set, most of the time we will not have enough cached results AFTER filtering them
     # because we will have less results than the maxResults, so we will always have to search for new results
     if len(filtered_cached_results) >= int(config['maxResults']):

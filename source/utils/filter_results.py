@@ -22,6 +22,7 @@ def items_sort(items, config):
         return sorted(items, key=lambda x: int(x['size']))
     if config['sort'] == "sizedesc":
         return sorted(items, key=lambda x: int(x['size']), reverse=True)
+    return items
 
 
 def filter_season_episode(items, season, episode, config):
