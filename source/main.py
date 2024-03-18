@@ -18,7 +18,7 @@ from constants import NO_RESULTS
 from debrid.get_debrid_service import get_debrid_service
 from utils.filter_results import filter_items
 from utils.get_availability import availability
-from utils.get_cached import search_cache
+from utils.cache import search_cache
 from utils.jackett import search
 from utils.logger import setup_logger
 from utils.parse_config import parse_config
