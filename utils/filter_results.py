@@ -136,6 +136,8 @@ def items_sort(items, config):
         return sorted(items, key=lambda x: int(x['size']))
     if config['sort'] == "sizedesc":
         return sorted(items, key=lambda x: int(x['size']), reverse=True)
+    if config['sort'] == "qualitythensize":
+        return sorted(items, key=lambda x: (sort_quality(x), -int(x['size'])))
 
 
 def filter_season_episode(items, season, episode, config):
