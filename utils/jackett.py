@@ -42,13 +42,14 @@ def search(query, config):
             response_ep.raise_for_status()
             response_season = requests.get(url_season)
             response_season.raise_for_status()
+
             data_ep = parse_xml(response_ep.text,
                                 {"type": "series", "season": query['season'], "episode": query['episode'],
                                  "seasonfile": False}, config=config)
             data_season = parse_xml(response_season.text,
                                     {"type": "series", "season": query['season'], "episode": query['episode'],
                                      "seasonfile": True}, config=config)
-            data = json.dumps(json.loads(data_ep) + json.loads(data_season), indent=4)
+            data = json.dumps(json.loads(data_ep) + json.loads(data_season), indent=4)          
             if data:
                 return json.loads(data)
             else:
