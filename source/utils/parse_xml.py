@@ -113,5 +113,5 @@ def parse_xml(xml_content, media, config):
             items_list.append(item_dict)
     sorted_items = sorted(items_list, key=lambda x: int(x['seeders']), reverse=True)
     data = json.dumps(sorted_items, indent=4)
-    threading.Thread(target=cache_results, args=(sorted_items, media.type, config)).start()
+    threading.Thread(target=cache_results, daemon=True, args=(sorted_items, media.type, config)).start()
     return data

@@ -16,10 +16,10 @@ from fastapi.templating import Jinja2Templates
 
 from constants import NO_RESULTS
 from debrid.get_debrid_service import get_debrid_service
+from jackett.jackett import Jackett
+from utils.cache import search_cache
 from utils.filter_results import filter_items
 from utils.get_availability import availability
-from utils.cache import search_cache
-from utils.jackett import search
 from utils.logger import setup_logger
 from utils.parse_config import parse_config
 from utils.process_results import process_results
@@ -95,7 +95,7 @@ async def get_manifest():
                        "fetching torrents for your selected movies within the Stremio interface.",
         "behaviorHints": {
             "configurable": True,
-            "configurationRequired": True
+            # "configurationRequired": True
         }
     }
 
@@ -149,10 +149,10 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         else:
             logger.info("No cached results found")
         logger.info("Searching for results on Jackett")
-        search_results = search(media, config=config)
-        logger.info("Got " + str(len(search_results)) + " results from Jackett")
+        jackett_search_results = Jackett(config).search(media)
+        logger.info("Got " + str(len(jackett_search_results)) + " results from Jackett")
         logger.info("Filtering results")
-        filtered_results = filter_items(search_results, media.type, config=config)
+        filtered_results = filter_items(jackett_search_results, media.type, config=config)
         logger.info("Filtered results")
         logger.info("Checking availability")
         results = availability(filtered_results, debrid_service, config=config) + filtered_cached_results
