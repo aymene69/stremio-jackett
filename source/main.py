@@ -151,8 +151,11 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         logger.info("Searching for results on Jackett")
         jackett_search_results = Jackett(config).search(media)
         logger.info("Got " + str(len(jackett_search_results)) + " results from Jackett")
+        logger.info("Converting results")
+        torrent_results = [result.convert_to_torrent_result() for result in jackett_search_results]
+        logger.info("Converted results")
         logger.info("Filtering results")
-        filtered_results = filter_items(jackett_search_results, media.type, config=config)
+        filtered_results = filter_items(torrent_results, media.type, config=config)
         logger.info("Filtered results")
         logger.info("Checking availability")
         results = availability(filtered_results, debrid_service, config=config) + filtered_cached_results

@@ -196,6 +196,8 @@ class Jackett:
             result.indexer = item.find('jackettindexer').text
             result.privacy = item.find('type').text
 
+            # TODO: I haven't seen this in the Jackett XML response. Is this still relevant?
+            # Or which indexers provide this?
             magneturl = item.find('.//torznab:attr[@name="magneturl"]',
                                   namespaces={'torznab': 'http://torznab.com/schemas/2015/feed'})
             result.magneturl = magneturl.attrib['value'] if magneturl is not None else None
