@@ -78,3 +78,8 @@ class Premiumize(BaseDebrid):
             return "Error: Unsupported stream type."
 
         return link
+    
+    def is_valid_magnet(self, magnet):
+        link = f"{self.base_url}/cache/check?items%5B%5D={magnet}&type=torrent&apikey={self.config['debridKey']}"
+        response = self.get_response(link)
+        return response.ok

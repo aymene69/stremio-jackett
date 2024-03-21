@@ -42,11 +42,16 @@ def cache_results(torrents, type, config):
             except:
                 pass
     try:
-        response = requests.post(CACHER_URL + "pushResult/" + type, data=json.dumps(results, indent=4))
+        response = requests.post(CACHER_URL + "pushResult/" + type, data=json.dumps(results, indent=4), default=set_default)
         if response.status_code == 200:
             logger.info("Cached " + str(len(results)) + " " + type + " results")
         else:
             logger.error("Failed to cache " + type + " results: " + str(response))
     except:
-        logger.error("Failed to cache results")
+        logger.exception("Failed to cache results")
         pass
+
+def set_default(obj):
+    if isinstance(obj, set):
+        return list(obj)  # Convert set to list
+    raise TypeError

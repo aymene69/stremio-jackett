@@ -10,6 +10,14 @@ class BaseDebrid:
         self.config = config
         self.logger = setup_logger(__name__)
 
+    def get_response(self, url, method='get', data=None, headers=None):
+        if method == 'get':
+            return requests.get(url, headers=headers)
+        elif method == 'post':
+            return requests.post(url, data=data, headers=headers)
+        else:
+            raise ValueError(f"Unsupported HTTP method: {method}")
+
     def get_json_response(self, url, method='get', data=None, headers=None):
         if method == 'get':
             response = requests.get(url, headers=headers)
@@ -36,7 +44,7 @@ class BaseDebrid:
                 return True
             time.sleep(interval)
         return False
-
+    
     def get_stream_link(self, query):
         raise NotImplementedError
 
@@ -44,4 +52,7 @@ class BaseDebrid:
         raise NotImplementedError
 
     def get_availability(self, stream, stream_type, season_episode=None):
+        raise NotImplementedError
+    
+    def is_valid_magnet(self, magnet):
         raise NotImplementedError
