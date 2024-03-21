@@ -9,19 +9,20 @@ from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
+quality_order = {"4k": 0, "1080p": 1, "720p": 2, "480p": 3}
 
 def sort_quality(item):
-    order = {"4k": 0, "1080p": 1, "720p": 2, "480p": 3}
-    return order.get(item.get("quality"), float('inf')), item.get("quality") is None
+    logger.info(item)
+    return quality_order.get(item.quality, float('inf')), item.quality is None
 
 
 def items_sort(items, config):
     if config['sort'] == "quality":
         return sorted(items, key=sort_quality)
     if config['sort'] == "sizeasc":
-        return sorted(items, key=lambda x: int(x['size']))
+        return sorted(items, key=lambda x: int(x.size))
     if config['sort'] == "sizedesc":
-        return sorted(items, key=lambda x: int(x['size']), reverse=True)
+        return sorted(items, key=lambda x: int(x.size), reverse=True)
     return items
 
 

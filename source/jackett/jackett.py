@@ -1,6 +1,7 @@
 import os
 import queue
 import threading
+import time
 import xml.etree.ElementTree as ET
 
 import requests
@@ -28,6 +29,9 @@ class Jackett:
 
         # Define a wrapper function that calls the actual target function and stores its return value in the queue
         def thread_target(media, indexer):
+            self.logger.info(f"Searching on {indexer.title}")
+            start_time = time.time()
+
             # Call the actual function
             if isinstance(media, Movie):
                 result = self.__search_movie_indexer(media, indexer)
@@ -35,6 +39,9 @@ class Jackett:
                 result = self.__search_series_indexer(media, indexer)
             else:
                 raise TypeError("Only Movie and Series is allowed as media!")
+
+            self.logger.info(
+                f"Search on {indexer.title} took {time.time() - start_time} seconds")
 
             results_queue.put(result)  # Put the result in the queue
 

@@ -17,9 +17,9 @@ from fastapi.templating import Jinja2Templates
 from constants import NO_RESULTS
 from debrid.get_debrid_service import get_debrid_service
 from jackett.jackett import Jackett
+from utils.availability import availability
 from utils.cache import search_cache
 from utils.filter_results import filter_items
-from utils.get_availability import availability
 from utils.logger import setup_logger
 from utils.parse_config import parse_config
 from utils.process_results import process_results
@@ -152,7 +152,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         jackett_search_results = Jackett(config).search(media)
         logger.info("Got " + str(len(jackett_search_results)) + " results from Jackett")
         logger.info("Converting results")
-        torrent_results = [result.convert_to_torrent_result() for result in jackett_search_results]
+        torrent_results = [result.convert_to_torrent_result(media) for result in jackett_search_results]
         logger.info("Converted results")
         logger.info("Filtering results")
         filtered_results = filter_items(torrent_results, media.type, config=config)
