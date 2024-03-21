@@ -51,3 +51,8 @@ class AllDebrid(BaseDebrid):
             return "Error: Failed to unlock link."
 
         return unlocked_link_data["data"]["link"]
+    
+    def is_valid_magnet(self, magnet):
+        link = f"{self.base_url}magnet/instant?agent=jackett&apikey={self.config['debridKey']}&magnets[]={magnet}"
+        response = self.get_response(link, headers=self.headers)
+        return response.ok

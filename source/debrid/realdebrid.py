@@ -5,6 +5,7 @@ import requests
 
 from debrid.base_debrid import BaseDebrid
 from utils.logger import setup_logger
+from utils.filter_results import series_file_filter
 
 logger = setup_logger(__name__)
 
@@ -98,8 +99,7 @@ class RealDebrid(BaseDebrid):
             self.select_files(torrent_id, str(largest_file_id))
         elif stream_type == "series":
             logger.info("Selecting file for series")
-            season_episode = f"{query_details.get('season').lower()}{query_details.get('episode').lower()}"
-            filtered_files = [file['id'] for file in torrent_info['files'] if season_episode in file['path'].lower()]
+            filtered_files = series_file_filter(torrent_info["files"], query_details.get('season').lower(), query_details.get('episode').lower())
             if not filtered_files:
                 return "Error: Episode file not found."
             logger.info(f"Filtered files: {filtered_files}")
@@ -121,3 +121,9 @@ class RealDebrid(BaseDebrid):
 
         logger.info(f"Got download link: {unrestrict_response['download']}")
         return unrestrict_response['download']
+    
+    def is_valid_magnet(self, magnet):
+        hash = magnet.split("urn:btih:")[1].split("&")[0]
+        link = f"{self.base_url}/rest/1.0/torrents/instantAvailability/{hash}"
+        response = self.get_response(link, headers=self.headers)
+        return response.status_code == 200
