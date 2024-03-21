@@ -11,8 +11,8 @@ logger = setup_logger(__name__)
 
 quality_order = {"4k": 0, "1080p": 1, "720p": 2, "480p": 3}
 
+
 def sort_quality(item):
-    logger.info(item)
     return quality_order.get(item.quality, float('inf')), item.quality is None
 
 
