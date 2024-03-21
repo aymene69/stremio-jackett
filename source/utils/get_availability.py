@@ -91,8 +91,8 @@ def get_torrent_info(item, debrid_service):
     base32Hash = base64.b32encode(hashlib.sha1(hashcontents).digest()).decode()
     hash = hexHash = hashlib.sha1(hashcontents).hexdigest()
 
-    magnet = hexMagnet = f"magnet:?xt=urn:btih:{hexHash}&dn={torrent['info']['name']}&tr={"&tr=".join(trackers) if trackers else ""}"
-    base32Magnet = f"magnet:?xt=urn:btih:{base32Hash}&dn={torrent['info']['name']}&tr={"&tr=".join(trackers) if trackers else ""}"
+    magnet = hexMagnet = f"magnet:?xt=urn:btih:{hexHash}&dn={torrent['info']['name']}&tr={'&tr='.join(trackers) if trackers else ''}"
+    base32Magnet = f"magnet:?xt=urn:btih:{base32Hash}&dn={torrent['info']['name']}&tr={'&tr='.join(trackers) if trackers else ''}"
 
     if not debrid_service.is_valid_magnet(magnet):
         magnet = base32Magnet
