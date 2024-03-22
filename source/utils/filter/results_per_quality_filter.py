@@ -12,12 +12,12 @@ class ResultsPerQualityFilter(BaseFilter):
         filtered_items = []
         quality_count = {}
         for item in data:
-            if item['quality'] not in quality_count:
-                quality_count[item['quality']] = 1
+            if item.quality not in quality_count:
+                quality_count[item.quality] = 1
                 filtered_items.append(item)
             else:
-                if quality_count[item['quality']] < int(self.config['resultsPerQuality']):
-                    quality_count[item['quality']] += 1
+                if quality_count[item.quality] < int(self.config['resultsPerQuality']):
+                    quality_count[item.quality] += 1
                     filtered_items.append(item)
 
         return filtered_items

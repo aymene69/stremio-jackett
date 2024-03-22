@@ -1,7 +1,7 @@
 import concurrent.futures
 import json
 
-from utils.get_quality import detect_quality, detect_and_format_quality_spec
+from utils.detection import detect_quality, detect_and_format_quality_spec
 from utils.logger import setup_logger
 from utils.string_encoding import encodeb64
 

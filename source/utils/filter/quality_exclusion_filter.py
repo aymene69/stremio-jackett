@@ -1,5 +1,5 @@
+from utils.detection import detect_quality_spec
 from utils.filter.base_filter import BaseFilter
-from utils.get_quality import detect_quality_spec
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)

@@ -4,7 +4,7 @@ import requests
 
 from constants import CACHER_URL, EXCLUDED_TRACKERS
 from debrid.get_debrid_service import get_debrid_service
-from utils.get_availability import get_availability
+from utils.availability import get_availability
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)

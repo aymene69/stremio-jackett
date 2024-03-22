@@ -14,13 +14,13 @@ class LanguageFilter(BaseFilter):
             if type(torrent) is str:
                 logger.error(f"Torrent is a string: {torrent}")
                 continue
-            if not torrent['language']:
+            if not torrent.language:
                 continue
-            if torrent['language'] == self.config['language']:
+            if torrent.language == self.config['language']:
                 filtered_data.append(torrent)
-            if torrent['language'] == "multi":
+            if torrent.language == "multi":
                 filtered_data.append(torrent)
-            if torrent['language'] == "no":
+            if torrent.language == "no":
                 filtered_data.append(torrent)
         return filtered_data
 

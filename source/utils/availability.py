@@ -17,42 +17,41 @@ max_retries = 5
 
 
 def get_torrent_info(item, debrid_service):
-    if item['link'].startswith("magnet:"):
-        magnet_link = item['link']
+    if item.link.startswith("magnet:"):
+        magnet_link = item.link
         trackers = magnet_link.split("&tr=")[1:]
         try:
-            season = item['season']
-            episode = item['episode']
-            availability = debrid_service.get_availability(magnet_link, item['type'], item['season'] + item['episode'])
+            season = item.season
+            episode = item.episode
+            availability = debrid_service.get_availability(magnet_link, item.type, season + episode)
         except:
             season = None
             episode = None
-            availability = debrid_service.get_availability(magnet_link, item['type'])
+            availability = debrid_service.get_availability(magnet_link, item.type)
         torrent_info = {
-            "name": item['name'],
-            "title": item['title'],
+            "title": item.title,
             "trackers": ["tracker:" + tracker for tracker in trackers],
             "magnet": magnet_link,
             "files": [],
             "hash": magnet_link.split("urn:btih:")[1].split("&")[0],
-            "indexer": item['indexer'],
-            "quality": item['quality'],
-            "qualitySpec": item['qualitySpec'],
-            "seeders": item['seeders'],
-            "size": item['size'],
-            "language": item['language'],
-            "type": item['type'],
+            "indexer": item.indexer,
+            "quality": item.quality,
+            "qualitySpec": item.quality_spec,
+            "seeders": item.seeders,
+            "size": item.size,
+            "language": item.language,
+            "type": item.type,
             "season": season,
             "episode": episode,
             "availability": availability
         }
         return torrent_info
-    response = requests.get(item['link'])
+    response = requests.get(item.link)
     logger.info("Getting torrent info")
     attempts = 0
     while response.status_code != 200 and attempts < max_retries:
         logger.info("Retrying")
-        response = requests.get(item['link'])
+        response = requests.get(item.link)
         attempts += 1
     if response.status_code == 200:
         logger.info("Successfully retrieved torrent info")
@@ -76,27 +75,26 @@ def get_torrent_info(item, debrid_service):
     hash = hashlib.sha1(bencode.bencode(torrent['info'])).hexdigest()
     magnet = "magnet:?xt=urn:btih:" + hash + "&dn=" + torrent['info']['name'] + "&tr=" + "&tr=".join(trackers)
     try:
-        season = item['season']
-        episode = item['episode']
-        availability = debrid_service.get_availability(magnet, item['type'], item['season'] + item['episode'])
+        season = item.season
+        episode = item.episode
+        availability = debrid_service.get_availability(magnet, item.type, season + episode)
     except:
         season = None
         episode = None
-        availability = debrid_service.get_availability(magnet, item['type'])
+        availability = debrid_service.get_availability(magnet, item.type)
     torrent_info = {
-        "name": item['name'],
-        "title": item['title'],
+        "title": item.title,
         "trackers": trackers,
         "magnet": magnet,
         "files": files,
         "hash": hash,
-        "indexer": item['indexer'],
-        "language": item['language'],
-        "seeders": item['seeders'],
-        "size": item['size'],
-        "quality": item['quality'],
-        "qualitySpec": item['qualitySpec'],
-        "type": item['type'],
+        "indexer": item.indexer,
+        "language": item.language,
+        "seeders": item.seeders,
+        "size": item.size,
+        "quality": item.quality,
+        "qualitySpec": item.quality_spec,
+        "type": item.type,
         "season": season,
         "episode": episode,
         "availability": availability
@@ -112,32 +110,31 @@ def get_availability(torrent, debrid_service):
         return torrent_info
     except:
         try:
-            response = requests.get(torrent['link'], allow_redirects=False)
+            response = requests.get(torrent.link, allow_redirects=False)
             if response.status_code == 302:
                 magnet_link = response.headers['Location']
                 trackers = magnet_link.split("&tr=")[1:]
                 try:
-                    season = torrent['season']
-                    episode = torrent['episode']
-                    availability = debrid_service.get_availability(magnet_link, torrent['type'], torrent['season'] + torrent['episode'])
+                    season = torrent.season
+                    episode = torrent.episode
+                    availability = debrid_service.get_availability(magnet_link, torrent.type, season + episode)
                 except:
                     season = None
                     episode = None
-                    availability = debrid_service.get_availability(magnet_link, torrent['type'])
+                    availability = debrid_service.get_availability(magnet_link, torrent.type)
                 torrent_info = {
-                    "name": torrent['name'],
-                    "title": torrent['title'],
+                    "title": torrent.title,
                     "trackers": ["tracker:" + tracker for tracker in trackers],
                     "magnet": magnet_link,
                     "files": [],
                     "hash": magnet_link.split("urn:btih:")[1].split("&")[0],
-                    "indexer": torrent['indexer'],
-                    "quality": torrent['quality'],
-                    "qualitySpec": torrent['qualitySpec'],
-                    "seeders": torrent['seeders'],
-                    "size": torrent['size'],
-                    "language": torrent['language'],
-                    "type": torrent['type'],
+                    "indexer": torrent.quality_spec,
+                    "quality": torrent.quality_spec,
+                    "qualitySpec": torrent.quality_spec,
+                    "seeders": torrent.seeders,
+                    "size": torrent.size,
+                    "language": torrent.language,
+                    "type": torrent.type,
                     "season": season,
                     "episode": episode,
                     "availability": availability

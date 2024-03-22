@@ -31,6 +31,9 @@ def setup_logger(name):
     logger = logging.getLogger(name)
     logger.setLevel(logging.DEBUG)  # Adjust as needed
 
+    if len(logger.handlers) > 0:
+        return logger
+    
     # Create console handler with a higher log level
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)  # Adjust as needed
