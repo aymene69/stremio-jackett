@@ -19,6 +19,7 @@ class Jackett:
 
         self.__api_key = config['jackettApiKey']
         self.__base_url = f"{config['jackettHost']}/api/v2.0"
+        self.__session = requests.Session()
 
     def search(self, media):
         self.logger.info("Started Jackett search for " + media.type + " " + media.title)
@@ -41,7 +42,7 @@ class Jackett:
                 raise TypeError("Only Movie and Series is allowed as media!")
 
             self.logger.info(
-                f"Search on {indexer.title} took {time.time() - start_time} seconds")
+                f"Search on {indexer.title} took {time.time() - start_time} seconds and found {len(result)} results")
 
             results_queue.put(result)  # Put the result in the queue
 
@@ -84,7 +85,7 @@ class Jackett:
         url += '?' + '&'.join([f'{k}={v}' for k, v in params.items()])
 
         try:
-            response = requests.get(url)
+            response = self.__session.get(url)
             response.raise_for_status()
             return self.__get_torrent_links_from_xml(movie, response.text)
         except Exception:
@@ -122,19 +123,19 @@ class Jackett:
         try:
             # Current functionality is that it returns if the season, episode search was successful. This is subject to change
             # TODO: what should we prioritize? season, episode or title?
-            response_ep = requests.get(url_ep)
+            response_ep = self.__session.get(url_ep)
             response_ep.raise_for_status()
             data_ep = self.__get_torrent_links_from_xml(series, response_ep.text)
             if data_ep:
                 return data_ep
 
-            response_season = requests.get(url_season)
+            response_season = self.__session.get(url_season)
             response_season.raise_for_status()
             data_season = self.__get_torrent_links_from_xml(series, response_season.text)
             if data_season:
                 return data_season
 
-            response_title = requests.get(url_title)
+            response_title = self.__session.get(url_title)
             response_title.raise_for_status()
             data_title = self.__get_torrent_links_from_xml(series, response_title.text)
             return data_title
@@ -147,7 +148,7 @@ class Jackett:
         url = f"{self.__base_url}/indexers/all/results/torznab/api?apikey={self.__api_key}&t=indexers&configured=true"
 
         try:
-            response = requests.get(url)
+            response = self.__session.get(url)
             response.raise_for_status()
             return self.__get_indexer_from_xml(response.text)
         except Exception:
@@ -205,9 +206,9 @@ class Jackett:
 
             # TODO: I haven't seen this in the Jackett XML response. Is this still relevant?
             # Or which indexers provide this?
-            magneturl = item.find('.//torznab:attr[@name="magneturl"]',
+            magnet = item.find('.//torznab:attr[@name="magneturl"]',
                                   namespaces={'torznab': 'http://torznab.com/schemas/2015/feed'})
-            result.magneturl = magneturl.attrib['value'] if magneturl is not None else None
+            result.magnet = magnet.attrib['value'] if magnet is not None else None
 
             infoHash = item.find('.//torznab:attr[@name="infohash"]',
                                  namespaces={'torznab': 'http://torznab.com/schemas/2015/feed'})
