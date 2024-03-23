@@ -116,17 +116,17 @@ def get_availability(torrent, debrid_service):
             if response.status_code == 302 or response.status_code == 200:
                 if response.status_code == 302:
                     magnet_link = response.headers['Location']
-                    logger.info(f"Got Magnet: {magnet_link}")
+                    # logger.info(f"Got Magnet: {magnet_link}")
                 else:
                     magnet_link = torrent_to_magnet(response.content)
-                    logger.info(f"Got Magnet (CONVERTED): {magnet_link}")
+                    # logger.info(f"Got Magnet (CONVERTED): {magnet_link}")
                 url_parts = urllib.parse.urlparse(magnet_link)
                 query_parts = urllib.parse.parse_qs(url_parts.query)
                 if 'tr' in query_parts:  # trackers
                     trackers = query_parts['tr']
                 else:
                     trackers = []
-                logger.info(f"Getting availability for {torrent.title} ({torrent.type})")
+                logger.info(f"Getting availability for {torrent.title}")
                 try:
                     is_available = debrid_service.get_availability(magnet_link, torrent.type, (
                             torrent.season + torrent.episode) if torrent.type == "series" else None)
@@ -165,10 +165,12 @@ def torrent_to_magnet(torrent_content):
     metadata = bencode.decode(torrent_content)
     subj = metadata['info']
     hash_content = bencode.encode(subj)
-    digest = hashlib.sha1(hash_content).digest()
-    b32hash = base64.b32encode(digest)
+    hexdigest = hashlib.sha1(hash_content).hexdigest()
+    # digest = hashlib.sha1(hash_content).digest()
+    # logger.info(f"Hex Digest: {hashlib.sha1(hash_content).hexdigest()}")
+    # b32hash = base64.b32encode(digest)
     magnet = 'magnet:?' \
-             + 'xt=urn:btih:' + b32hash.decode() \
+             + 'xt=urn:btih:' + hexdigest \
              + '&dn=' + metadata['info']['name']
 
     for tracker in metadata['announce-list']:
