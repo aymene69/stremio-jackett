@@ -119,25 +119,20 @@ def get_availability(torrent, debrid_service):
                     logger.info(f"Got Magnet: {magnet_link}")
                 else:
                     magnet_link = torrent_to_magnet(response.content)
-                    logger.info(f"Got Magnet: {magnet_link}")
+                    logger.info(f"Got Magnet (CONVERTED): {magnet_link}")
                 url_parts = urllib.parse.urlparse(magnet_link)
                 query_parts = urllib.parse.parse_qs(url_parts.query)
-                logger.info(f"Query parts: {query_parts}")
                 if 'tr' in query_parts:  # trackers
                     trackers = query_parts['tr']
                 else:
                     trackers = []
-                if response.status_code == 200:
-                    logger.info(f"Got Tracker: {trackers}")
-                # TODO: When get availability fails in try block, it retries in except block (why?)
+                logger.info(f"Getting availability for {torrent.title} ({torrent.type})")
                 try:
-                    season = torrent.season
-                    episode = torrent.episode
-                    availability = debrid_service.get_availability(magnet_link, torrent.type, season + episode)
-                except:
-                    season = None
-                    episode = None
-                    availability = debrid_service.get_availability(magnet_link, torrent.type)
+                    is_available = debrid_service.get_availability(magnet_link, torrent.type, (
+                            torrent.season + torrent.episode) if torrent.type == "series" else None)
+                except Exception as e:
+                    logger.error(f"Failed to get availability for {torrent.title} with error: {e}")
+                    return None
                 torrent_info = {
                     "title": torrent.title,
                     "trackers": ["tracker:" + tracker for tracker in trackers],
@@ -151,9 +146,9 @@ def get_availability(torrent, debrid_service):
                     "size": torrent.size,
                     "language": torrent.language,
                     "type": torrent.type,
-                    "season": season,
-                    "episode": episode,
-                    "availability": availability
+                    "season": torrent.season,
+                    "episode": torrent.episode,
+                    "availability": is_available
                 }
                 return torrent_info
             else:
