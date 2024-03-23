@@ -1,4 +1,4 @@
-class TorrentResult:
+class TorrentItem:
     def __init__(self, title, size, magnet, info_hash, link, seeders, language, quality, quality_spec, indexer,
                  episode=None, season=None, type=None):
         self.title = title
@@ -14,3 +14,8 @@ class TorrentResult:
         self.episode = episode
         self.season = season
         self.type = type
+
+        self.files = None
+        self.torrent = None
+        self.trackers = []
+        self.file_index = None

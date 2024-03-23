@@ -1,4 +1,4 @@
-from models.torrent_result import TorrentResult
+from torrent.torrent_item import TorrentItem
 from utils.detection import detect_language, detect_quality, detect_quality_spec
 
 
@@ -10,21 +10,32 @@ class JackettResult:
         self.indexer = None  # Indexer
         self.seeders = None  # Seeders count
         self.magnet = None  # Magnet url
-        self.infoHash = None  # infoHash by Jackett
+        self.info_hash = None  # infoHash by Jackett
         self.privacy = None  # public or private
 
-    def convert_to_torrent_result(self, media):
-        return TorrentResult(
+        # Extra processed details for further filtering
+        self.language = None # Language of the torrent
+        self.quality = None # Quality of the torrent
+        self.quality_spec = None # Quality specifications of the torrent
+        self.type = None # series or movie
+
+        # Not sure about these
+        self.season = None # Season, if the media is a series
+        self.episode = None # Episode, if the media is a series
+
+    def convert_to_torrent_item(self):
+        return TorrentItem(
             self.title,
             self.size,
             self.magnet,
-            self.infoHash,
+            self.info_hash,
             self.link,
             self.seeders,
-            detect_language(self.title),
-            detect_quality(self.title), 
-            detect_quality_spec(self.title),
-            self.indexer, episode=media.episode if media.type == "series" else None,
-            season=media.season if media.type == "series" else None,
-            type=media.type
+            self.language,
+            self.quality, 
+            self.quality_spec,
+            self.indexer,
+            self.episode,
+            self.season,
+            self.type
         )
