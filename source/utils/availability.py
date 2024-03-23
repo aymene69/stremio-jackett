@@ -143,7 +143,7 @@ def get_availability(torrent, debrid_service):
                 }
                 return torrent_info
             elif response.status_code == 200:
-                magnet_link = make_magnet_from_file(response.content)
+                magnet_link = torrent_to_magnet(response.content)
                 logger.info(f"Got magnet link: {magnet_link}")
                 # TODO: Add availability check and construct torrent_info
                 return None
@@ -155,11 +155,12 @@ def get_availability(torrent, debrid_service):
             logger.error(f"Failed to get torrent info for {torrent['title']}")
             return None
 
-def make_magnet_from_file(content) :
-    metadata = bencode.decode(content)
+# https://github.com/DanySK/torrent2magnet/blob/master/torrent2magnet.py
+def torrent_to_magnet(torrent_content) :
+    metadata = bencode.decode(torrent_content)
     subj = metadata['info']
-    hashcontents = bencode.encode(subj)
-    digest = hashlib.sha1(hashcontents).digest()
+    hash_content = bencode.encode(subj)
+    digest = hashlib.sha1(hash_content).digest()
     b32hash = base64.b32encode(digest)
     magnet = 'magnet:?' \
         + 'xt=urn:btih:' + b32hash.decode() \
