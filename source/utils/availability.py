@@ -1,5 +1,7 @@
+import base64
 import concurrent.futures
 import hashlib
+import urllib.parse
 
 import bencode
 import requests
@@ -140,14 +142,36 @@ def get_availability(torrent, debrid_service):
                     "availability": availability
                 }
                 return torrent_info
+            elif response.status_code == 200:
+                magnet_link = make_magnet_from_file(response.content)
+                logger.info(f"Got magnet link: {magnet_link}")
+                # TODO: Add availability check and construct torrent_info
+                return None
             else:
-                logger.error(f"Failed to get torrent info for {torrent['title']}")
+                logger.error(f"Failed to get torrent info for {torrent.title}")
                 return None
         except Exception as e:
             logger.error(f"An error occurred: {e}")
             logger.error(f"Failed to get torrent info for {torrent['title']}")
             return None
 
+def make_magnet_from_file(content) :
+    metadata = bencode.decode(content)
+    subj = metadata['info']
+    hashcontents = bencode.encode(subj)
+    digest = hashlib.sha1(hashcontents).digest()
+    b32hash = base64.b32encode(digest)
+    magnet = 'magnet:?' \
+        + 'xt=urn:btih:' + b32hash.decode() \
+        + '&dn=' + metadata['info']['name']
+
+    for tracker in metadata['announce-list']:
+        magnet += '&tr=' + urllib.parse.quote_plus(tracker[0])
+
+    length = max(metadata['info']['files'], key=lambda x: x['length'])['length']
+
+    magnet += '&xl=' + str(length)
+    return magnet
 
 def availability(items, debrid_service, config):
     results = []
