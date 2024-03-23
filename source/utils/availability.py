@@ -113,9 +113,23 @@ def get_availability(torrent, debrid_service):
     except:
         try:
             response = requests.get(torrent.link, allow_redirects=False)
-            if response.status_code == 302:
-                magnet_link = response.headers['Location']
-                trackers = magnet_link.split("&tr=")[1:]
+            if response.status_code == 302 or response.status_code == 200:
+                if response.status_code == 302:
+                    magnet_link = response.headers['Location']
+                    logger.info(f"Got Magnet: {magnet_link}")
+                else:
+                    magnet_link = torrent_to_magnet(response.content)
+                    logger.info(f"Got Magnet: {magnet_link}")
+                url_parts = urllib.parse.urlparse(magnet_link)
+                query_parts = urllib.parse.parse_qs(url_parts.query)
+                logger.info(f"Query parts: {query_parts}")
+                if 'tr' in query_parts:  # trackers
+                    trackers = query_parts['tr']
+                else:
+                    trackers = []
+                if response.status_code == 200:
+                    logger.info(f"Got Tracker: {trackers}")
+                # TODO: When get availability fails in try block, it retries in except block (why?)
                 try:
                     season = torrent.season
                     episode = torrent.episode
@@ -142,11 +156,6 @@ def get_availability(torrent, debrid_service):
                     "availability": availability
                 }
                 return torrent_info
-            elif response.status_code == 200:
-                magnet_link = torrent_to_magnet(response.content)
-                logger.info(f"Got magnet link: {magnet_link}")
-                # TODO: Add availability check and construct torrent_info
-                return None
             else:
                 logger.error(f"Failed to get torrent info for {torrent.title}")
                 return None
@@ -155,16 +164,17 @@ def get_availability(torrent, debrid_service):
             logger.error(f"Failed to get torrent info for {torrent['title']}")
             return None
 
+
 # https://github.com/DanySK/torrent2magnet/blob/master/torrent2magnet.py
-def torrent_to_magnet(torrent_content) :
+def torrent_to_magnet(torrent_content):
     metadata = bencode.decode(torrent_content)
     subj = metadata['info']
     hash_content = bencode.encode(subj)
     digest = hashlib.sha1(hash_content).digest()
     b32hash = base64.b32encode(digest)
     magnet = 'magnet:?' \
-        + 'xt=urn:btih:' + b32hash.decode() \
-        + '&dn=' + metadata['info']['name']
+             + 'xt=urn:btih:' + b32hash.decode() \
+             + '&dn=' + metadata['info']['name']
 
     for tracker in metadata['announce-list']:
         magnet += '&tr=' + urllib.parse.quote_plus(tracker[0])
@@ -173,6 +183,7 @@ def torrent_to_magnet(torrent_content) :
 
     magnet += '&xl=' + str(length)
     return magnet
+
 
 def availability(items, debrid_service, config):
     results = []
