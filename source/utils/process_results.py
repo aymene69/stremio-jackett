@@ -7,19 +7,21 @@ from utils.string_encoding import encodeb64
 
 logger = setup_logger(__name__)
 
+emoji_dict = {
+    "fr": "🇫🇷",
+    "en": "🇬🇧",
+    "es": "🇪🇸",
+    "de": "🇩🇪",
+    "it": "🇮🇹",
+    "pt": "🇵🇹",
+    "ru": "🇷🇺",
+    "in": "🇮🇳",
+    "nl": "🇳🇱",
+    "multi": "🌍"
+}
+
+
 def get_emoji(language):
-    emoji_dict = {
-        "fr": "🇫🇷",
-        "en": "🇬🇧",
-        "es": "🇪🇸",
-        "de": "🇩🇪",
-        "it": "🇮🇹",
-        "pt": "🇵🇹",
-        "ru": "🇷🇺",
-        "in": "🇮🇳",
-        "nl": "🇳🇱",
-        "multi": "🌍"
-    }
     return emoji_dict.get(language, "🇬🇧")
 
 

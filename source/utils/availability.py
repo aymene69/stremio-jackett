@@ -1,5 +1,7 @@
+import base64
 import concurrent.futures
 import hashlib
+import urllib.parse
 
 import bencode
 import requests
@@ -111,17 +113,26 @@ def get_availability(torrent, debrid_service):
     except:
         try:
             response = requests.get(torrent.link, allow_redirects=False)
-            if response.status_code == 302:
-                magnet_link = response.headers['Location']
-                trackers = magnet_link.split("&tr=")[1:]
+            if response.status_code == 302 or response.status_code == 200:
+                if response.status_code == 302:
+                    magnet_link = response.headers['Location']
+                    # logger.info(f"Got Magnet: {magnet_link}")
+                else:
+                    magnet_link = torrent_to_magnet(response.content)
+                    # logger.info(f"Got Magnet (CONVERTED): {magnet_link}")
+                url_parts = urllib.parse.urlparse(magnet_link)
+                query_parts = urllib.parse.parse_qs(url_parts.query)
+                if 'tr' in query_parts:  # trackers
+                    trackers = query_parts['tr']
+                else:
+                    trackers = []
+                logger.info(f"Getting availability for {torrent.title}")
                 try:
-                    season = torrent.season
-                    episode = torrent.episode
-                    availability = debrid_service.get_availability(magnet_link, torrent.type, season + episode)
-                except:
-                    season = None
-                    episode = None
-                    availability = debrid_service.get_availability(magnet_link, torrent.type)
+                    is_available = debrid_service.get_availability(magnet_link, torrent.type, (
+                            torrent.season + torrent.episode) if torrent.type == "series" else None)
+                except Exception as e:
+                    logger.error(f"Failed to get availability for {torrent.title} with error: {e}")
+                    return None
                 torrent_info = {
                     "title": torrent.title,
                     "trackers": ["tracker:" + tracker for tracker in trackers],
@@ -135,18 +146,40 @@ def get_availability(torrent, debrid_service):
                     "size": torrent.size,
                     "language": torrent.language,
                     "type": torrent.type,
-                    "season": season,
-                    "episode": episode,
-                    "availability": availability
+                    "season": torrent.season,
+                    "episode": torrent.episode,
+                    "availability": is_available
                 }
                 return torrent_info
             else:
-                logger.error(f"Failed to get torrent info for {torrent['title']}")
+                logger.error(f"Failed to get torrent info for {torrent.title}")
                 return None
         except Exception as e:
             logger.error(f"An error occurred: {e}")
             logger.error(f"Failed to get torrent info for {torrent['title']}")
             return None
+
+
+# https://github.com/DanySK/torrent2magnet/blob/master/torrent2magnet.py
+def torrent_to_magnet(torrent_content):
+    metadata = bencode.decode(torrent_content)
+    subj = metadata['info']
+    hash_content = bencode.encode(subj)
+    hexdigest = hashlib.sha1(hash_content).hexdigest()
+    # digest = hashlib.sha1(hash_content).digest()
+    # logger.info(f"Hex Digest: {hashlib.sha1(hash_content).hexdigest()}")
+    # b32hash = base64.b32encode(digest)
+    magnet = 'magnet:?' \
+             + 'xt=urn:btih:' + hexdigest \
+             + '&dn=' + metadata['info']['name']
+
+    for tracker in metadata['announce-list']:
+        magnet += '&tr=' + urllib.parse.quote_plus(tracker[0])
+
+    length = max(metadata['info']['files'], key=lambda x: x['length'])['length']
+
+    magnet += '&xl=' + str(length)
+    return magnet
 
 
 def availability(items, debrid_service, config):
