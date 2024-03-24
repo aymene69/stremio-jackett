@@ -194,4 +194,4 @@ class TorrentService:
         return max_file_index
 
     def __season_episode_in_filename(self, filename, season, episode):
-        return season in filename and episode in filename and filename.index(season) < filename.index(episode)
+        return season in filename and episode in filename and filename.index(season) < filename.rindex(episode)
