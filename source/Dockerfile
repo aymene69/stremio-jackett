@@ -1,6 +1,9 @@
-FROM python:3.11
+FROM python:3.12.2
 
 WORKDIR /app
+
+# This is to prevent Python from buffering stdout and stderr
+ENV PYTHONUNBUFFERED 1
 
 COPY requirements.txt .
 

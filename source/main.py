@@ -16,10 +16,12 @@ from fastapi.templating import Jinja2Templates
 
 from constants import NO_RESULTS
 from debrid.get_debrid_service import get_debrid_service
-from jackett.jackett import Jackett
-from utils.availability import availability
+from jackett.jackett_service import JackettService
+from torrent.torrent_service import TorrentService
+from torrent.torrent_smart_container import TorrentSmartContainer
 from utils.cache import search_cache
 from utils.filter_results import filter_items
+from utils.filter_results import sort_items
 from utils.logger import setup_logger
 from utils.parse_config import parse_config
 from utils.process_results import process_results
@@ -124,9 +126,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     filtered_cached_results = []
     if len(cached_results) > 0:
         logger.info("Filtering cached results")
-        filtered_cached_results = filter_items(cached_results, media.type, config=config, cached=True,
-                                               season=media.season if media.type == "series" else None,
-                                               episode=media.episode if media.type == "series" else None)
+        filtered_cached_results = filter_items(cached_results, media.type, config=config)
 
         logger.info("Filtered cached results")
     # TODO: if we have results per quality set, most of the time we will not have enough cached results AFTER filtering them
@@ -149,19 +149,30 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         else:
             logger.info("No cached results found")
         logger.info("Searching for results on Jackett")
-        jackett_search_results = Jackett(config).search(media)
+        jackett_service = JackettService(config)
+        jackett_search_results = jackett_service.search(media)
         logger.info("Got " + str(len(jackett_search_results)) + " results from Jackett")
         logger.info("Converting results")
-        torrent_results = [result.convert_to_torrent_result(media) for result in jackett_search_results]
         logger.info("Converted results")
         logger.info("Filtering results")
-        filtered_results = filter_items(torrent_results, media.type, config=config)
+        filtered_jackett_search_results = filter_items(jackett_search_results, media, config=config)
         logger.info("Filtered results")
-        logger.info("Checking availability")
-        results = availability(filtered_results, debrid_service, config=config) + filtered_cached_results
-        logger.info("Checked availability (results: " + str(len(results)) + ")")
+        logger.debug("Converting result to TorrentItems (results: " + str(len(filtered_jackett_search_results)) + ")")
+        torrent_service = TorrentService()
+        torrent_results = torrent_service.convert_and_process(filtered_jackett_search_results)
+        logger.debug("Converted result to TorrentItems (results: " + str(len(torrent_results)) + ")")
+        torrent_smart_container = TorrentSmartContainer(torrent_results)
+        logger.debug("Checking availability")
+        hashes = torrent_smart_container.get_hashes()
+        result = debrid_service.get_availability_bulk(hashes)
+        torrent_smart_container.update_availability(result, type(debrid_service))
+        logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
+        logger.debug("Getting best matching results")
+        best_matching_results = torrent_smart_container.get_best_matching(media)
+        best_matching_results = sort_items(best_matching_results, config)
+        logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
         logger.info("Processing results")
-        stream_list = process_results(results[:int(config['maxResults'])], False, media.type,
+        stream_list = process_results(best_matching_results[:int(config['maxResults'])], False, media.type,
                                       media.season if media.type == "series" else None,
                                       media.episode if media.type == "series" else None,
                                       debrid_service=debrid_service, config=config)

@@ -55,6 +55,7 @@ def detect_quality_spec(torrent_name):
             qualities.append(quality)
     return qualities if qualities else None
 
+
 def detect_language(torrent_name):
     language_patterns = {
         "fr": r'\b(FRENCH|FR|VF|VF2|VFF|TRUEFRENCH|VFQ|FRA)\b',

@@ -10,10 +10,11 @@ from jackett.jackett_indexer import JackettIndexer
 from jackett.jackett_result import JackettResult
 from models.movie import Movie
 from models.series import Series
+from utils import detection
 from utils.logger import setup_logger
 
 
-class Jackett:
+class JackettService:
     def __init__(self, config):
         self.logger = setup_logger(__name__)
 
@@ -62,7 +63,7 @@ class Jackett:
         while not results_queue.empty():
             results.extend(results_queue.get())
 
-        return results
+        return self.__post_process_results(results, media)
 
     def __search_movie_indexer(self, movie, indexer):
 
@@ -207,13 +208,26 @@ class Jackett:
             # TODO: I haven't seen this in the Jackett XML response. Is this still relevant?
             # Or which indexers provide this?
             magnet = item.find('.//torznab:attr[@name="magneturl"]',
-                                  namespaces={'torznab': 'http://torznab.com/schemas/2015/feed'})
+                               namespaces={'torznab': 'http://torznab.com/schemas/2015/feed'})
             result.magnet = magnet.attrib['value'] if magnet is not None else None
 
             infoHash = item.find('.//torznab:attr[@name="infohash"]',
                                  namespaces={'torznab': 'http://torznab.com/schemas/2015/feed'})
-            result.infoHash = infoHash.attrib['value'] if infoHash is not None else None
+            result.info_hash = infoHash.attrib['value'] if infoHash is not None else None
 
             result_list.append(result)
 
         return result_list
+
+    def __post_process_results(self, results, media):
+        for result in results:
+            result.language = detection.detect_language(result.title)
+            result.quality = detection.detect_quality(result.title)
+            result.quality_spec = detection.detect_quality_spec(result.title)
+            result.type = media.type
+
+            if isinstance(media, Series):
+                result.season = media.season
+                result.episode = media.episode
+
+        return results

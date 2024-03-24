@@ -7,6 +7,7 @@ from utils.string_encoding import encodeb64
 
 logger = setup_logger(__name__)
 
+
 def get_emoji(language):
     emoji_dict = {
         "fr": "🇫🇷",
@@ -29,21 +30,15 @@ def filter_by_availability(item):
 
 
 def process_stream(stream, cached, stream_type, season, episode, debrid_service, config):
-    try:
-        if "availability" not in stream and not cached:
-            return None
-    except:
-        return None
-
     if cached:
         if season is None and episode is None:
-            availability = debrid_service.get_availability(stream['magnet'], stream_type)
+            availability = debrid_service.get_availability(stream.magnet, stream_type)
         else:
-            availability = debrid_service.get_availability(stream['magnet'], stream_type, season + episode)
+            availability = debrid_service.get_availability(stream.magnet, stream_type, season + episode)
     else:
-        availability = stream.get('availability', False)
+        availability = stream.availability
 
-    query = {"magnet": stream['magnet'], "type": stream_type}
+    query = {"magnet": stream.magnet, "type": stream_type}
     if stream_type == "series":
         query['season'] = season
         query['episode'] = episode
@@ -53,18 +48,18 @@ def process_stream(stream, cached, stream_type, season, episode, debrid_service,
                 "url": "#"
                 }
     if availability:
-        indexer = stream.get('indexer', 'Cached')
-        name = f"+{indexer} ({detect_quality(stream['title'])} - {detect_and_format_quality_spec(stream['title'])})"
+        indexer = stream.indexer
+        name = f"+{indexer} ({detect_quality(stream.title)} - {detect_and_format_quality_spec(stream.title)})"
     else:
-        indexer = stream.get('indexer', 'Cached')
-        name = f"-{indexer} ({detect_quality(stream['title'])} - {detect_and_format_quality_spec(stream['title'])})"
+        indexer = stream.indexer
+        name = f"-{indexer} ({detect_quality(stream.title)} - {detect_and_format_quality_spec(stream.title)})"
     configb64 = encodeb64(json.dumps(config)).replace('=', '%3D')
     queryb64 = encodeb64(json.dumps(query)).replace('=', '%3D')
     return {
         "name": name,
-        "title": f"{stream['title']}\r\n{get_emoji(stream['language'])}   👥 {stream['seeders']}   📂 "
-                 f"{round(int(stream['size']) / 1024 / 1024 / 1024, 2)}GB",
-        "url": f"{config['addonHost']}/playback/{configb64}/{queryb64}/{stream['title'].replace(' ', '.')}"
+        "title": f"{stream.title}\r\n{get_emoji(stream.language)}   👥 {stream.seeders}   📂 "
+                 f"{round(int(stream.size) / 1024 / 1024 / 1024, 2)}GB",
+        "url": f"{config['addonHost']}/playback/{configb64}/{queryb64}/{stream.title.replace(' ', '.')}"
     }
 
 
