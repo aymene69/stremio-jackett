@@ -27,6 +27,9 @@ from utils.process_results import process_results
 from utils.string_encoding import decodeb64
 from utils.tmdb import get_metadata
 
+from torrent.torrent_service import TorrentService
+from torrent.torrent_smart_container import TorrentSmartContainer
+
 load_dotenv()
 
 root_path = os.environ.get("ROOT_PATH", None)
@@ -155,22 +158,23 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         logger.info("Converting results")
         logger.info("Converted results")
         logger.info("Filtering results")
-        filtered_results = filter_items(jackett_search_results, media.type, config=config)
+        filtered_results = filter_items(jackett_search_results, media, config=config)
         logger.info("Filtered results")
         logger.info("Checking availability")
-
+    
         torrent_items = TorrentService().convert_and_process(filtered_results)
         torrent_items_smart_container = TorrentSmartContainer(torrent_items)
         hashes = torrent_items_smart_container.get_hashes()
         result = debrid_service.get_availability_bulk(hashes)
         torrent_items_smart_container.update_availability(result, type(debrid_service))
+        best_matching_results = torrent_items_smart_container.get_best_matching(media)
 
         logger.info("Checked availability (results: " + str(len(torrent_items)) + ")")
         logger.info("Processing results")
-        stream_list = process_results(torrent_items[:int(config['maxResults'])], False, media.type,
-                                      media.season if media.type == "series" else None,
-                                      media.episode if media.type == "series" else None,
-                                      debrid_service=debrid_service, config=config)
+        stream_list = process_results(best_matching_results[:int(config['maxResults'])], False, media.type,
+                                    media.season if media.type == "series" else None,
+                                    media.episode if media.type == "series" else None,
+                                    debrid_service=debrid_service, config=config)
         logger.info("Processed results (results: " + str(len(stream_list)) + ")")
         if len(stream_list) == 0:
             logger.info("No results found")
