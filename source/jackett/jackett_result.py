@@ -13,7 +13,7 @@ class JackettResult:
         self.privacy = None  # public or private
 
         # Extra processed details for further filtering
-        self.language = None  # Language of the torrent
+        self.languages = None  # Language of the torrent
         self.quality = None  # Quality of the torrent
         self.quality_spec = None  # Quality specifications of the torrent
         self.type = None  # series or movie
@@ -30,10 +30,11 @@ class JackettResult:
             self.info_hash.lower() if self.info_hash is not None else None,
             self.link,
             self.seeders,
-            self.language,
+            self.languages,
             self.quality,
             self.quality_spec,
             self.indexer,
+            self.privacy,
             self.episode,
             self.season,
             self.type

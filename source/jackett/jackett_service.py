@@ -221,7 +221,7 @@ class JackettService:
 
     def __post_process_results(self, results, media):
         for result in results:
-            result.language = detection.detect_language(result.title)
+            result.languages = detection.detect_languages(result.title)
             result.quality = detection.detect_quality(result.title)
             result.quality_spec = detection.detect_quality_spec(result.title)
             result.type = media.type

@@ -63,7 +63,7 @@ class TorrentService:
     def __process_torrent(self, result: TorrentItem, torrent_file):
         metadata = bencode.bdecode(torrent_file)
 
-        result.torrent = torrent_file
+        result.torrent_download = result.link
         result.trackers = self.__get_trackers_from_torrent(metadata)
         result.info_hash = self.__convert_torrent_to_hash(metadata["info"])
         result.magnet = self.__build_magnet(result.info_hash, metadata["info"]["name"], result.trackers)

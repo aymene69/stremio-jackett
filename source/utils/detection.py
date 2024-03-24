@@ -56,7 +56,7 @@ def detect_quality_spec(torrent_name):
     return qualities if qualities else None
 
 
-def detect_language(torrent_name):
+def detect_languages(torrent_name):
     language_patterns = {
         "fr": r'\b(FRENCH|FR|VF|VF2|VFF|TRUEFRENCH|VFQ|FRA)\b',
         "en": r'\b(ENGLISH|EN|ENG)\b',
@@ -67,13 +67,18 @@ def detect_language(torrent_name):
         "ru": r'\b(RUSSIAN|RU|RUS)\b',
         "in": r'\b(INDIAN|IN|HINDI|TELUGU|TAMIL|KANNADA|MALAYALAM|PUNJABI|MARATHI|BENGALI|GUJARATI|URDU|ODIA|ASSAMESE|KONKANI|MANIPURI|NEPALI|SANSKRIT|SINHALA|SINDHI|TIBETAN|BHOJPURI|DHIVEHI|KASHMIRI|KURUKH|MAITHILI|NEWARI|RAJASTHANI|SANTALI|SINDHI|TULU)\b',
         "nl": r'\b(DUTCH|NL|NLD)\b',
+        "hu": r'\b(HUNGARIAN|HU|HUN)\b',
     }
 
+    languages = []
     for language, pattern in language_patterns.items():
         if re.search(pattern, torrent_name, re.IGNORECASE):
-            return language
+            languages.append(language)
 
     if re.search(r'\bMULTI\b', torrent_name, re.IGNORECASE):
-        return "multi"
+        languages.append("multi")
 
-    return "en"
+    if len(languages) == 0:
+        return ["en"]
+    
+    return languages
