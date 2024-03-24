@@ -66,6 +66,14 @@ class RealDebrid(BaseDebrid):
                         return True
             return False
         return True
+    
+    def get_availability_bulk(self, hashes_or_magnets):
+        if len(hashes_or_magnets) == 0:
+            logger.info("No hashes to be sent to Real-Debrid.")
+            return dict()
+
+        url = f"{self.base_url}/rest/1.0/torrents/instantAvailability/{"/".join(hashes_or_magnets)}"
+        return self.get_json_response(url, headers=self.headers)
 
     def get_stream_link(self, query):
         query_details = json.loads(query)

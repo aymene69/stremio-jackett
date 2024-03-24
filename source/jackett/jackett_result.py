@@ -28,7 +28,7 @@ class JackettResult:
             self.title,
             self.size,
             self.magnet,
-            self.info_hash,
+            self.info_hash.lower() if self.info_hash is not None else None,
             self.link,
             self.seeders,
             self.language,

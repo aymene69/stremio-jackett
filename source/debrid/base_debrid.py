@@ -9,12 +9,13 @@ class BaseDebrid:
     def __init__(self, config):
         self.config = config
         self.logger = setup_logger(__name__)
+        self.__session = requests.Session()
 
     def get_json_response(self, url, method='get', data=None, headers=None):
         if method == 'get':
-            response = requests.get(url, headers=headers)
+            response = self.__session.get(url, headers=headers)
         elif method == 'post':
-            response = requests.post(url, data=data, headers=headers)
+            response = self.__session.post(url, data=data, headers=headers)
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")
 
@@ -44,4 +45,7 @@ class BaseDebrid:
         raise NotImplementedError
 
     def get_availability(self, stream, stream_type, season_episode=None):
+        raise NotImplementedError
+    
+    def get_availability_bulk(self, hashes_or_magnets):
         raise NotImplementedError

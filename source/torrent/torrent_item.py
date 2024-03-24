@@ -19,3 +19,5 @@ class TorrentItem:
         self.torrent = None
         self.trackers = []
         self.file_index = None
+
+        self.availability = False
