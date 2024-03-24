@@ -54,9 +54,10 @@ def filter_items(items, item_type=None, config=None, cached=False, season=None, 
         "resultsPerQuality": ResultsPerQualityFilter(config)
     }
 
-    if cached and item_type == "series":
-        items = filter_season_episode(items, season, episode, config)
-    logger.info("Started filtering torrents")
+    # Series filtering should be done elsewhere to not lose any valuable torrents with bad naming schemes
+    # if cached and item_type == "series":
+    #     items = filter_season_episode(items, season, episode, config)
+    # logger.info("Started filtering torrents")
 
     logger.info(f"Item count before filtering: {len(items)}")
     for filter_name, filter_instance in filters.items():

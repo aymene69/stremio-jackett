@@ -16,7 +16,7 @@ from fastapi.templating import Jinja2Templates
 
 from constants import NO_RESULTS
 from debrid.get_debrid_service import get_debrid_service
-from jackett.jackett import Jackett
+from jackett.jackett_service import JackettService
 from utils.availability import availability
 from utils.cache import search_cache
 from utils.filter_results import filter_items
@@ -25,6 +25,9 @@ from utils.parse_config import parse_config
 from utils.process_results import process_results
 from utils.string_encoding import decodeb64
 from utils.tmdb import get_metadata
+
+from torrent.torrent_service import TorrentService
+from torrent.torrent_smart_container import TorrentSmartContainer
 
 load_dotenv()
 
@@ -149,22 +152,27 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         else:
             logger.info("No cached results found")
         logger.info("Searching for results on Jackett")
-        jackett_search_results = Jackett(config).search(media)
+        jackett_search_results = JackettService(config).search(media)
         logger.info("Got " + str(len(jackett_search_results)) + " results from Jackett")
         logger.info("Converting results")
-        torrent_results = [result.convert_to_torrent_result(media) for result in jackett_search_results]
         logger.info("Converted results")
         logger.info("Filtering results")
-        filtered_results = filter_items(torrent_results, media.type, config=config)
+        filtered_results = filter_items(jackett_search_results, media.type, config=config)
         logger.info("Filtered results")
         logger.info("Checking availability")
-        results = availability(filtered_results, debrid_service, config=config) + filtered_cached_results
-        logger.info("Checked availability (results: " + str(len(results)) + ")")
+    
+        torrent_items = TorrentService().convert_and_process(filtered_results)
+        torrent_items_smart_container = TorrentSmartContainer(torrent_items)
+        hashes = torrent_items_smart_container.get_hashes()
+        result = debrid_service.get_availability_bulk(hashes)
+        torrent_items_smart_container.update_availability(result, type(debrid_service))
+
+        logger.info("Checked availability (results: " + str(len(torrent_items)) + ")")
         logger.info("Processing results")
-        stream_list = process_results(results[:int(config['maxResults'])], False, media.type,
-                                      media.season if media.type == "series" else None,
-                                      media.episode if media.type == "series" else None,
-                                      debrid_service=debrid_service, config=config)
+        stream_list = process_results(torrent_items[:int(config['maxResults'])], False, media.type,
+                                    media.season if media.type == "series" else None,
+                                    media.episode if media.type == "series" else None,
+                                    debrid_service=debrid_service, config=config)
         logger.info("Processed results (results: " + str(len(stream_list)) + ")")
         if len(stream_list) == 0:
             logger.info("No results found")
