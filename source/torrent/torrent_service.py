@@ -107,7 +107,7 @@ class TorrentService:
         magnet = f"{magnet_base}{hash}&dn={display_name}"
 
         if len(trackers) > 0:
-            magnet = f'{magnet}&tr={'&tr='.join(trackers)}'
+            magnet = f"{magnet}&tr={'&tr='.join(trackers)}"
         
         return magnet
 

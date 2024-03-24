@@ -59,5 +59,5 @@ class AllDebrid(BaseDebrid):
             logger.info("No hashes to be sent to Real-Debrid.")
             return dict()
 
-        url = f'{self.base_url}magnet/instant?agent=jackett&apikey={self.config['debridKey']}&magnets[]={'&magnets[]='.join(hashes_or_magnets)}'
+        url = f"{self.base_url}magnet/instant?agent=jackett&apikey={self.config['debridKey']}&magnets[]={'&magnets[]='.join(hashes_or_magnets)}"
         return self.get_json_response(url)
