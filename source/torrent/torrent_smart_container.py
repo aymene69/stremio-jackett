@@ -30,13 +30,7 @@ class TorrentSmartContainer:
                 if torrent_item.file_index is not None:
                     best_matching.append(torrent_item) # If the season/episode is peresent inside of the torrent filestructure (movies always have a file_index)
             else: # Magnet
-                if media.type == "series":
-                    season = media.season.replace("S","")
-                    episode = media.episode.replace("E","")
-                    if self.__season_episode_in_filename(torrent_item.title, season, episode):
-                        best_matching.append(torrent_item) # If it's a mganet link, and the season and episode num is inside of it's name
-                else:
-                    best_matching.append(torrent_item) # If it's a movie with a magnet link
+                best_matching.append(torrent_item) # If it's a movie with a magnet link
 
         return best_matching
     
@@ -125,7 +119,7 @@ class TorrentSmartContainer:
         if len(files) == 0:
             return
         
-        file = max(files, key = lambda file: file["filesize"])
+        file = max(files, key = lambda file: file["size"])
         torrent_item.availability = True
         torrent_item.file_index = file["size"]
         torrent_item.title = file["title"]
