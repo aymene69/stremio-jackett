@@ -14,6 +14,32 @@ class TorrentSmartContainer:
     def get_hashes(self):        
         return self.__itemsDict.keys()
     
+    def get_items(self):
+        return self.__itemsDict.values()
+    
+    def get_direct_torrentable(self):
+        direct_torrentable_items = []
+        for torrent_item in self.__itemsDict.values():
+            if torrent_item.privacy == "public" and torrent_item.file_index is not None:
+                direct_torrentable_items.append(torrent_item)
+
+    def get_best_matching(self, media):
+        best_matching = []
+        for torrent_item in self.__itemsDict.values():
+            if torrent_item.torrent is not None: #Torrent file
+                if torrent_item.file_index is not None:
+                    best_matching.append(torrent_item) # If the season/episode is peresent inside of the torrent filestructure (movies always have a file_index)
+            else: # Magnet
+                if media.type == "series":
+                    season = media.season.replace("S","")
+                    episode = media.episode.replace("E","")
+                    if self.__season_episode_in_filename(torrent_item.title, season, episode):
+                        best_matching.append(torrent_item) # If it's a mganet link, and the season and episode num is inside of it's name
+                else:
+                    best_matching.append(torrent_item) # If it's a movie with a magnet link
+
+        return best_matching
+    
     def update_availability(self, debrid_response, debrid_type):
         if debrid_type is RealDebrid:
             self.__update_availability_realdebrid(debrid_response)
@@ -23,7 +49,7 @@ class TorrentSmartContainer:
             self.__update_availability_premiumize(debrid_response)
         else:
             raise NotImplemented
-
+        
     def __update_availability_realdebrid(self, response):
         for info_hash, details in response.items():
             if "rd" not in details:
@@ -38,7 +64,7 @@ class TorrentSmartContainer:
                 
                 for variants in details["rd"]:
                     for file_index, file in variants.items():
-                        if self.__series_season_episode_available(file["filename"], season, episode):
+                        if self.__season_episode_in_filename(file["filename"], season, episode):
                             files.append({
                                 "file_index": file_index,
                                 "title": file["filename"],
@@ -72,7 +98,7 @@ class TorrentSmartContainer:
 
                 file_index = 1
                 for file in data["files"]:
-                    if self.__series_season_episode_available(file["n"], season, episode):
+                    if self.__season_episode_in_filename(file["n"], season, episode):
                         files.append({
                             "file_index": file_index,
                             "title": file["n"],
@@ -112,5 +138,5 @@ class TorrentSmartContainer:
                 items_dict[item.info_hash] = item
         return items_dict
 
-    def __series_season_episode_available(self, filename, season, episode):   
+    def __season_episode_in_filename(self, filename, season, episode):   
         return season in filename and episode in filename and filename.index(season) < filename.index(episode)

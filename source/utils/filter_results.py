@@ -41,14 +41,32 @@ def filter_season_episode(items, season, episode, config):
         filtered_items.append(item)
     return filtered_items
 
+def filter_out_non_matching(items, season, episode):
+    filtered_items = []
+    for item in items:
+        title = item.title.upper()
+        season_pattern = r'S\d+'
+        episode_pattern = r'E\d+'
 
-def filter_items(items, item_type=None, config=None, cached=False, season=None, episode=None):
+        season_substrings = re.findall(season_pattern, title)
+        if len(season_substrings) > 0 and season not in season_substrings:
+            continue
+        
+        episode_substrings = re.findall(episode_pattern, title)
+        if len(episode_substrings) > 0 and episode not in episode_substrings:
+            continue
+
+        filtered_items.append(item)
+    
+    return filtered_items
+
+def filter_items(items, media=None, config=None, cached=False, season=None, episode=None):
     if config is None:
         return items
 
     filters = {
         "language": LanguageFilter(config),
-        "maxSize": MaxSizeFilter(config, item_type),
+        "maxSize": MaxSizeFilter(config, media.type),
         "exclusionKeywords": TitleExclusionFilter(config),
         "exclusion": QualityExclusionFilter(config),
         "resultsPerQuality": ResultsPerQualityFilter(config)
@@ -59,7 +77,13 @@ def filter_items(items, item_type=None, config=None, cached=False, season=None, 
     #     items = filter_season_episode(items, season, episode, config)
     # logger.info("Started filtering torrents")
 
+    # Filtering out 100% Nont matching for series
     logger.info(f"Item count before filtering: {len(items)}")
+    if media.type == "series":
+        logger.info(f"Filtering out non matching series torrents")
+        items = filter_out_non_matching(items, media.season, media.episode)
+        logger.info(f"Item count changed to {len(items)}")
+
     for filter_name, filter_instance in filters.items():
         try:
             logger.info(f"Filtering by {filter_name}: " + str(config[filter_name]))
