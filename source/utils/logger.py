@@ -33,7 +33,7 @@ def setup_logger(name):
 
     if len(logger.handlers) > 0:
         return logger
-    
+
     # Create console handler with a higher log level
     ch = logging.StreamHandler()
     ch.setLevel(logging.DEBUG)  # Adjust as needed
@@ -41,7 +41,6 @@ def setup_logger(name):
     ch.setFormatter(CustomFormatter())
     logger.addHandler(ch)
     return logger
-
 
 # Example usage
 # logger = setup_logger(__name__)
