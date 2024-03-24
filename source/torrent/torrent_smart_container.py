@@ -38,17 +38,7 @@ class TorrentSmartContainer:
                     # file_index)
                     best_matching.append(torrent_item)
             else:  # Magnet
-                if media.type == "series":
-                    self.logger.debug(f"Media is a series")
-                    season = media.season.replace("S", "")
-                    episode = media.episode.replace("E", "")
-                    self.logger.debug(f"Season: {season}, Episode: {episode}, Title: {torrent_item.title}")
-                    if self.__season_episode_in_filename(torrent_item.title, season, episode):
-                        self.logger.debug(f"Season and episode found in title")
-                        # If it's a magnet link, and the season and episode num is inside of it's name
-                        best_matching.append(torrent_item)
-                else:
-                    best_matching.append(torrent_item)  # If it's a movie with a magnet link
+                best_matching.append(torrent_item)  # If it's a movie with a magnet link
 
         return best_matching
 

@@ -21,11 +21,15 @@ from torrent.torrent_service import TorrentService
 from torrent.torrent_smart_container import TorrentSmartContainer
 from utils.cache import search_cache
 from utils.filter_results import filter_items
+from utils.filter_results import sort_items
 from utils.logger import setup_logger
 from utils.parse_config import parse_config
 from utils.process_results import process_results
 from utils.string_encoding import decodeb64
 from utils.tmdb import get_metadata
+
+from torrent.torrent_service import TorrentService
+from torrent.torrent_smart_container import TorrentSmartContainer
 
 load_dotenv()
 
@@ -150,27 +154,27 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         else:
             logger.info("No cached results found")
         logger.info("Searching for results on Jackett")
-        jackett_search_results = JackettService(config).search(media)
+        jackett_service = JackettService(config)
+        jackett_search_results = jackett_service.search(media)
         logger.info("Got " + str(len(jackett_search_results)) + " results from Jackett")
         logger.info("Converting results")
         logger.info("Converted results")
         logger.info("Filtering results")
-        filtered_results = filter_items(jackett_search_results, media, config=config)
+        filtered_jackett_search_results = filter_items(jackett_search_results, media, config=config)
         logger.info("Filtered results")
-        logger.debug("Converting and processing results (results: " + str(len(filtered_results)) + ")")
-        torrent_items = TorrentService().convert_and_process(filtered_results)
-        logger.debug("Processed results")
-        logger.debug("Converted results to torrent items (results: " + str(len(torrent_items)) + ")")
-        torrent_items_smart_container = TorrentSmartContainer(torrent_items)
-        hashes = torrent_items_smart_container.get_hashes()
-        logger.debug("Checking availability (hashes: " + str(len(hashes)) + ")")
+        logger.debug("Converting result to TorrentItems (results: " + str(len(filtered_jackett_search_results)) + ")")
+        torrent_service = TorrentService()
+        torrent_results = torrent_service.convert_and_process(filtered_jackett_search_results)        logger.debug("Processed results")
+        logger.debug("Converted result to TorrentItems (results: " + str(len(torrent_items)) + ")")
+        torrent_smart_container = TorrentSmartContainer(torrent_results)
+        logger.debug("Checking availability")
+        hashes = torrent_smart_container.get_hashes()
         result = debrid_service.get_availability_bulk(hashes)
+        torrent_smart_container.update_availability(result, type(debrid_service))
         logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
-        logger.debug("Updating availability")
-        torrent_items_smart_container.update_availability(result, type(debrid_service))
-        logger.debug("Updated availability")
         logger.debug("Getting best matching results")
-        best_matching_results = torrent_items_smart_container.get_best_matching(media)
+        best_matching_results = torrent_smart_container.get_best_matching(media)
+        best_matching_results = sort_items(best_matching_results, config)
         logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
         logger.info("Processing results")
         stream_list = process_results(best_matching_results[:int(config['maxResults'])], False, media.type,
