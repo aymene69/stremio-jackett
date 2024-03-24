@@ -21,7 +21,10 @@ jobs:
       - name: 🏗 Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
+          python-version: '3.12.2'
+
+      - name: 🏗 Change directory
+        run: cd source
 
       - name: 🏗 Installing dependencies
         run: python3 -m pip install -r requirements.txt
