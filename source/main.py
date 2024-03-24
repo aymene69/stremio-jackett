@@ -28,9 +28,6 @@ from utils.process_results import process_results
 from utils.string_encoding import decodeb64
 from utils.tmdb import get_metadata
 
-from torrent.torrent_service import TorrentService
-from torrent.torrent_smart_container import TorrentSmartContainer
-
 load_dotenv()
 
 root_path = os.environ.get("ROOT_PATH", None)
@@ -129,9 +126,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     filtered_cached_results = []
     if len(cached_results) > 0:
         logger.info("Filtering cached results")
-        filtered_cached_results = filter_items(cached_results, media.type, config=config, cached=True,
-                                               season=media.season if media.type == "series" else None,
-                                               episode=media.episode if media.type == "series" else None)
+        filtered_cached_results = filter_items(cached_results, media.type, config=config)
 
         logger.info("Filtered cached results")
     # TODO: if we have results per quality set, most of the time we will not have enough cached results AFTER filtering them

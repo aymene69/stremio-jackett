@@ -51,19 +51,20 @@ def filter_out_non_matching(items, season, episode):
         season_substrings = re.findall(season_pattern, title)
         if len(season_substrings) > 0 and season not in season_substrings:
             continue
-        
+
         episode_substrings = re.findall(episode_pattern, title)
         if len(episode_substrings) > 0 and episode not in episode_substrings:
             continue
 
         filtered_items.append(item)
-    
+
     return filtered_items
+
 
 def filter_items(items, media, config):
     filters = {
         "language": LanguageFilter(config),
-        "maxSize": MaxSizeFilter(config, media.type), #Max size filtering only happens for movies, so it
+        "maxSize": MaxSizeFilter(config, media.type),  # Max size filtering only happens for movies, so it
         "exclusionKeywords": TitleExclusionFilter(config),
         "exclusion": QualityExclusionFilter(config),
         "resultsPerQuality": ResultsPerQualityFilter(config)
@@ -87,7 +88,8 @@ def filter_items(items, media, config):
 
     return items
 
-def sort_items(items, config):    
+
+def sort_items(items, config):
     if config['sort'] is not None:
         return items_sort(items, config)
     else:
