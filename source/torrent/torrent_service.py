@@ -53,7 +53,8 @@ class TorrentService:
         if response.status_code == 200:
             return self.__process_torrent(result, response.content)
         elif response.status_code == 302:
-            return self.__process_magnet(response.headers['Location'])
+            result.magnet = response.headers['Location']
+            return self.__process_magnet(result)
         else:
             self.logger.error(f"Error code {response.status_code} while processing url: {result.link}")
 
