@@ -164,18 +164,22 @@ class TorrentService:
         episode = episode.replace("E","")
 
         file_index = 1
+        episode_files = []
         for files in file_structure:
             for file in files["path"]:
-                if self.__series_season_episode_available(file, season, episode):
-                    return {
+                if self.__season_episode_in_filename(file, season, episode):
+                    episode_files.append({
                         "file_index": file_index,
                         "title": file,
                         "size": files["length"]
-                    }
-            
+                    })
+    
             file_index += 1
         
-        return None
+        if len(episode_files) == 0:
+            return None
+        
+        return max(episode_files, key = lambda file: file["size"])
     
     def __find_movie_file(self, file_structure):
         max_size = 0
@@ -189,5 +193,5 @@ class TorrentService:
 
         return max_file_index
     
-    def __series_season_episode_available(self, filename, season, episode):            
+    def __season_episode_in_filename(self, filename, season, episode):            
         return season in filename and episode in filename and filename.index(season) < filename.index(episode)

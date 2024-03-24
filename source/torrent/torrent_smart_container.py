@@ -31,21 +31,29 @@ class TorrentSmartContainer:
         
             torrent_item: TorrentItem = self.__itemsDict[info_hash]
 
+            files = []
             if torrent_item.type == "series":
                 season = torrent_item.season.replace("S","")
                 episode = torrent_item.episode.replace("E","")
                 
                 for variants in details["rd"]:
-                    if torrent_item.availability == True:
-                        break
-                    
                     for file_index, file in variants.items():
                         if self.__series_season_episode_available(file["filename"], season, episode):
-                            torrent_item.availability = True
-                            torrent_item.file_index = file_index
-                            break
+                            files.append({
+                                "file_index": file_index,
+                                "title": file["filename"],
+                                "size": file["filesize"]
+                            })
             else:
-                torrent_item.availability = True
+                for variants in details["rd"]:
+                    for file_index, file in variants.items():
+                        files.append({
+                            "file_index": file_index,
+                            "title": file["filename"],
+                            "size": file["filesize"]
+                        })
+
+            self.__update_file_details(torrent_item, files)
 
     def __update_availability_alldebrid(self, response):
         if response["status"] != "success":
@@ -56,24 +64,46 @@ class TorrentSmartContainer:
                 continue
             
             torrent_item: TorrentItem = self.__itemsDict[data["hash"]]
+            
+            files = []
             if torrent_item.type == "series":
                 season = torrent_item.season.replace("S","")
                 episode = torrent_item.episode.replace("E","")
 
-                if torrent_item.availability == True:
-                    break
-
                 file_index = 1
                 for file in data["files"]:
                     if self.__series_season_episode_available(file["n"], season, episode):
-                        torrent_item.availability = True
-                        torrent_item.file_index = file_index
-                        break
+                        files.append({
+                            "file_index": file_index,
+                            "title": file["n"],
+                            "size": file["s"]
+                        })
                     file_index += 1
+            else:
+                file_index = 1
+                for file in data["files"]:
+                    files.append({
+                        "file_index": file_index,
+                        "title": file["n"],
+                        "size": file["s"]
+                    })
+                    file_index += 1
+
+            self.__update_file_details(torrent_item, files)
 
     def __update_availability_premiumize(self, response):
         #I don't understand the premiumize api
         pass
+
+    def __update_file_details(self, torrent_item, files):
+        if len(files) == 0:
+            return
+        
+        file = max(files, key = lambda file: file["filesize"])
+        torrent_item.availability = True
+        torrent_item.file_index = file["size"]
+        torrent_item.title = file["title"]
+        torrent_item.size = file["size"]
 
     def __build_items_dict_by_infohash(self, items: List[TorrentItem]):
         items_dict = dict()
