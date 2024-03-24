@@ -145,5 +145,4 @@ class TorrentSmartContainer:
         return items_dict
 
     def __season_episode_in_filename(self, filename, season, episode):
-        return season in filename and episode in filename and (
-                season == episode or filename.index(season) < filename.index(episode))
+        return season in filename and episode in filename and filename.index(season) < filename.index(episode)
