@@ -7,6 +7,7 @@ from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
+
 class AllDebrid(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
@@ -53,7 +54,7 @@ class AllDebrid(BaseDebrid):
             return "Error: Failed to unlock link."
 
         return unlocked_link_data["data"]["link"]
-    
+
     def get_availability_bulk(self, hashes_or_magnets):
         if len(hashes_or_magnets) == 0:
             logger.info("No hashes to be sent to Real-Debrid.")

@@ -46,6 +46,6 @@ class BaseDebrid:
 
     def get_availability(self, stream, stream_type, season_episode=None):
         raise NotImplementedError
-    
+
     def get_availability_bulk(self, hashes_or_magnets):
         raise NotImplementedError

@@ -66,7 +66,7 @@ class RealDebrid(BaseDebrid):
                         return True
             return False
         return True
-    
+
     def get_availability_bulk(self, hashes_or_magnets):
         if len(hashes_or_magnets) == 0:
             logger.info("No hashes to be sent to Real-Debrid.")

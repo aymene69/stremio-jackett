@@ -7,6 +7,7 @@ from utils.string_encoding import encodeb64
 
 logger = setup_logger(__name__)
 
+
 def get_emoji(language):
     emoji_dict = {
         "fr": "🇫🇷",

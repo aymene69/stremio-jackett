@@ -1,16 +1,16 @@
+import hashlib
 import queue
 import threading
-import requests
-import hashlib
-import bencode
 import urllib.parse
-
-from utils.logger import setup_logger
 from typing import List
 
+import bencode
+import requests
 
-from torrent.torrent_item import TorrentItem
 from jackett.jackett_result import JackettResult
+from torrent.torrent_item import TorrentItem
+from utils.logger import setup_logger
+
 
 class TorrentService:
     def __init__(self):
@@ -19,7 +19,7 @@ class TorrentService:
 
     def convert_and_process(self, results: List[JackettResult]):
         threads = []
-        torrent_items_queue = queue.Queue() 
+        torrent_items_queue = queue.Queue()
 
         def thread_target(result: JackettResult):
             torrent_item = result.convert_to_torrent_item()
@@ -30,7 +30,7 @@ class TorrentService:
                 processed_torrent_item = self.__process_web_url(torrent_item)
 
             torrent_items_queue.put(processed_torrent_item)
-        
+
         for result in results:
             threads.append(threading.Thread(target=thread_target, args=(result,)))
 
@@ -62,7 +62,7 @@ class TorrentService:
 
     def __process_torrent(self, result: TorrentItem, torrent_file):
         metadata = bencode.bdecode(torrent_file)
-        
+
         result.torrent = torrent_file
         result.trackers = self.__get_trackers_from_torrent(metadata)
         result.info_hash = self.__convert_torrent_to_hash(metadata["info"])
@@ -73,7 +73,7 @@ class TorrentService:
             return result
 
         result.files = metadata["info"]["files"]
-        
+
         if result.type == "series":
             file_details = self.__find_episode_file(result.files, result.season, result.episode)
 
@@ -108,7 +108,7 @@ class TorrentService:
 
         if len(trackers) > 0:
             magnet = f"{magnet}&tr={'&tr='.join(trackers)}"
-        
+
         return magnet
 
     def __get_info_hash_from_magnet(self, magnet: str):
@@ -116,22 +116,22 @@ class TorrentService:
         if exact_topic_index == -1:
             self.logger.debug(f"No exact topic in magnet {magnet}")
             return None
-        
+
         exact_topic_substring = magnet[exact_topic_index:]
         end_of_exact_topic = exact_topic_substring.find("&")
 
         if end_of_exact_topic != -1:
             exact_topic_substring = exact_topic_substring[:end_of_exact_topic]
 
-        info_hash = exact_topic_substring[exact_topic_substring.rfind(":")+1:]
+        info_hash = exact_topic_substring[exact_topic_substring.rfind(":") + 1:]
 
         return info_hash.lower()
-    
+
     def __get_trackers_from_torrent(self, torrent_metadata):
         # Sometimes list, sometimes string
-        announce = torrent_metadata["announce"] if "announce" in torrent_metadata else [] 
+        announce = torrent_metadata["announce"] if "announce" in torrent_metadata else []
         # Sometimes 2D array, sometimes 1D array
-        announce_list = torrent_metadata["announce-list"] if "announce-list" in torrent_metadata else []  
+        announce_list = torrent_metadata["announce-list"] if "announce-list" in torrent_metadata else []
 
         trackers = set()
         if isinstance(announce, str):
@@ -139,7 +139,7 @@ class TorrentService:
         elif isinstance(announce, list):
             for tracker in announce:
                 trackers.add(tracker)
-        
+
         for announce_list_item in announce_list:
             if isinstance(announce_list_item, list):
                 for tracker in announce_list_item:
@@ -148,7 +148,7 @@ class TorrentService:
                 trackers.add(announce_list_item)
 
         return list(trackers)
-    
+
     def __get_trackers_from_magnet(self, magnet: str):
         url_parts = urllib.parse.urlparse(magnet)
         query_parts = urllib.parse.parse_qs(url_parts.query)
@@ -156,12 +156,12 @@ class TorrentService:
         trackers = []
         if "tr" in query_parts:
             trackers = query_parts["tr"]
-        
+
         return trackers
-    
+
     def __find_episode_file(self, file_structure, season, episode):
-        season = season.replace("S","")
-        episode = episode.replace("E","")
+        season = season.replace("S", "")
+        episode = episode.replace("E", "")
 
         file_index = 1
         episode_files = []
@@ -173,14 +173,14 @@ class TorrentService:
                         "title": file,
                         "size": files["length"]
                     })
-    
+
             file_index += 1
-        
+
         if len(episode_files) == 0:
             return None
-        
-        return max(episode_files, key = lambda file: file["size"])
-    
+
+        return max(episode_files, key=lambda file: file["size"])
+
     def __find_movie_file(self, file_structure):
         max_size = 0
         max_file_index = 1
@@ -192,6 +192,6 @@ class TorrentService:
             current_file_index += 1
 
         return max_file_index
-    
-    def __season_episode_in_filename(self, filename, season, episode):            
+
+    def __season_episode_in_filename(self, filename, season, episode):
         return season in filename and episode in filename and filename.index(season) < filename.index(episode)

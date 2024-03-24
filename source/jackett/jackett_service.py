@@ -10,8 +10,8 @@ from jackett.jackett_indexer import JackettIndexer
 from jackett.jackett_result import JackettResult
 from models.movie import Movie
 from models.series import Series
-from utils.logger import setup_logger
 from utils import detection
+from utils.logger import setup_logger
 
 
 class JackettService:
@@ -208,7 +208,7 @@ class JackettService:
             # TODO: I haven't seen this in the Jackett XML response. Is this still relevant?
             # Or which indexers provide this?
             magnet = item.find('.//torznab:attr[@name="magneturl"]',
-                                  namespaces={'torznab': 'http://torznab.com/schemas/2015/feed'})
+                               namespaces={'torznab': 'http://torznab.com/schemas/2015/feed'})
             result.magnet = magnet.attrib['value'] if magnet is not None else None
 
             infoHash = item.find('.//torznab:attr[@name="infohash"]',
@@ -218,7 +218,7 @@ class JackettService:
             result_list.append(result)
 
         return result_list
-    
+
     def __post_process_results(self, results, media):
         for result in results:
             result.language = detection.detect_language(result.title)
@@ -229,5 +229,5 @@ class JackettService:
             if isinstance(media, Series):
                 result.season = media.season
                 result.episode = media.episode
-        
+
         return results

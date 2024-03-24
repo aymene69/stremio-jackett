@@ -1,5 +1,4 @@
 from torrent.torrent_item import TorrentItem
-from utils.detection import detect_language, detect_quality, detect_quality_spec
 
 
 class JackettResult:
@@ -14,14 +13,14 @@ class JackettResult:
         self.privacy = None  # public or private
 
         # Extra processed details for further filtering
-        self.language = None # Language of the torrent
-        self.quality = None # Quality of the torrent
-        self.quality_spec = None # Quality specifications of the torrent
-        self.type = None # series or movie
+        self.language = None  # Language of the torrent
+        self.quality = None  # Quality of the torrent
+        self.quality_spec = None  # Quality specifications of the torrent
+        self.type = None  # series or movie
 
         # Not sure about these
-        self.season = None # Season, if the media is a series
-        self.episode = None # Episode, if the media is a series
+        self.season = None  # Season, if the media is a series
+        self.episode = None  # Episode, if the media is a series
 
     def convert_to_torrent_item(self):
         return TorrentItem(
@@ -32,7 +31,7 @@ class JackettResult:
             self.link,
             self.seeders,
             self.language,
-            self.quality, 
+            self.quality,
             self.quality_spec,
             self.indexer,
             self.episode,
