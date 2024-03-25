@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import shutil
+import time
 import zipfile
 
 import requests
@@ -111,6 +112,7 @@ logger.info("Started Jackett Addon")
 
 @app.get("/{config}/stream/{stream_type}/{stream_id}")
 async def get_results(config: str, stream_type: str, stream_id: str):
+    start = time.time()
     stream_id = stream_id.replace(".json", "")
     config = parse_config(config)
     logger.info(stream_type + " request")
@@ -140,6 +142,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
                                       media.episode if media.type == "series" else None,
                                       debrid_service=debrid_service, config=config)
         logger.info("Processed cached results")
+        logger.info("Total time: " + str(time.time() - start) + "s")
         if len(stream_list) == 0:
             logger.info("No results found")
             return NO_RESULTS
@@ -176,7 +179,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
 
         stream_list = parse_to_stremio_streams(best_matching_results, config)
         logger.info("Processed results (results: " + str(len(stream_list)) + ")")
-
+        logger.info("Total time: " + str(time.time() - start) + "s")
         return {"streams": stream_list}
 
 

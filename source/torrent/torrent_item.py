@@ -1,7 +1,13 @@
-from urllib.parse import quote 
+from urllib.parse import quote
+
+from utils.logger import setup_logger
+
+
 class TorrentItem:
     def __init__(self, title, size, magnet, info_hash, link, seeders, languages, quality, quality_spec, indexer, privacy,
                  episode=None, season=None, type=None):
+        self.logger = setup_logger(__name__)
+
         self.title = title  # Title of the torrent - it may be updated durring __process_torrent()
         self.size = size  # Size of the video file inside of the torrent - it may be updated durring __process_torrent()
         self.magnet = magnet  # Magnet to torrent
@@ -32,5 +38,5 @@ class TorrentItem:
             "file_index": self.file_index,
             "season": self.season,
             "episode": self.episode,
-            "torrent_download": quote(self.torrent_download)
+            "torrent_download": quote(self.torrent_download) if self.torrent_download is not None else None
         }

@@ -2,8 +2,8 @@ import json
 import queue
 import threading
 from typing import List
-from torrent.torrent_item import TorrentItem
 
+from torrent.torrent_item import TorrentItem
 from utils.logger import setup_logger
 from utils.string_encoding import encodeb64
 
@@ -12,6 +12,7 @@ logger = setup_logger(__name__)
 INSTANTLY_AVAILABLE = "[⚡]"
 DOWNLOAD_REQUIRED = "[⬇️]"
 DIRECT_TORRENT = "[🏴‍☠️]"
+
 
 # TODO: Languages
 def get_emoji(language):
@@ -30,11 +31,13 @@ def get_emoji(language):
     }
     return emoji_dict.get(language, "🇬🇧")
 
+
 def filter_by_availability(item):
     if item["name"].startswith(INSTANTLY_AVAILABLE):
         return 0
     else:
         return 1
+
 
 def filter_by_direct_torrnet(item):
     if item["name"].startswith(DIRECT_TORRENT):
@@ -42,37 +45,41 @@ def filter_by_direct_torrnet(item):
     else:
         return 0
 
+
 def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, results: queue.Queue):
     if torrent_item.availability == True:
         name = f"{INSTANTLY_AVAILABLE}\n"
     else:
         name = f"{DOWNLOAD_REQUIRED}\n"
-    name += f"{torrent_item.quality}\n" + f"({'|'.join(torrent_item.quality_spec)})" if len(torrent_item.quality_spec) > 0 else ""
+    name += f"{torrent_item.quality}\n" + (f"({'|'.join(torrent_item.quality_spec)})" if len(
+        torrent_item.quality_spec) > 0 else "")
 
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
-    
-    title = f"{torrent_item.title}\n👥{torrent_item.seeders}💾{size_in_gb}GB🔍{torrent_item.indexer}\n"
+
+    title = f"{torrent_item.title}\n👥 {torrent_item.seeders}   💾 {size_in_gb}GB   🔍 {torrent_item.indexer}\n"
     for language in torrent_item.languages:
         title += f"{get_emoji(language)}/"
     title = title[:-1]
 
     queryb64 = encodeb64(json.dumps(torrent_item.to_debrid_stream_query())).replace('=', '%3D')
-    
+
     results.put({
         "name": name,
-        "title": title,
+        "description": title,
         "url": f"{host}/playback/{configb64}/{queryb64}"
     })
 
     if torrent_item.privacy == "public" and torrent_item.file_index is not None:
-        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n" + f"({'|'.join(torrent_item.quality_spec)})" if len(torrent_item.quality_spec) > 0 else ""
+        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n" + f"({'|'.join(torrent_item.quality_spec)})" if len(
+            torrent_item.quality_spec) > 0 else ""
         results.put({
             "name": name,
             "title": title,
             "infoHash": torrent_item.info_hash,
             "fileIdx": torrent_item.file_index,
-            "sources": [ "tracker:" + tracker for tracker in torrent_item.trackers]
+            "sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
         })
+
 
 def parse_to_stremio_streams(torrent_items: List[TorrentItem], config):
     stream_list = []
@@ -81,13 +88,15 @@ def parse_to_stremio_streams(torrent_items: List[TorrentItem], config):
 
     configb64 = encodeb64(json.dumps(config).replace('=', '%3D'))
     for torrent_item in torrent_items:
-        thread = threading.Thread(target=parse_to_debrid_stream, args=(torrent_item, configb64, config['addonHost'], thread_results_queue))
+        thread = threading.Thread(target=parse_to_debrid_stream,
+                                  args=(torrent_item, configb64, config['addonHost'], thread_results_queue),
+                                  daemon=True)
         thread.start()
         threads.append(thread)
-    
+
     for thread in threads:
         thread.join()
-    
+
     while not thread_results_queue.empty():
         stream_list.append(thread_results_queue.get())
 
