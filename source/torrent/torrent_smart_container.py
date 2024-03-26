@@ -30,8 +30,8 @@ class TorrentSmartContainer:
         for torrent_item in self.__itemsDict.values():
             self.logger.debug(f"-------------------")
             self.logger.debug(f"Checking {torrent_item.title}")
-            self.logger.debug(f"Has torrent: {torrent_item.torrent is not None}")
-            if torrent_item.torrent is not None:  # Torrent file
+            self.logger.debug(f"Has torrent: {torrent_item.torrent_download is not None}")
+            if torrent_item.torrent_download is not None:  # Torrent download
                 self.logger.debug(f"Has file index: {torrent_item.file_index is not None}")
                 if torrent_item.file_index is not None:
                     # If the season/episode is present inside the torrent filestructure (movies always have a
@@ -129,7 +129,7 @@ class TorrentSmartContainer:
 
         file = max(files, key=lambda file: file["size"])
         torrent_item.availability = True
-        torrent_item.file_index = file["size"]
+        torrent_item.file_index = file["file_index"]
         torrent_item.title = file["title"]
         torrent_item.size = file["size"]
 

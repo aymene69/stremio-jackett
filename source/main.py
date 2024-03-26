@@ -3,6 +3,7 @@ import logging
 import os
 import re
 import shutil
+import time
 import zipfile
 
 import requests
@@ -27,6 +28,7 @@ from utils.parse_config import parse_config
 from utils.process_results import process_results
 from utils.string_encoding import decodeb64
 from utils.tmdb import get_metadata
+from utils.stremio_parser import parse_to_stremio_streams
 
 load_dotenv()
 
@@ -110,6 +112,7 @@ logger.info("Started Jackett Addon")
 
 @app.get("/{config}/stream/{stream_type}/{stream_id}")
 async def get_results(config: str, stream_type: str, stream_id: str):
+    start = time.time()
     stream_id = stream_id.replace(".json", "")
     config = parse_config(config)
     logger.info(stream_type + " request")
@@ -139,6 +142,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
                                       media.episode if media.type == "series" else None,
                                       debrid_service=debrid_service, config=config)
         logger.info("Processed cached results")
+        logger.info("Total time: " + str(time.time() - start) + "s")
         if len(stream_list) == 0:
             logger.info("No results found")
             return NO_RESULTS
@@ -172,22 +176,18 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         best_matching_results = sort_items(best_matching_results, config)
         logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
         logger.info("Processing results")
-        stream_list = process_results(best_matching_results[:int(config['maxResults'])], False, media.type,
-                                      media.season if media.type == "series" else None,
-                                      media.episode if media.type == "series" else None,
-                                      debrid_service=debrid_service, config=config)
+
+        stream_list = parse_to_stremio_streams(best_matching_results, config)
         logger.info("Processed results (results: " + str(len(stream_list)) + ")")
-        if len(stream_list) == 0:
-            logger.info("No results found")
-            return NO_RESULTS
+        logger.info("Total time: " + str(time.time() - start) + "s")
         return {"streams": stream_list}
 
 
-@app.get("/playback/{config}/{query}/{title}")
-async def get_playback(config: str, query: str, title: str, request: Request):
+@app.get("/playback/{config}/{query}")
+async def get_playback(config: str, query: str):
     try:
-        if not query or not title:
-            raise HTTPException(status_code=400, detail="Query and title are required.")
+        if not query:
+            raise HTTPException(status_code=400, detail="Query required.")
         config = parse_config(config)
         logger.info("Decoding query")
         query = decodeb64(query)
@@ -203,7 +203,6 @@ async def get_playback(config: str, query: str, title: str, request: Request):
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
-
 
 async def update_app():
     try:

@@ -63,7 +63,7 @@ def filter_out_non_matching(items, season, episode):
 
 def filter_items(items, media, config):
     filters = {
-        "language": LanguageFilter(config),
+        "languages": LanguageFilter(config),
         "maxSize": MaxSizeFilter(config, media.type),  # Max size filtering only happens for movies, so it
         "exclusionKeywords": TitleExclusionFilter(config),
         "exclusion": QualityExclusionFilter(config),

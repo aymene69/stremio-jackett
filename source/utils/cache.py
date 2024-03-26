@@ -27,7 +27,7 @@ def cache_results(torrents, type, config):
             try:
                 torrent_info = get_availability(torrent, get_debrid_service(config))
                 if torrent_info is not None:
-                    torrent_info['language'] = torrent['language']
+                    torrent_info['languages'] = torrent['languages']
                     torrent_info['quality'] = torrent['quality']
                     torrent_info['qualitySpec'] = torrent['qualitySpec']
                     torrent_info['seeders'] = torrent['seeders']
