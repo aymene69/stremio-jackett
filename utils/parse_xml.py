@@ -38,15 +38,19 @@ def cache_torrents(torrents, type, config):
             except:
                 pass
     try:
-        response = requests.post(CACHER_URL + "pushResult/" + type, data=json.dumps(results, indent=4))
+        response = requests.post(CACHER_URL + "pushResult/" + type, data=json.dumps(results, indent=4, default=set_default))
         if response.status_code == 200:
             logger.info("Cached " + str(len(results)) + " " + type + " results")
         else:
             logger.error("Failed to cache " + type + " results: " + str(response))
-    except:
-        logger.error("Failed to cache results")
+    except Exception as e:
+        logger.error("Failed to cache results %s", exc_info=e)
         pass
 
+def set_default(obj):
+    if isinstance(obj, set):
+        return list(obj)  # Convert set to list
+    raise TypeError
 
 def get_emoji(language):
     emoji_dict = {
@@ -127,10 +131,9 @@ def parse_xml(xml_content, query, config):
                 if "S" + str(int(query['season'].replace("S",""))) + "E" + str(int(query['episode'].replace("E", ""))) not in title:
                     if re.search(r'\bS\d+\b', title) is None:
                         continue
-            # I don't think, that this is neccessary with the changes I've made down the line
-            # if query['season'] + query['episode'] not in title:
-            #     if re.search(rf'\b{re.escape(query["season"])}\b', title) is None:
-            #         continue
+            if query['season'] + query['episode'] not in title:
+                if re.search(rf'\b{re.escape(query["season"])}\b', title) is None:
+                    continue
 
             item_dict = {
                 "title": title,

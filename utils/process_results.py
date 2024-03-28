@@ -1,6 +1,8 @@
 import concurrent.futures
 import base64
 import json
+import urllib.parse
+
 from utils.get_availability import get_availability_cached
 from utils.get_quality import detect_quality, detect_quality_spec
 
@@ -62,7 +64,7 @@ def process_stream(stream, cached, stream_type, season, episode, config):
         "name": name,
         "title": f"{stream['title']}\r\n{get_emoji(stream['language'])}   👥 {stream['seeders']}   📂 "
                  f"{round(int(stream['size']) / 1024 / 1024 / 1024, 2)}GB",
-        "url": f"{config['addonHost']}/playback/{configb64}/{queryb64}/{stream['title'].replace(' ', '.')}"
+        "url": f"{config['addonHost']}/playback/{configb64}/{queryb64}/{urllib.parse.quote_plus(stream['title'].replace(' ', '.'))}"
     }
 
 

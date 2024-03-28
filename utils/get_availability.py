@@ -208,13 +208,14 @@ def get_torrent_info(item, config):
                 
     hashcontents = bencode.bencode(torrent['info'])
     base32Hash = base64.b32encode(hashlib.sha1(hashcontents).digest()).decode()
-    hexHash = hashlib.sha1(hashcontents).hexdigest()
+    hash = hexHash = hashlib.sha1(hashcontents).hexdigest()
 
     magnet = hexMagnet = "magnet:?xt=urn:btih:" + hexHash + "&dn=" + torrent['info']['name'] + ( "&tr=".join(trackers) if trackers else "")
     base32Magnet = "magnet:?xt=urn:btih:" + base32Hash + "&dn=" + torrent['info']['name'] + ( "&tr=".join(trackers) if trackers else "")
 
     if not is_valid_magnet(hexMagnet, config):
         magnet = base32Magnet
+        hash = base32Hash
 
     try:
         season = item['season']
