@@ -81,7 +81,7 @@ class TorrentService:
 
             if file_details is not None:
                 result.file_index = file_details["file_index"]
-                result.title = file_details["title"]
+                result.file_name = file_details["title"]
                 result.size = file_details["size"]
         else:
             result.file_index = self.__find_movie_file(result.files)

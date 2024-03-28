@@ -56,7 +56,13 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, results: 
 
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
 
-    title = f"{torrent_item.title}\n👥 {torrent_item.seeders}   💾 {size_in_gb}GB   🔍 {torrent_item.indexer}\n"
+    title = f"{torrent_item.title}\n"
+    
+    if torrent_item.file_name is not None:
+        title += f"{torrent_item.file_name}\n"
+        
+    title += f"👥 {torrent_item.seeders}   💾 {size_in_gb}GB   🔍 {torrent_item.indexer}\n"
+        
     for language in torrent_item.languages:
         title += f"{get_emoji(language)}/"
     title = title[:-1]
