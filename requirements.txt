@@ -1,8 +1,0 @@
-fastapi
-uvicorn
-starlette
-requests
-bencode.py
-jinja2
-aiocron
-python-dotenv
