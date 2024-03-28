@@ -37,7 +37,7 @@ if root_path and not root_path.startswith("/"):
     root_path = "/" + root_path
 app = FastAPI(root_path=root_path)
 
-VERSION = "3.0.13"
+VERSION = "4.0.0"
 isDev = os.getenv("NODE_ENV") == "development"
 
 
@@ -212,7 +212,7 @@ async def get_playback(config: str, query: str):
 async def update_app():
     try:
         current_version = "v" + VERSION
-        url = "https://api.github.com/repos/aymene69/stremio-jackett/releases/latest"
+        url = "https://api.github.com/repos/itsvncl/stremio-jackett-hungary/releases/latest"
         response = requests.get(url)
         data = response.json()
         latest_version = data['tag_name']
