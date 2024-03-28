@@ -12,7 +12,7 @@ from aiocron import crontab
 from dotenv import load_dotenv
 from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 
 from constants import NO_RESULTS
@@ -196,6 +196,11 @@ async def get_playback(config: str, query: str):
 
         debrid_service = get_debrid_service(config)
         link = debrid_service.get_stream_link(query)
+        
+        if link is None:
+            logger.info("Caching in progress.")
+             #This doesn't work for some reason?
+            return RedirectResponse(url=f"{config["addonHost"]}/nocache", status_code=status.HTTP_301_MOVED_PERMANENTLY)
 
         logger.info("Got link: " + link)
         return RedirectResponse(url=link, status_code=status.HTTP_301_MOVED_PERMANENTLY)
@@ -243,6 +248,9 @@ async def update_app():
     except Exception as e:
         logger.error(f"Error during update: {e}")
 
+@app.get("/nocache")
+async def nocache_video_file():
+    return FileResponse("videos/nocache.mp4")
 
 @crontab("* * * * *", start=not isDev)
 async def schedule_task():

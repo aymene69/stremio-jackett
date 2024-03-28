@@ -16,6 +16,8 @@ class BaseDebrid:
             response = self.__session.get(url, headers=headers)
         elif method == 'post':
             response = self.__session.post(url, data=data, headers=headers)
+        elif method == 'put':
+            response = self.__session.put(url, data=data, headers=headers)
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")
 
@@ -37,6 +39,12 @@ class BaseDebrid:
                 return True
             time.sleep(interval)
         return False
+
+    def donwload_torrent_file(self, download_url):
+        response = requests.get(download_url)
+        response.raise_for_status()
+        
+        return response.content
 
     def get_stream_link(self, query):
         raise NotImplementedError

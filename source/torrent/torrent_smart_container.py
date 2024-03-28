@@ -5,6 +5,7 @@ from debrid.premiumize import Premiumize
 from debrid.realdebrid import RealDebrid
 from torrent.torrent_item import TorrentItem
 from utils.logger import setup_logger
+from utils.general import season_episode_in_filename
 
 
 class TorrentSmartContainer:
@@ -61,12 +62,9 @@ class TorrentSmartContainer:
 
             files = []
             if torrent_item.type == "series":
-                season = torrent_item.season.replace("S", "")
-                episode = torrent_item.episode.replace("E", "")
-
                 for variants in details["rd"]:
                     for file_index, file in variants.items():
-                        if self.__season_episode_in_filename(file["filename"], season, episode):
+                        if season_episode_in_filename(file["filename"], torrent_item.season, torrent_item.episode):
                             files.append({
                                 "file_index": file_index,
                                 "title": file["filename"],
@@ -95,12 +93,9 @@ class TorrentSmartContainer:
 
             files = []
             if torrent_item.type == "series":
-                season = torrent_item.season.replace("S", "")
-                episode = torrent_item.episode.replace("E", "")
-
                 file_index = 1
                 for file in data["files"]:
-                    if self.__season_episode_in_filename(file["n"], season, episode):
+                    if season_episode_in_filename(file["n"], torrent_item.season, torrent_item.episode):
                         files.append({
                             "file_index": file_index,
                             "title": file["n"],
@@ -143,6 +138,3 @@ class TorrentSmartContainer:
                     self.logger.debug(f"Duplicate info hash found: {item.info_hash}")
                 items_dict[item.info_hash] = item
         return items_dict
-
-    def __season_episode_in_filename(self, filename, season, episode):
-        return season in filename and episode in filename and filename.index(season) < filename.rindex(episode)

@@ -10,6 +10,8 @@ import requests
 from jackett.jackett_result import JackettResult
 from torrent.torrent_item import TorrentItem
 from utils.logger import setup_logger
+from utils.general import season_episode_in_filename
+from utils.general import get_info_hash_from_magnet
 
 
 class TorrentService:
@@ -91,7 +93,7 @@ class TorrentService:
             result.magnet = result.link
 
         if result.info_hash is None:
-            result.info_hash = self.__get_info_hash_from_magnet(result.magnet)
+            result.info_hash = get_info_hash_from_magnet(result.magnet)
 
         result.trackers = self.__get_trackers_from_magnet(result.magnet)
 
@@ -110,22 +112,6 @@ class TorrentService:
             magnet = f"{magnet}&tr={'&tr='.join(trackers)}"
 
         return magnet
-
-    def __get_info_hash_from_magnet(self, magnet: str):
-        exact_topic_index = magnet.find("xt=")
-        if exact_topic_index == -1:
-            self.logger.debug(f"No exact topic in magnet {magnet}")
-            return None
-
-        exact_topic_substring = magnet[exact_topic_index:]
-        end_of_exact_topic = exact_topic_substring.find("&")
-
-        if end_of_exact_topic != -1:
-            exact_topic_substring = exact_topic_substring[:end_of_exact_topic]
-
-        info_hash = exact_topic_substring[exact_topic_substring.rfind(":") + 1:]
-
-        return info_hash.lower()
 
     def __get_trackers_from_torrent(self, torrent_metadata):
         # Sometimes list, sometimes string
@@ -160,14 +146,11 @@ class TorrentService:
         return trackers
 
     def __find_episode_file(self, file_structure, season, episode):
-        season = season.replace("S", "")
-        episode = episode.replace("E", "")
-
         file_index = 1
         episode_files = []
         for files in file_structure:
             for file in files["path"]:
-                if self.__season_episode_in_filename(file, season, episode):
+                if season_episode_in_filename(file, season, episode):
                     episode_files.append({
                         "file_index": file_index,
                         "title": file,
@@ -192,6 +175,3 @@ class TorrentService:
             current_file_index += 1
 
         return max_file_index
-
-    def __season_episode_in_filename(self, filename, season, episode):
-        return season in filename and episode in filename and filename.index(season) < filename.rindex(episode)
