@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  jackett:
+    image: lscr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Etc/UTC
+      - AUTO_UPDATE=true
+    volumes:
+      - ./data:/config
+      - ./blackhole:/downloads
+    ports:
+      - 9117:9117
+    restart: unless-stopped
+
+
+  flaresolverr:
+    image: flaresolverr/flaresolverr:latest
+    container_name: flaresolverr
+    environment:
+      - TZ=Europe/London
+    ports:
+      - 8191:8191
+    restart: unless-stopped

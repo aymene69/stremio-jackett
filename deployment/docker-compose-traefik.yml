@@ -1,0 +1,20 @@
+version: '3'
+
+services:
+  addon:
+    image: belmeg/stremio-addon-jackett:latest
+    container_name: addon
+    networks:
+      - traefik_default
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=traefik_default"
+      - "traefik.http.routers.addon.entrypoints=web,websecure"
+      - "traefik.http.routers.addon.rule=Host(`YOURADDON.COM`)"
+      - "traefik.http.services.addon.loadbalancer.server.port=3000"
+      - "traefik.http.routers.addon.tls=true"
+      - "traefik.http.routers.addon.tls.certresolver=production"
+    restart: unless-stopped
+networks:
+  traefik_default:
+    external: true

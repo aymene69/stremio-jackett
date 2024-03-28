@@ -1,0 +1,41 @@
+global:
+  checkNewVersion: true
+  sendAnonymousUsage: false
+
+api:
+  dashboard: true
+
+entryPoints:
+  web:
+    address: :80
+    http:
+      redirections:
+        entryPoint:
+          to: websecure
+          scheme: https
+  websecure:
+    address: :443
+
+certificatesResolvers:
+  staging:
+    acme:
+      email: youremail@domain.com
+      storage: /etc/traefik/certs/acme.json
+      caServer: "https://acme-staging-v02.api.letsencrypt.org/directory"
+      httpChallenge:
+        entryPoint: web
+
+  production:
+    acme:
+      email: youremail@domain.com
+      storage: /etc/traefik/certs/acme.json
+      caServer: "https://acme-v02.api.letsencrypt.org/directory"
+      httpChallenge:
+        entryPoint: web
+
+providers:
+  docker:
+    exposedByDefault: true
+  file:
+    directory: /etc/traefik
+    watch: true
