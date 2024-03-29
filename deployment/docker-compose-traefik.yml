@@ -1,8 +1,8 @@
-version: '3'
+version: "3"
 
 services:
   addon:
-    image: belmeg/stremio-addon-jackett:latest
+    image: itsvncl/stremio-addon-jackett-hungary:latest
     container_name: addon
     networks:
       - traefik_default
