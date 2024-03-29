@@ -23,6 +23,8 @@ def items_sort(items, config):
         return sorted(items, key=lambda x: int(x.size))
     if config['sort'] == "sizedesc":
         return sorted(items, key=lambda x: int(x.size), reverse=True)
+    if config['sort'] == "qualitythensize":
+        return sorted(items, key=lambda x: (sort_quality(x), -int(x.size)))
     return items
 
 

@@ -209,6 +209,18 @@
                                     <p class="text-gray-500">Filter results by size ascending</p>
                                 </div>
                             </div>
+                            <div class="relative flex gap-x-3">
+                                <div class="flex h-6 items-center">
+                                    <input oninput="" id="qualitythensize" name="sorting" value="qualitythensize"
+                                           type="radio"
+                                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                </div>
+                                <div class="text-sm leading-6">
+                                    <label for="qualitythensize" class="font-medium text-gray-900">Quality then
+                                        size</label>
+                                    <p class="text-gray-500">Filter results by quality then size descending</p>
+                                </div>
+                            </div>
                         </div>
                     </fieldset>
 
@@ -418,6 +430,9 @@
             if (data.sort === 'sizeasc') {
                 document.getElementById('sizeasc').checked = true;
             }
+            if (data.sort === 'qualitythensize') {
+                document.getElementById('qualitythensize').checked = true;
+            }
             if (data.exclusion.includes('4k')) {
                 document.getElementById('4k').checked = true;
             }
@@ -551,6 +566,7 @@
         let qualityChecked = document.getElementById('quality').checked;
         let sizedescChecked = document.getElementById('sizedesc').checked;
         let sizeascChecked = document.getElementById('sizeasc').checked;
+        let qualitythensizeChecked = document.getElementById('qualitythensize').checked;
         let filter;
         if (qualityChecked) {
             filter = 'quality';
@@ -560,6 +576,9 @@
         }
         if (sizeascChecked) {
             filter = 'sizeasc';
+        }
+        if (qualitythensizeChecked) {
+            filter = 'qualitythensize';
         }
         if (maxSize === '' || isNaN(maxSize)) {
             maxSize = 0;
