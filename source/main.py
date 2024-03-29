@@ -156,8 +156,6 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         jackett_service = JackettService(config)
         jackett_search_results = jackett_service.search(media)
         logger.info("Got " + str(len(jackett_search_results)) + " results from Jackett")
-        logger.info("Converting results")
-        logger.info("Converted results")
         logger.info("Filtering results")
         filtered_jackett_search_results = filter_items(jackett_search_results, media, config=config)
         logger.info("Filtered results")
@@ -176,7 +174,6 @@ async def get_results(config: str, stream_type: str, stream_id: str):
         best_matching_results = sort_items(best_matching_results, config)
         logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
         logger.info("Processing results")
-
         stream_list = parse_to_stremio_streams(best_matching_results, config)
         logger.info("Processed results (results: " + str(len(stream_list)) + ")")
         logger.info("Total time: " + str(time.time() - start) + "s")

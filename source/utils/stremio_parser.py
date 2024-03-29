@@ -76,14 +76,14 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, results: 
     })
 
     if torrent_item.privacy == "public" and torrent_item.file_index is not None:
-        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n" + f"({'|'.join(torrent_item.quality_spec)})" if len(
-            torrent_item.quality_spec) > 0 else ""
+        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n" + (f"({'|'.join(torrent_item.quality_spec)})" if len(
+            torrent_item.quality_spec) > 0 else "")
         results.put({
             "name": name,
-            "title": title,
+            "description": title,
             "infoHash": torrent_item.info_hash,
-            "fileIdx": torrent_item.file_index,
-            "sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
+            "fileIdx": int(torrent_item.file_index),
+            #"sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
         })
 
 
