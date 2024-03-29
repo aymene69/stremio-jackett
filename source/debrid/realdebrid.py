@@ -9,6 +9,7 @@ from utils.logger import setup_logger
 from utils.general import get_info_hash_from_magnet
 from utils.general import season_episode_in_filename
 from utils.general import is_video_file
+from constants import NO_CACHE_VIDEO_URL
 
 logger = setup_logger(__name__)
 
@@ -27,6 +28,10 @@ class RealDebrid(BaseDebrid):
     def add_torrent(self, torrent_file):
         url = f"{self.base_url}/rest/1.0/torrents/addTorrent"
         return self.get_json_response(url, method='put', headers=self.headers, data=torrent_file)
+    
+    def delete_torrent(self, id):
+        url = f"{self.base_url}/rest/1.0/torrents/delete/{id}"
+        return self.get_json_response(url, method='delete', headers=self.headers)
 
     def get_torrent_info(self, torrent_id):
         logger.info(f"Getting torrent info for: {torrent_id}")
@@ -115,12 +120,7 @@ class RealDebrid(BaseDebrid):
             elif stream_type == "series":
                 torrent_info = self.__get_cached_torrent_info(cached_torrent_ids, file_index, season, episode)
             else:
-                return "Error: Unsupported stream type."
-        else:
-            logger.info("Prefetching media files")
-            prefeched_torrent_info = self.__prefetch_media_files(magnet, torrent_download)
-            if len(prefeched_torrent_info["links"]) > 0:
-                torrent_info = prefeched_torrent_info       
+                return "Error: Unsupported stream type."            
         
         # The torrent is not yet added
         if torrent_info is None:
@@ -130,13 +130,21 @@ class RealDebrid(BaseDebrid):
             
             logger.info("Selecting file")
             self.__select_file(torrent_info, stream_type, file_index, season, episode)
+            
+            # == operator, to avoid adding the season pack twice and setting 5 as season pack treshold
+            if len(cached_torrent_ids) == 0 and stream_type == "series" and len(torrent_info["files"]) > 5:
+                logger.info("Prefetching season pack")
+                prefetched_torrent_info = self.__prefetch_season_pack(magnet, torrent_download)
+                if len(prefetched_torrent_info["links"]) > 0:
+                    self.delete_torrent(torrent_info["id"])
+                    torrent_info = prefetched_torrent_info
         
         torrent_id = torrent_info["id"]
         logger.info(f"Waiting for the link(s) to be ready for torrent ID: {torrent_id}")
         # Waiting for the link(s) to be ready
         links = self.wait_for_link(torrent_id)
         if links is None:
-            return None
+            return NO_CACHE_VIDEO_URL
         
         if len(links) > 1:
             logger.info("Finding appropiate link")
@@ -223,7 +231,7 @@ class RealDebrid(BaseDebrid):
         logger.info(f"New torrent ID: {torrent_id}")
         return self.get_torrent_info(torrent_id)
     
-    def __prefetch_media_files(self, magnet, torrent_download):
+    def __prefetch_season_pack(self, magnet, torrent_download):
         torrent_info = self.__add_magnet_or_torrent(magnet, torrent_download)
         video_file_indexes = []
         
@@ -232,7 +240,7 @@ class RealDebrid(BaseDebrid):
                 video_file_indexes.append(str(file["id"]))
         
         self.select_files(torrent_info["id"], ",".join(video_file_indexes))
-        time.sleep(5)
+        time.sleep(10)
         return self.get_torrent_info(torrent_info["id"])
         
     

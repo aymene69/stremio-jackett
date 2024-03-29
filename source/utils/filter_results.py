@@ -23,23 +23,9 @@ def items_sort(items, config):
         return sorted(items, key=lambda x: int(x.size))
     if config['sort'] == "sizedesc":
         return sorted(items, key=lambda x: int(x.size), reverse=True)
+    if config['sort'] == "qualitythensize":
+        return sorted(items, key=lambda x: (sort_quality(x), -int(x.size)))
     return items
-
-
-# def filter_season_episode(items, season, episode, config):
-#     filtered_items = []
-#     for item in items:
-#         if config['language'] == "ru":
-#             if "S" + str(int(season.replace("S", ""))) + "E" + str(
-#                     int(episode.replace("E", ""))) not in item['title']:
-#                 if re.search(rf'\bS{re.escape(str(int(season.replace("S", ""))))}\b', item['title']) is None:
-#                     continue
-#         if re.search(rf'\b{season}\s?{episode}\b', item['title']) is None:
-#             if re.search(rf'\b{season}\b', item['title']) is None:
-#                 continue
-
-#         filtered_items.append(item)
-#     return filtered_items
 
 def filter_out_non_matching(items, season, episode):
     filtered_items = []

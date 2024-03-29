@@ -7,7 +7,7 @@
     <style>
         /*On va ajouter la photo de fond */
         body {
-            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Flag_of_Palestine.svg/1280px-Flag_of_Palestine.svg.png');
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/62/Harbor_Seal_Chillin_%28213656373%29.jpeg/640px-Harbor_Seal_Chillin_%28213656373%29.jpeg');
             background-size: cover;
             background-repeat: no-repeat;
             background-attachment: fixed;
@@ -67,7 +67,7 @@
         <img src="https://user-images.githubusercontent.com/27040483/28728094-99f3e3f6-73c7-11e7-8f8d-28912dc6ac0d.png"
              alt="logo" style="width: 100px;height: 100px;">
         <div class="space-y-12">
-            <p style="text-align: center">Stremio-Jackett-Hungary v1.0.0</p>
+            <p style="text-align: center">Stremio-Jackett-Hungary v1.0.1</p>
             <h1 class="text-base font-semibold leading-7 text-gray-900" style="text-align: center;font-size: 2rem;">
                 Addon configuration</h1>
 
@@ -150,23 +150,6 @@
                     </div>
                 </div>
             </div>
-
-            <div class="border-b border-gray-900/10 pb-12">
-                <h2 class="text-base font-semibold leading-7 text-gray-900">Caching</h2>
-                <p class="mt-1 text-sm leading-6 text-gray-600">You will enter here informations about the cache</p>
-                <br>
-                <div class="relative flex gap-x-3">
-                    <div class="flex h-6 items-center">
-                        <input oninput="" id="cache" name="cache" value="cache" type="checkbox"
-                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked>
-                    </div>
-                    <div class="text-sm leading-6">
-                        <label for="cache" class="font-medium text-gray-900">Enable cache</label>
-                        <p class="text-gray-500">Enable caching for faster results</p>
-                    </div>
-                </div>
-            </div>
-
             <div class="border-b border-gray-900/10 pb-12">
                 <h2 class="text-base font-semibold leading-7 text-gray-900">Filtering</h2>
                 <p class="mt-1 text-sm leading-6 text-gray-600">Set-up here your filtering parameters. Suiting results
@@ -207,6 +190,18 @@
                                 <div class="text-sm leading-6">
                                     <label for="sizeasc" class="font-medium text-gray-900">Size ascending</label>
                                     <p class="text-gray-500">Filter results by size ascending</p>
+                                </div>
+                            </div>
+                            <div class="relative flex gap-x-3">
+                                <div class="flex h-6 items-center">
+                                    <input oninput="" id="qualitythensize" name="sorting" value="qualitythensize"
+                                           type="radio"
+                                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                </div>
+                                <div class="text-sm leading-6">
+                                    <label for="qualitythensize" class="font-medium text-gray-900">Quality then
+                                        size</label>
+                                    <p class="text-gray-500">Filter results by quality then size descending</p>
                                 </div>
                             </div>
                         </div>
@@ -408,7 +403,6 @@
             document.getElementById('maxSize').value = data.maxSize;
             document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
             document.getElementById('maxResults').value = data.maxResults;
-            document.getElementById('cache').checked = data.cache;
             if (data.sort === 'quality') {
                 document.getElementById('quality').checked = true;
             }
@@ -417,6 +411,9 @@
             }
             if (data.sort === 'sizeasc') {
                 document.getElementById('sizeasc').checked = true;
+            }
+            if (data.sort === 'qualitythensize') {
+                document.getElementById('qualitythensize').checked = true;
             }
             if (data.exclusion.includes('4k')) {
                 document.getElementById('4k').checked = true;
@@ -496,7 +493,6 @@
         let maxSize = document.getElementById('maxSize').value;
         let resultsPerQuality = document.getElementById('resultsPerQuality').value;
         let maxResults = document.getElementById('maxResults').value;
-        const cache = document.getElementById('cache').checked;
         const qualityExclusion = [];
         if (document.getElementById('4k').checked) {
             qualityExclusion.push('4k');
@@ -551,6 +547,7 @@
         let qualityChecked = document.getElementById('quality').checked;
         let sizedescChecked = document.getElementById('sizedesc').checked;
         let sizeascChecked = document.getElementById('sizeasc').checked;
+        let qualitythensizeChecked = document.getElementById('qualitythensize').checked;
         let filter;
         if (qualityChecked) {
             filter = 'quality';
@@ -560,6 +557,9 @@
         }
         if (sizeascChecked) {
             filter = 'sizeasc';
+        }
+        if (qualitythensizeChecked) {
+            filter = 'qualitythensize';
         }
         if (maxSize === '' || isNaN(maxSize)) {
             maxSize = 0;
@@ -583,8 +583,7 @@
             resultsPerQuality,
             maxResults,
             'exclusion': qualityExclusion,
-            tmdbApi,
-            cache
+            tmdbApi
         };
         if (jackettHost === '' || jackettApi === '' || debridApi === '' || tmdbApi === '' || languages.length === 0) {
             alert('Please fill all the fields');

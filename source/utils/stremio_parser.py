@@ -51,8 +51,7 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, results: 
         name = f"{INSTANTLY_AVAILABLE}\n"
     else:
         name = f"{DOWNLOAD_REQUIRED}\n"
-    name += f"{torrent_item.quality}\n" + (f"({'|'.join(torrent_item.quality_spec)})" if len(
-        torrent_item.quality_spec) > 0 else "")
+    name += f"{torrent_item.quality}\n{torrent_item.indexer}"
 
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
 
@@ -61,7 +60,8 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, results: 
     if torrent_item.file_name is not None:
         title += f"{torrent_item.file_name}\n"
         
-    title += f"👥 {torrent_item.seeders}   💾 {size_in_gb}GB   🔍 {torrent_item.indexer}\n"
+    title += f"👥 {torrent_item.seeders}   💾 {size_in_gb}GB   " + (f"🔍{' | '.join(torrent_item.quality_spec)}\n" if len(
+        torrent_item.quality_spec) > 0 else "\n")
         
     for language in torrent_item.languages:
         title += f"{get_emoji(language)}/"
@@ -76,8 +76,7 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, results: 
     })
 
     if torrent_item.privacy == "public" and torrent_item.file_index is not None:
-        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n" + f"({'|'.join(torrent_item.quality_spec)})" if len(
-            torrent_item.quality_spec) > 0 else ""
+        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n{torrent_item.indexer}\n"
         results.put({
             "name": name,
             "title": title,

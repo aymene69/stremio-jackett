@@ -5,8 +5,9 @@ def detect_quality(torrent_name):
     quality_patterns = {
         "4k": r'\b(2160P|UHD|4K)\b',
         "1080p": r'\b(1080P|FHD|FULLHD|HD|HIGHDEFINITION)\b',
-        "720p": r'\b(720P|HD|HIGHDEFINITION)\b',
-        "480p": r'\b(480P|SD|STANDARDDEFINITION)\b'
+        "720p": r'\b(720P|HD|HIGHDEFINITION|DVD)\b',
+        "540p": r'\b(540p)\b',
+        "480p": r'\b(480P|SD|STANDARDDEFINITION|BDRIP)\b'
     }
 
     for quality, pattern in quality_patterns.items():
@@ -58,7 +59,7 @@ def detect_quality_spec(torrent_name):
 
 def detect_languages(torrent_name):
     language_patterns = {
-        "fr": r'\b(FRENCH|FR|VF|VF2|VFF|TRUEFRENCH|VFQ|FRA)\b',
+        "hu": r'\b(HUNGARIAN|HU|HUN)\b',
         "en": r'\b(ENGLISH|EN|ENG)\b',
         "es": r'\b(SPANISH|ES|ESP)\b',
         "de": r'\b(GERMAN|DE|GER)\b',
@@ -67,7 +68,7 @@ def detect_languages(torrent_name):
         "ru": r'\b(RUSSIAN|RU|RUS)\b',
         "in": r'\b(INDIAN|IN|HINDI|TELUGU|TAMIL|KANNADA|MALAYALAM|PUNJABI|MARATHI|BENGALI|GUJARATI|URDU|ODIA|ASSAMESE|KONKANI|MANIPURI|NEPALI|SANSKRIT|SINHALA|SINDHI|TIBETAN|BHOJPURI|DHIVEHI|KASHMIRI|KURUKH|MAITHILI|NEWARI|RAJASTHANI|SANTALI|SINDHI|TULU)\b',
         "nl": r'\b(DUTCH|NL|NLD)\b',
-        "hu": r'\b(HUNGARIAN|HU|HUN)\b',
+        "fr": r'\b(FRENCH|FR|VF|VF2|VFF|TRUEFRENCH|VFQ|FRA)\b',
     }
 
     languages = []

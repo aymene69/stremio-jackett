@@ -18,6 +18,8 @@ class BaseDebrid:
             response = self.__session.post(url, data=data, headers=headers)
         elif method == 'put':
             response = self.__session.put(url, data=data, headers=headers)
+        elif method == 'delete':
+            response = self.__session.delete(url, headers=headers)
         else:
             raise ValueError(f"Unsupported HTTP method: {method}")
 

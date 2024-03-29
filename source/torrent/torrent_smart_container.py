@@ -125,7 +125,7 @@ class TorrentSmartContainer:
         file = max(files, key=lambda file: file["size"])
         torrent_item.availability = True
         torrent_item.file_index = file["file_index"]
-        torrent_item.title = file["title"]
+        torrent_item.file_name = file["title"]
         torrent_item.size = file["size"]
 
     def __build_items_dict_by_infohash(self, items: List[TorrentItem]):
