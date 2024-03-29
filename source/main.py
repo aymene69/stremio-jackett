@@ -88,7 +88,7 @@ async def configure(request: Request):
 @app.get("/{params}/manifest.json")
 async def get_manifest():
     return {
-        "id": "community.aymene69.jackett",
+        "id": "community.itsvncl.jackett-hungary",
         "icon": "https://i.imgur.com/tVjqEJP.png",
         "version": VERSION,
         "catalogs": [],

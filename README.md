@@ -25,7 +25,7 @@ I am not responsible for any content downloaded through this addon.
 
 - On your computer, clone the repository
     ```sh
-    git clone https://github.com/aymene69/stremio-jackett
+    git clone https://github.com/itsvncl/stremio-jackett-hungary
     ```
 - Once done, install dependencies
     ```sh
