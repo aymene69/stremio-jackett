@@ -95,6 +95,9 @@ class JackettService:
             return []
 
     def __search_series_indexer(self, series, indexer):
+        if indexer.title == "nCore":
+            return self.__get_series_ncore(series, indexer)
+        
         season = str(int(series.season.replace('S', '')))
         episode = str(int(series.episode.replace('E', '')))
 
@@ -231,3 +234,20 @@ class JackettService:
                 result.episode = media.episode
 
         return results
+    
+    def __get_series_ncore(self, series, indexer):
+        params = {
+            'apikey': self.__api_key,
+            'imdbid': series.id.split(":")[0] if ":" in series.id else series.id
+        }
+        
+        url = f"{self.__base_url}/indexers/{indexer.id}/results/torznab/api"
+        url += '?' + '&'.join([f'{k}={v}' for k, v in params.items()])
+        try:
+            response = self.__session.get(url)
+            response.raise_for_status()
+            return self.__get_torrent_links_from_xml(series, response.text)
+        except Exception:
+            self.logger.exception(
+                f"An exception occured while searching for a series on Jackett with indexer {indexer.title}.")
+            return []
