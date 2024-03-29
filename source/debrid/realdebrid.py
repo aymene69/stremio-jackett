@@ -27,6 +27,10 @@ class RealDebrid(BaseDebrid):
     def add_torrent(self, torrent_file):
         url = f"{self.base_url}/rest/1.0/torrents/addTorrent"
         return self.get_json_response(url, method='put', headers=self.headers, data=torrent_file)
+    
+    def delete_torrent(self, id):
+        url = f"{self.base_url}/rest/1.0/torrents/delete/{id}"
+        return self.get_json_response(url, method='delete', headers=self.headers)
 
     def get_torrent_info(self, torrent_id):
         logger.info(f"Getting torrent info for: {torrent_id}")
@@ -129,7 +133,10 @@ class RealDebrid(BaseDebrid):
             # == operator, to avoid adding the season pack twice and setting 5 as season pack treshold
             if len(cached_torrent_ids) == 0 and stream_type == "series" and len(torrent_info["files"]) > 5:
                 logger.info("Prefetching season pack")
-                self.__prefetch_season_pack(magnet, torrent_download)
+                prefetched_torrent_info = self.__prefetch_season_pack(magnet, torrent_download)
+                if len(prefetched_torrent_info["links"]) > 0:
+                    self.delete_torrent(torrent_info["id"])
+                    torrent_info = prefetched_torrent_info
         
         torrent_id = torrent_info["id"]
         logger.info(f"Waiting for the link(s) to be ready for torrent ID: {torrent_id}")
@@ -232,6 +239,8 @@ class RealDebrid(BaseDebrid):
                 video_file_indexes.append(str(file["id"]))
         
         self.select_files(torrent_info["id"], ",".join(video_file_indexes))
+        time.sleep(10)
+        return self.get_torrent_info(torrent_info["id"])
     
     def __select_file(self, torrent_info, stream_type, file_index, season, episode):
         torrent_id = torrent_info["id"]
