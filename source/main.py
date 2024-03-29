@@ -250,7 +250,7 @@ async def update_app():
 
 @app.get("/nocache")
 async def nocache_video_file():
-    return FileResponse("videos/nocache.mp4")
+    return FileResponse("videos/nocache.mp4", media_type='application/octet-stream')
 
 @crontab("* * * * *", start=not isDev)
 async def schedule_task():

@@ -4,7 +4,7 @@ JACKETT_ERROR = {'streams': [{'url': "#", 'title': "An error occured"}]}
 
 CACHER_URL = "https://stremio-jackett-cacher.elfhosted.com/"
 
-NO_CACHE_VIDEO_URL = "https://github.com/itsvncl/stremio-jackett/raw/main/source/videos/nocache.mp4"
+NO_CACHE_VIDEO_URL = "https://github.com/itsvncl/stremio-jackett-hungary/raw/main/source/videos/nocache.mp4"
 
 EXCLUDED_TRACKERS = ['0day.kiev', '1ptbar', '2 Fast 4 You', '2xFree', '3ChangTrai', '3D Torrents', '3Wmg', '4thD',
                      '52PT', '720pier', 'Abnormal', 'ABtorrents', 'Acid-Lounge', 'Across The Tasman', 'Aftershock',
