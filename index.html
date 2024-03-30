@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Stremio-Jackett</title>
+    <style>
+        /*On va ajouter la photo de fond */
+        body {
+            background: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url('https://upload.wikimedia.org/wikipedia/commons/thumb/0/00/Flag_of_Palestine.svg/1280px-Flag_of_Palestine.svg.png');
+            background-size: cover;
+            background-repeat: no-repeat;
+            background-attachment: fixed;
+            background-position: center;
+            height: 100vh;
+            margin: 0;
+            padding: 0;
+        }
+
+        img {
+            width: 100px;
+            height: 100px;
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+<div id="container" style="display: flex;justify-content: center;align-items: center;">
+    <form style="background-color: rgba(255,255,255,0.68);padding: 2rem;border-radius: 1rem">
+        <img src="https://user-images.githubusercontent.com/27040483/28728094-99f3e3f6-73c7-11e7-8f8d-28912dc6ac0d.png"
+             alt="logo" style="width: 100px;height: 100px;">
+        <div class="space-y-12">
+            <p style="text-align: center">Stremio-Jackett v3.0.13</p>
+            <h1 class="text-base font-semibold leading-7 text-gray-900" style="text-align: center;font-size: 2rem;">
+                Addon configuration</h1>
+
+
+            <div class="border-b border-gray-900/10 pb-12">
+                <h2 class="text-base font-semibold leading-7 text-gray-900">Jackett Informations</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-600">You will enter here informations about your Jackett
+                    server</p>
+
+                <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                    <div class="sm:col-span-3">
+                        <label for="jackett-host" class="block text-sm font-medium leading-6 text-gray-900">Jackett
+                            Host</label>
+                        <div class="mt-2">
+                            <input oninput="" type="text" name="jackett-host" id="jackett-host"
+                                   autocomplete="jackett-host"
+                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                   placeholder="  I.e: http(s)://jackett.com without / at end">
+                        </div>
+                    </div>
+
+                    <div class="sm:col-span-3">
+                        <label for="jackett-api" class="block text-sm font-medium leading-6 text-gray-900">Jackett API
+                            key</label>
+                        <div class="mt-2">
+                            <input oninput="" type="text" name="jackett-api" id="jackett-api" autocomplete="jackett-api"
+                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                   placeholder="  Your Jackett API key">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+
+            <div class="border-b border-gray-900/10 pb-12">
+                <h2 class="text-base font-semibold leading-7 text-gray-900">Service Informations</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-600">You will enter here your debrid provider and its API
+                    key</p>
+
+                <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                    <div class="sm:col-span-3">
+                        <label for="service" class="block text-sm font-medium leading-6 text-gray-900">Debrid
+                            Provider</label>
+                        <div class="mt-2">
+                            <select onchange="" id="service" name="service" autocomplete="service"
+                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                <option value="realdebrid">Real-Debrid</option>
+                                <option value="alldebrid">All-Debrid</option>
+                                <option value="premiumize">Premiumize</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="sm:col-span-3">
+                        <label for="debrid-api" class="block text-sm font-medium leading-6 text-gray-900">Debrid API
+                            key</label>
+                        <div class="mt-2">
+                            <input oninput="" type="text" name="debrid-api" id="debrid-api" autocomplete="debrid-api"
+                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                   placeholder="  Your Debrid API key">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-b border-gray-900/10 pb-12">
+                <h2 class="text-base font-semibold leading-7 text-gray-900">TMDB Informations</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-600">You will enter here informations about TMDB. You can
+                    find your API key in "Settings" after registering <a href="https://www.themoviedb.org/signup"
+                                                                         target="_blank">here</a></p>
+
+                <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                    <div class="col-span-full">
+                        <label for="tmdb-api" class="block text-sm font-medium leading-6 text-gray-900">TMDB API
+                            key</label>
+                        <div class="mt-2">
+                            <input oninput="" type="text" name="tmdb-api" id="tmdb-api" autocomplete="tmdb-api"
+                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                   placeholder="  Your TMDB API key">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-b border-gray-900/10 pb-12">
+                <h2 class="text-base font-semibold leading-7 text-gray-900">Caching</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-600">You will enter here informations about the cache</p>
+                <br>
+                <div class="relative flex gap-x-3">
+                    <div class="flex h-6 items-center">
+                        <input oninput="" id="cache" name="cache" value="cache" type="checkbox"
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked>
+                    </div>
+                    <div class="text-sm leading-6">
+                        <label for="cache" class="font-medium text-gray-900">Enable cache</label>
+                        <p class="text-gray-500">Enable caching for faster results</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-b border-gray-900/10 pb-12">
+                <h2 class="text-base font-semibold leading-7 text-gray-900">Filtering</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-600">Set-up here your filtering parameters. Suiting results
+                    is a must :)</p>
+
+                <div class="mt-10 space-y-10">
+                    <fieldset>
+                        <legend class="text-sm font-semibold leading-6 text-gray-900">Sorting</legend>
+                        <p class="mt-1 text-sm leading-6 text-gray-600">Choose the sorting that suits you the best.</p>
+
+                        <div class="mt-6 space-y-6">
+                            <div class="relative flex gap-x-3">
+                                <div class="flex h-6 items-center">
+                                    <input oninput="" id="quality" name="sorting" value="quality" type="radio"
+                                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                                           checked>
+                                </div>
+                                <div class="text-sm leading-6">
+                                    <label for="quality" class="font-medium text-gray-900">Quality</label>
+                                    <p class="text-gray-500">Get the best quality on top</p>
+                                </div>
+                            </div>
+                            <div class="relative flex gap-x-3">
+                                <div class="flex h-6 items-center">
+                                    <input oninput="" id="sizedesc" name="sorting" value="sizedesc" type="radio"
+                                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                </div>
+                                <div class="text-sm leading-6">
+                                    <label for="sizedesc" class="font-medium text-gray-900">Size descending</label>
+                                    <p class="text-gray-500">Filter results by size descending</p>
+                                </div>
+                            </div>
+                            <div class="relative flex gap-x-3">
+                                <div class="flex h-6 items-center">
+                                    <input oninput="" id="sizeasc" name="sorting" value="sizeasc" type="radio"
+                                           class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                </div>
+                                <div class="text-sm leading-6">
+                                    <label for="sizeasc" class="font-medium text-gray-900">Size ascending</label>
+                                    <p class="text-gray-500">Filter results by size ascending</p>
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>
+
+                    <fieldset>
+                        <legend class="text-sm font-semibold leading-6 text-gray-900">Quality Exclusion</legend>
+                        <p class="mt-1 text-sm leading-6 text-gray-600">Check qualities that you want to exclude</p>
+                        <div class="mt-6 space-y-6">
+                            <div class="flex items-center gap-x-3">
+                                <input oninput="" id="4k" name="4k" type="checkbox"
+                                       class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                <label for="4k" class="block text-sm font-medium leading-6 text-gray-900">4k</label>
+                            </div>
+
+                            <div class="flex items-center gap-x-3">
+                                <input oninput="" id="1080p" name="1080p" type="checkbox"
+                                       class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                <label for="1080p"
+                                       class="block text-sm font-medium leading-6 text-gray-900">1080p</label>
+                            </div>
+
+                            <div class="flex items-center gap-x-3">
+                                <input oninput="" id="720p" name="720p" type="checkbox"
+                                       class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                <label for="720p" class="block text-sm font-medium leading-6 text-gray-900">720p</label>
+                            </div>
+
+                            <div class="flex items-center gap-x-3">
+                                <input oninput="" id="480p" name="480p" type="checkbox"
+                                       class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                <label for="480p" class="block text-sm font-medium leading-6 text-gray-900">480p</label>
+                            </div>
+
+                            <div class="flex items-center gap-x-3">
+                                <input oninput="" id="rips" name="rips" type="checkbox"
+                                       class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                <label for="rips" class="block text-sm font-medium leading-6 text-gray-900">RIPs (HDRip,
+                                    WEBRip, etc.)</label>
+                            </div>
+
+                            <div class="flex items-center gap-x-3">
+                                <input oninput="" id="cam" name="cam" type="checkbox"
+                                       class="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600">
+                                <label for="cam" class="block text-sm font-medium leading-6 text-gray-900">CAMs (CAM,
+                                    TS, etc.)</label>
+                            </div>
+
+                            <div>
+                                <label for="exclusion-keywords"
+                                       class="block text-sm font-medium leading-6 text-gray-900">Exclusion
+                                    Keywords</label>
+                                <div class="mt-2">
+                                    <input oninput="" type="text" name="exclusion-keywords" id="exclusion-keywords"
+                                           autocomplete="exclusion-keywords"
+                                           class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                           placeholder="  keyword1, keyword2, keyword3">
+                                </div>
+                            </div>
+
+                        </div>
+                    </fieldset>
+                </div>
+                <div class="mt-6 space-y-6">
+                    <div class="sm:col-span-3">
+                        <label for="language" class="text-sm font-semibold leading-6 text-gray-900">Language</label>
+                        <p class="mt-1 text-sm leading-6 text-gray-600">Choose your language</p>
+
+                        <div class="mt-2">
+                            <select onchange="" id="language" name="language" autocomplete="language"
+                                    class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:max-w-xs sm:text-sm sm:leading-6">
+                                <option value="en">🇬🇧</option>
+                                <option value="fr">🇫🇷</option>
+                                <option value="es">🇪🇸</option>
+                                <option value="de">🇩🇪</option>
+                                <option value="it">🇮🇹</option>
+                                <option value="pt">🇵🇹</option>
+                                <option value="ru">🇷🇺</option>
+                                <option value="in">🇮🇳</option>
+                                <option value="nl">🇳🇱</option>
+                            </select>
+                        </div>
+                    </div>
+
+                </div>
+                <div class="mt-6 space-y-6">
+                    <div class="sm:col-span-3">
+                        <label for="maxSize" class="text-sm font-semibold leading-6 text-gray-900">Maximum size</label>
+                        <p class="mt-1 text-sm leading-6 text-gray-600">Set a maximum size for your results in GB.</p>
+
+                        <div class="mt-2">
+                            <input oninput="" type="text" name="maxSize" id="maxSize" autocomplete="maxSize"
+                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                   placeholder="  5">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-6 space-y-6">
+                    <div class="sm:col-span-3">
+                        <label for="maxSize" class="text-sm font-semibold leading-6 text-gray-900">Results per
+                            quality</label>
+                        <p class="mt-1 text-sm leading-6 text-gray-600">Set the amount of maximum results you want per
+                            quality.</p>
+
+                        <div class="mt-2">
+                            <input oninput="" type="text" name="resultsPerQuality" id="resultsPerQuality"
+                                   autocomplete="resultsPerQuality"
+                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                   placeholder="  5">
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="mt-6 space-y-6">
+                    <div class="sm:col-span-3">
+                        <label for="maxResults" class="text-sm font-semibold leading-6 text-gray-900">Maximum
+                            results</label>
+                        <p class="mt-1 text-sm leading-6 text-gray-600">Set the amount of maximum results you want.</p>
+
+                        <div class="mt-2">
+                            <input oninput="" type="text" name="maxResults" id="maxResults" autocomplete="maxResults"
+                                   class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                   placeholder="  5">
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <div class="mt-6 flex items-center justify-center gap-x-6">
+            <a id="install" onclick="return getLink('link')"
+               class="cursor-pointer rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg--500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Install</a>
+            <a id="copy" onclick="return getLink('copy')"
+               class="cursor-pointer rounded-md bg-black px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg--500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Copy</a>
+        </div>
+    </form>
+</div>
+</body>
+<script>
+    function loadData() {
+        var currentUrl = window.location.href;
+        var data = currentUrl.match(/\/([^\/]+)\/configure$/);
+        if (data) {
+            data = atob(data[1]);
+            data = JSON.parse(data);
+            document.getElementById('jackett-host').value = data.jackettHost;
+            document.getElementById('jackett-api').value = data.jackettApiKey;
+            document.getElementById('debrid-api').value = data.debridKey;
+            document.getElementById('tmdb-api').value = data.tmdbApi;
+            document.getElementById('service').value = data.service;
+            document.getElementById('exclusion-keywords').value = (data.exclusionKeywords || []).join(', ');
+            document.getElementById('language').value = data.language;
+            document.getElementById('maxSize').value = data.maxSize;
+            document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
+            document.getElementById('maxResults').value = data.maxResults;
+            document.getElementById('cache').checked = data.cache;
+            if (data.sort === 'quality') {
+                document.getElementById('quality').checked = true;
+            }
+            if (data.sort === 'sizedesc') {
+                document.getElementById('sizedesc').checked = true;
+            }
+            if (data.sort === 'sizeasc') {
+                document.getElementById('sizeasc').checked = true;
+            }
+            if (data.exclusion.includes('4k')) {
+                document.getElementById('4k').checked = true;
+            }
+            if (data.exclusion.includes('1080p')) {
+                document.getElementById('1080p').checked = true;
+            }
+            if (data.exclusion.includes('720p')) {
+                document.getElementById('720p').checked = true;
+            }
+            if (data.exclusion.includes('480p')) {
+                document.getElementById('480p').checked = true;
+            }
+            if (data.exclusion.includes('rips')) {
+                document.getElementById('rips').checked = true;
+            }
+            if (data.exclusion.includes('cam')) {
+                document.getElementById('cam').checked = true;
+            }
+        }
+    }
+
+    loadData();
+
+    function getLink(method) {
+        const addonHost = new URL(window.location.href).protocol.replace(':', '') + "://" + new URL(window.location.href).host
+        const jackettHost = document.getElementById('jackett-host').value;
+        const jackettApi = document.getElementById('jackett-api').value;
+        const debridApi = document.getElementById('debrid-api').value;
+        const tmdbApi = document.getElementById('tmdb-api').value;
+        const service = document.getElementById('service').value;
+        const exclusionKeywords = document.getElementById('exclusion-keywords').value.split(',').map(keyword => keyword.trim()).filter(keyword => keyword !== '');
+        const language = document.getElementById('language').value;
+        let maxSize = document.getElementById('maxSize').value;
+        let resultsPerQuality = document.getElementById('resultsPerQuality').value;
+        let maxResults = document.getElementById('maxResults').value;
+        const cache = document.getElementById('cache').checked;
+        const qualityExclusion = [];
+        if (document.getElementById('4k').checked) {
+            qualityExclusion.push('4k');
+        }
+        if (document.getElementById('1080p').checked) {
+            qualityExclusion.push('1080p');
+        }
+        if (document.getElementById('720p').checked) {
+            qualityExclusion.push('720p');
+        }
+        if (document.getElementById('480p').checked) {
+            qualityExclusion.push('480p');
+        }
+        if (document.getElementById('rips').checked) {
+            qualityExclusion.push('rips');
+        }
+        if (document.getElementById('cam').checked) {
+            qualityExclusion.push('cam');
+        }
+        let qualityChecked = document.getElementById('quality').checked;
+        let sizedescChecked = document.getElementById('sizedesc').checked;
+        let sizeascChecked = document.getElementById('sizeasc').checked;
+        let filter;
+        if (qualityChecked) {
+            filter = 'quality';
+        }
+        if (sizedescChecked) {
+            filter = 'sizedesc';
+        }
+        if (sizeascChecked) {
+            filter = 'sizeasc';
+        }
+        if (maxSize === '' || isNaN(maxSize)) {
+            maxSize = 0;
+        }
+        if (maxResults === '' || isNaN(maxResults)) {
+            maxResults = 5;
+        }
+        if (resultsPerQuality === '' || isNaN(resultsPerQuality)) {
+            resultsPerQuality = 1;
+        }
+        let data = {
+            addonHost,
+            jackettHost,
+            'jackettApiKey': jackettApi,
+            service,
+            'debridKey': debridApi,
+            maxSize,
+            exclusionKeywords,
+            language,
+            'sort': filter,
+            resultsPerQuality,
+            maxResults,
+            'exclusion': qualityExclusion,
+            tmdbApi,
+            cache
+        };
+        if (jackettHost === '' || jackettApi === '' || debridApi === '' || tmdbApi === '') {
+            alert('Please fill all the fields');
+            return false;
+        }
+        let stremio_link = `${window.location.host}/${btoa(JSON.stringify(data))}/manifest.json`;
+
+        if (method === 'link') {
+            window.open(`stremio://${stremio_link}`, "_blank");
+        } else if (method === 'copy') {
+            const link = window.location.protocol + '//' + stremio_link;
+
+            if (!navigator.clipboard) {
+                alert('Your browser does not support clipboard');
+                console.log(link);
+                return;
+            }
+
+            navigator.clipboard.writeText(link).then(() => {
+                alert('Link copied to clipboard');
+            }, () => {
+                alert('Error copying link to clipboard');
+            });
+        }
+    }
+
+
+</script>
+</html>
