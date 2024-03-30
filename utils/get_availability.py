@@ -255,7 +255,6 @@ def get_availability(torrent, config):
         torrent_info = get_torrent_info(torrent, config)
         return torrent_info
     except Exception as e:
-        logger.error('Error at %s', 'division', exc_info=e)
         try:
             response = requests.get(torrent['link'], allow_redirects=False)
             if response.status_code == 302:
