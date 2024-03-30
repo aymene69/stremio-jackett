@@ -38,6 +38,7 @@ app = FastAPI(root_path=root_path)
 
 VERSION = "3.0.13"
 isDev = os.getenv("NODE_ENV") == "development"
+COMMUNITY_VERSION = True if os.getenv("IS_COMMUNITY_VERSION") == "true" else False
 
 
 class LogFilterMiddleware:
@@ -77,7 +78,9 @@ async def root():
 @app.get("/{config}/configure")
 async def configure(request: Request):
     return templates.TemplateResponse(
-        "index.html" if os.getenv("IS_COMMUNITY_VERSION") != "true" else "index-community.html", {"request": request})
+        "index.html" if not COMMUNITY_VERSION else "index-community.html",
+        {"request": request}
+    )
 
 
 @app.get("/manifest.json")
@@ -110,84 +113,76 @@ logger.info("Started Jackett Addon")
 async def get_results(config: str, stream_type: str, stream_id: str):
     start = time.time()
     stream_id = stream_id.replace(".json", "")
+    
     config = parse_config(config)
     logger.info(stream_type + " request")
+    
     logger.info("Getting media from tmdb")
     media = get_metadata(stream_id, stream_type, config=config)
     logger.info("Got media and properties: " + media.title)
+    
     debrid_service = get_debrid_service(config)
-    logger.info("Getting cached results")
-    if os.getenv("IS_COMMUNITY_VERSION") == "true" or config['cache']:
+    
+    search_results = []
+    if COMMUNITY_VERSION or config['cache']:
+        logger.info("Getting cached results")
         cached_results = search_cache(media)
-        logger.debug(cached_results[0])
-        cached_results = [JackettResult().from_cached_item(torrent) for torrent in cached_results]
-
-    else:
-        cached_results = []
-    logger.info("Got " + str(len(cached_results)) + " cached results")
-    filtered_cached_results = []
-    if len(cached_results) > 0:
-        logger.info("Filtering cached results")
-        filtered_cached_results = filter_items(cached_results, media, config=config)
-        logger.info("Filtered cached results")
+        cached_results = [JackettResult().from_cached_item(torrent, media) for torrent in cached_results]
+        logger.info("Got " + str(len(cached_results)) + " cached results")
+        
+        if len(cached_results) > 0:
+            logger.info("Filtering cached results")
+            search_results = filter_items(cached_results, media, config=config)
+            logger.info("Filtered cached results")
+    
     # TODO: if we have results per quality set, most of the time we will not have enough cached results AFTER filtering them
     # because we will have less results than the maxResults, so we will always have to search for new results
-    if os.getenv("IS_COMMUNITY_VERSION") == "true" or len(filtered_cached_results) >= int(config['maxResults']):
-        logger.info("Cached results found")
-        logger.info("Processing cached results")
-        logger.debug("Converting result to TorrentItems (results: " + str(len(filtered_cached_results)) + ")")
-        torrent_service = TorrentService()
-        torrent_results = torrent_service.convert_and_process(filtered_cached_results)
-        logger.debug("Converted result to TorrentItems (results: " + str(len(torrent_results)) + ")")
-        torrent_smart_container = TorrentSmartContainer(torrent_results)
-        logger.debug("Checking availability")
-        hashes = torrent_smart_container.get_hashes()
-        result = debrid_service.get_availability_bulk(hashes)
-        torrent_smart_container.update_availability(result, type(debrid_service))
-        logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
-        logger.debug("Getting best matching results")
-        best_matching_results = torrent_smart_container.get_best_matching(media)
-        best_matching_results = sort_items(best_matching_results, config)
-        logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
-        logger.info("Processing results")
-        stream_list = parse_to_stremio_streams(best_matching_results, config)
-        logger.info("Processed cached results (results: " + str(len(stream_list)) + ")")
-        logger.info("Total time: " + str(time.time() - start) + "s")
-        if len(stream_list) == 0:
-            logger.info("No results found")
-            return {"streams": []}
-        return {"streams": stream_list}
-    else:
-        if len(filtered_cached_results) > 0:
-            logger.info("Not enough cached results found (results: " + str(len(filtered_cached_results)) + ")")
-        else:
+        
+    if not COMMUNITY_VERSION or len(search_results) < int(config['maxResults']):
+        if len(search_results) > 0 and config['cache']:
+            logger.info("Not enough cached results found (results: " + str(len(search_results)) + ")")
+        elif config['cache']:
             logger.info("No cached results found")
+            
         logger.info("Searching for results on Jackett")
         jackett_service = JackettService(config)
         jackett_search_results = jackett_service.search(media)
         logger.info("Got " + str(len(jackett_search_results)) + " results from Jackett")
-        logger.info("Filtering results")
+        
+        logger.info("Filtering Jackett results")
         filtered_jackett_search_results = filter_items(jackett_search_results, media, config=config)
-        logger.info("Filtered results")
-        logger.debug("Converting result to TorrentItems (results: " + str(len(filtered_jackett_search_results)) + ")")
-        torrent_service = TorrentService()
-        torrent_results = torrent_service.convert_and_process(filtered_jackett_search_results)
-        logger.debug("Converted result to TorrentItems (results: " + str(len(torrent_results)) + ")")
-        torrent_smart_container = TorrentSmartContainer(torrent_results)
-        logger.debug("Checking availability")
-        hashes = torrent_smart_container.get_hashes()
-        result = debrid_service.get_availability_bulk(hashes)
-        torrent_smart_container.update_availability(result, type(debrid_service))
-        logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
-        logger.debug("Getting best matching results")
-        best_matching_results = torrent_smart_container.get_best_matching(media)
-        best_matching_results = sort_items(best_matching_results, config)
-        logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
-        logger.info("Processing results")
-        stream_list = parse_to_stremio_streams(best_matching_results, config)
-        logger.info("Processed results (results: " + str(len(stream_list)) + ")")
-        logger.info("Total time: " + str(time.time() - start) + "s")
-        return {"streams": stream_list}
+        logger.info("Filtered Jackett results")
+        
+        search_results.extend(filtered_jackett_search_results)
+        
+    logger.debug("Converting result to TorrentItems (results: " + str(len(search_results)) + ")")
+    torrent_service = TorrentService()
+    torrent_results = torrent_service.convert_and_process(search_results)
+    logger.debug("Converted result to TorrentItems (results: " + str(len(torrent_results)) + ")")
+    
+    torrent_smart_container = TorrentSmartContainer(torrent_results, media)
+    
+    logger.debug("Checking availability")
+    hashes = torrent_smart_container.get_hashes()
+    result = debrid_service.get_availability_bulk(hashes)
+    torrent_smart_container.update_availability(result, type(debrid_service))
+    logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
+    
+    #Maybe add an if to only save to cache if caching is enabled? 
+    torrent_smart_container.cache_container_items()
+    
+    logger.debug("Getting best matching results")
+    best_matching_results = torrent_smart_container.get_best_matching(media)
+    best_matching_results = sort_items(best_matching_results, config)
+    logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
+    
+    logger.info("Processing results")
+    stream_list = parse_to_stremio_streams(best_matching_results, config)
+    logger.info("Processed results (results: " + str(len(stream_list)) + ")")
+    
+    logger.info("Total time: " + str(time.time() - start) + "s")
+    
+    return {"streams": stream_list}
 
 
 @app.get("/playback/{config}/{query}")

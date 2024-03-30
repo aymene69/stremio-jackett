@@ -1,3 +1,5 @@
+import threading
+
 from typing import List, Dict
 
 from debrid.alldebrid import AllDebrid
@@ -6,12 +8,14 @@ from debrid.realdebrid import RealDebrid
 from torrent.torrent_item import TorrentItem
 from utils.logger import setup_logger
 from utils.general import season_episode_in_filename
+from utils.cache import cache_results
 
 
 class TorrentSmartContainer:
-    def __init__(self, torrent_items: List[TorrentItem]):
+    def __init__(self, torrent_items: List[TorrentItem], media):
         self.logger = setup_logger(__name__)
         self.__itemsDict: Dict[TorrentItem] = self.__build_items_dict_by_infohash(torrent_items)
+        self.__media = media
 
     def get_hashes(self):
         return self.__itemsDict.keys()
@@ -25,7 +29,7 @@ class TorrentSmartContainer:
             if torrent_item.privacy == "public" and torrent_item.file_index is not None:
                 direct_torrentable_items.append(torrent_item)
 
-    def get_best_matching(self, media):
+    def get_best_matching(self):
         best_matching = []
         self.logger.debug(f"Amount of items: {len(self.__itemsDict)}")
         for torrent_item in self.__itemsDict.values():
@@ -42,6 +46,13 @@ class TorrentSmartContainer:
                 best_matching.append(torrent_item)  # If it's a movie with a magnet link
 
         return best_matching
+    
+    def cache_container_items(self):
+        threading.Thread(target = self.__save_to_cache).start()
+
+    def __save_to_cache(self):
+        public_torrents = list(filter(self.get_items(), lambda x: x.privacy == "public"))
+        cache_results(public_torrents, self.__media)
 
     def update_availability(self, debrid_response, debrid_type):
         if debrid_type is RealDebrid:

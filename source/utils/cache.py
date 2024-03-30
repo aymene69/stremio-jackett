@@ -6,6 +6,8 @@ from constants import CACHER_URL, EXCLUDED_TRACKERS
 from debrid.get_debrid_service import get_debrid_service
 from utils.availability import get_availability
 from utils.logger import setup_logger
+from typing import List
+from torrent.torrent_item import TorrentItem
 
 logger = setup_logger(__name__)
 
@@ -18,35 +20,51 @@ def search_cache(media):
     return response.json()
 
 
-def cache_results(torrents, type, config):
-    results = []
+def cache_results(torrents: List[TorrentItem], media):
+    logger.info("Started caching results")
+    
+    cache_items = []
     for torrent in torrents:
         if torrent['indexer'] in EXCLUDED_TRACKERS:
             continue
-        else:
-            try:
-                torrent_info = get_availability(torrent, get_debrid_service(config))
-                if torrent_info is not None:
-                    torrent_info['languages'] = torrent['languages']
-                    torrent_info['quality'] = torrent['quality']
-                    torrent_info['qualitySpec'] = torrent['qualitySpec']
-                    torrent_info['seeders'] = torrent['seeders']
-                    torrent_info['size'] = torrent['size']
-                    if type == "movie":
-                        torrent_info['year'] = torrent['year']
-                    if type == "series":
-                        torrent_info['season'] = torrent['season']
-                        torrent_info['episode'] = torrent['episode']
-                        torrent_info['seasonfile'] = torrent['seasonfile']
-                    results.append(torrent_info)
-            except:
-                pass
+        
+        try:
+            cache_item = dict()
+            
+            cache_item['title'] = torrent.title
+            cache_item['trackers'] = "tracker:".join(torrent.trackers)
+            cache_item['magnet'] = torrent.magnet
+            cache_item['files'] = [] # I guess keep it empty?
+            cache_item['hash'] = torrent.info_hash
+            cache_item['indexer'] = torrent.indexer
+            cache_item['quality'] = torrent.quality
+            cache_item['qualitySpec'] = ";".join(torrent.quality_spec)
+            cache_item['seeders'] = torrent.seeders
+            cache_item['size'] = torrent.size
+            cache_item['language'] = ";".join(torrent.languages)
+            cache_item['type'] = media.type  
+            cache_item['availability'] = torrent.availability
+            
+            if media.type == "movie":
+                cache_item['year'] = media.year
+            elif media.type == "series":
+                cache_item['season'] = media.season
+                cache_item['episode'] = media.episode
+                cache_item['seasonfile'] = False # I guess keep it false to not mess up results?
+            
+            cache_items.append(cache_item)
+        except:
+            logger.exception("An exception occured durring cache parsing")
+            pass
     try:
-        response = requests.post(CACHER_URL + "pushResult/" + type, data=json.dumps(results, indent=4))
+        url = f"{CACHER_URL}pushResult/{media.type}"
+        response = requests.post(url, data=json.dumps(cache_items, indent=4))
+        response.raise_for_status()
+        
         if response.status_code == 200:
-            logger.info("Cached " + str(len(results)) + " " + type + " results")
+            logger.info(f"Cached {str(len(cache_items))} {media.type} results")
         else:
-            logger.error("Failed to cache " + type + " results: " + str(response))
+            logger.error(f"Failed to cache {media.type} results: {str(response)}")
     except:
         logger.error("Failed to cache results")
         pass
