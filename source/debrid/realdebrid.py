@@ -9,6 +9,7 @@ from utils.logger import setup_logger
 from utils.general import get_info_hash_from_magnet
 from utils.general import season_episode_in_filename
 from utils.general import is_video_file
+from constants import NO_CACHE_VIDEO_URL
 
 logger = setup_logger(__name__)
 
@@ -143,7 +144,7 @@ class RealDebrid(BaseDebrid):
         # Waiting for the link(s) to be ready
         links = self.wait_for_link(torrent_id)
         if links is None:
-            return None
+            return NO_CACHE_VIDEO_URL
         
         if len(links) > 1:
             logger.info("Finding appropiate link")
@@ -255,10 +256,17 @@ class RealDebrid(BaseDebrid):
             logger.info(f"Selecting file_index: {largest_file_id}")
             self.select_files(torrent_id, largest_file_id)
         elif stream_type == "series":
+            strict_matching_files = []
             matching_files = []
             for file in files:
-                if season_episode_in_filename(file["path"], season, episode):
+                if season_episode_in_filename(file["path"], season, episode, strict=True):
+                    strict_matching_files.append(file)
+                elif season_episode_in_filename(file["path"], season, episode, strict=False):
                     matching_files.append(file)
+            
+            if len(strict_matching_files) > 0:
+                matching_files = strict_matching_files
+                
             largest_file_id = max(matching_files, key=lambda x: x['bytes'])['id']
             logger.info(f"Selecting file_index: {largest_file_id}")
             self.select_files(torrent_id, largest_file_id)
@@ -273,10 +281,23 @@ class RealDebrid(BaseDebrid):
                     break
                 index += 1
         else:
+            matching_indexes = []
+            strict_matching_indexes = []
             for file in selected_files:
-                if season_episode_in_filename(file["path"], season, episode):
-                    break
+                if season_episode_in_filename(file["path"], season, episode, strict=True):
+                    strict_matching_indexes.append({"index": index, "file": file})
+                elif season_episode_in_filename(file["path"], season, episode, strict=False):
+                    matching_indexes.append({"index": index, "file": file})
                 index += 1
+                
+            if len(strict_matching_indexes) > 0:
+                matching_indexes = strict_matching_indexes
+            
+            index = max(matching_indexes, lambda x: x["file"]["bytes"])["index"]
+        
+        if len(links) - 1 < index:
+            logger.debug(f"From selected files {selected_files}, index: {index} is out of range for {links}.")
+            return NO_CACHE_VIDEO_URL
         
         return links[index]
             
