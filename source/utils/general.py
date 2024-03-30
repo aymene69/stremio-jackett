@@ -8,12 +8,25 @@ video_formats = {".mkv", ".mp4", ".avi", ".mov", ".flv", ".wmv", ".webm", ".mpg"
           ".amv", ".m4p", ".m4v", ".mpg", ".mp2", ".mpeg", ".mpe", ".mpv", ".mpg", ".mpeg", ".m2v", ".m4v",
           ".svi", ".3gp", ".3g2", ".mxf", ".roq", ".nsv", ".flv", ".f4v", ".f4p", ".f4a", ".f4b"}
 
-def season_episode_in_filename(filename, season, episode):
-    if season.lower().startswith("s"):
-        season = season[1:]
-    if episode.lower().startswith("e"):
-        episode = episode[1:]
-        
+def season_episode_in_filename(filename, season, episode, strict = False):
+    if not is_video_file(filename):
+        return False
+
+    if strict:
+        if not season.lower().startswith("s"):
+            season = "s" + season
+        if not episode.lower().startswith("e"):
+            episode = "e" + episode
+    else:
+        if season.lower().startswith("s"):
+            season = season[1:]
+        if episode.lower().startswith("e"):
+            episode = episode[1:]
+
+    filename = filename.lower()
+    season = season.lower()
+    episode = episode.lower()
+    
     return season in filename and episode in filename and filename.index(season) < filename.rindex(episode)
 
 def get_info_hash_from_magnet(magnet: str):

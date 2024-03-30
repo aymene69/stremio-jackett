@@ -72,10 +72,17 @@ class TorrentSmartContainer:
             torrent_item: TorrentItem = self.__itemsDict[info_hash]
 
             files = []
+            strict_files = []
             if torrent_item.type == "series":
                 for variants in details["rd"]:
                     for file_index, file in variants.items():
-                        if season_episode_in_filename(file["filename"], torrent_item.season, torrent_item.episode):
+                        if season_episode_in_filename(file["filename"], torrent_item.season, torrent_item.episode, strict=True):
+                            strict_files.append({
+                                "file_index": file_index,
+                                "title": file["filename"],
+                                "size": file["filesize"]
+                            })
+                        elif season_episode_in_filename(file["filename"], torrent_item.season, torrent_item.episode, strict=False):
                             files.append({
                                 "file_index": file_index,
                                 "title": file["filename"],
@@ -90,6 +97,9 @@ class TorrentSmartContainer:
                             "size": file["filesize"]
                         })
 
+            if len(strict_files) > 0:
+                files = strict_files
+
             self.__update_file_details(torrent_item, files)
 
     def __update_availability_alldebrid(self, response):
@@ -103,10 +113,17 @@ class TorrentSmartContainer:
             torrent_item: TorrentItem = self.__itemsDict[data["hash"]]
 
             files = []
+            strict_files = []
             if torrent_item.type == "series":
                 file_index = 1
                 for file in data["files"]:
-                    if season_episode_in_filename(file["n"], torrent_item.season, torrent_item.episode):
+                    if season_episode_in_filename(file["n"], torrent_item.season, torrent_item.episode, strict=True):
+                        strict_files.append({
+                            "file_index": file_index,
+                            "title": file["n"],
+                            "size": file["s"]
+                        })
+                    elif season_episode_in_filename(file["n"], torrent_item.season, torrent_item.episode, strict=False):
                         files.append({
                             "file_index": file_index,
                             "title": file["n"],
@@ -122,6 +139,9 @@ class TorrentSmartContainer:
                         "size": file["s"]
                     })
                     file_index += 1
+
+            if len(strict_files) > 0:
+                files = strict_files
 
             self.__update_file_details(torrent_item, files)
 
