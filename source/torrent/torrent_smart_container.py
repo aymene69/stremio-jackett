@@ -14,10 +14,10 @@ class TorrentSmartContainer:
         self.__itemsDict: Dict[TorrentItem] = self.__build_items_dict_by_infohash(torrent_items)
 
     def get_hashes(self):
-        return self.__itemsDict.keys()
+        return list(self.__itemsDict.keys())
 
     def get_items(self):
-        return self.__itemsDict.values()
+        return list(self.__itemsDict.values())
 
     def get_direct_torrentable(self):
         direct_torrentable_items = []
@@ -93,6 +93,7 @@ class TorrentSmartContainer:
 
     def __update_availability_alldebrid(self, response):
         if response["status"] != "success":
+            self.logger.error(f"Error while updating availability: {response}")
             return
 
         for data in response["data"]["magnets"]:
@@ -135,8 +136,15 @@ class TorrentSmartContainer:
             self.__update_file_details(torrent_item, files)
 
     def __update_availability_premiumize(self, response):
-        # I don't understand the premiumize api
-        pass
+        if response["status"] != "success":
+            self.logger.error(f"Error while updating availability: {response}")
+            return
+        
+        torrent_items = self.get_items()
+        for i in range(len(response["response"])):
+            if bool(response["response"][i]):
+                torrent_items[i].availability = response["transcoded"][i] == True
+
 
     def __update_file_details(self, torrent_item, files):
         if len(files) == 0:

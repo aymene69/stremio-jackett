@@ -3,7 +3,10 @@ import json
 
 from constants import NO_CACHE_VIDEO_URL
 from debrid.base_debrid import BaseDebrid
+from utils.general import get_info_hash_from_magnet, season_episode_in_filename
+from utils.logger import setup_logger
 
+logger = setup_logger(__name__)
 
 class Premiumize(BaseDebrid):
     def __init__(self, config):
@@ -14,7 +17,13 @@ class Premiumize(BaseDebrid):
         url = f"{self.base_url}/transfer/create?apikey={self.config['debridKey']}"
         form = {'src': magnet}
         return self.get_json_response(url, method='post', data=form)
-
+    
+    #Doesn't work for the time being. Premiumize does not support torrent file torrents
+    def add_torrent(self, torrent_file):
+        url = f"{self.base_url}/transfer/create?apikey={self.config['debridKey']}"
+        form = {'file': torrent_file}
+        return self.get_json_response(url, method='post', data=form)
+    
     def list_transfers(self):
         url = f"{self.base_url}/transfer/list?apikey={self.config['debridKey']}"
         return self.get_json_response(url)
@@ -25,21 +34,27 @@ class Premiumize(BaseDebrid):
         else:
             url = f"{self.base_url}/item/details?id={item_id}&apikey={self.config['debridKey']}"
         return self.get_json_response(url)
+    
+    def get_availability(self, hash):
+        url = f"{self.base_url}/cache/check?apikey={self.config['debridKey']}&items[]={hash}"
+        return self.get_json_response(url)
+    
+    def get_availability_bulk(self, hashes_or_magnets):
+        url = (f"{self.base_url}/cache/check?apikey={self.config['debridKey']}&items[]=") + "&items[]=".join(hashes_or_magnets)
+        return self.get_json_response(url)
 
     def get_stream_link(self, query):
-        query_details = json.loads(query)
-        magnet = query_details['magnet']
-        stream_type = query_details['type']
-
+        query = json.loads(query)
+        magnet = query['magnet']
+        info_hash = get_info_hash_from_magnet(magnet)
+        stream_type = query['type']
+        #torrent_download = unquote(query["torrent_download"]) if query["torrent_download"] is not None else None
+        
         transfer_data = self.add_magnet(magnet)
         if not transfer_data or 'id' not in transfer_data:
             return "Error: Failed to create transfer."
-
         transfer_id = transfer_data['id']
-
-        if not self.wait_for_ready_status(lambda: any(
-                item['id'] == transfer_id and item['status'] == "finished" for item in
-                self.list_transfers().get('transfers', []))):
+        if not self.wait_for_ready_status(lambda: self.get_availability(info_hash)["transcoded"][0] == True):
             return NO_CACHE_VIDEO_URL
 
         # Assuming the transfer is complete, we need to find whether it's a file or a folder
@@ -65,13 +80,28 @@ class Premiumize(BaseDebrid):
                 link = max(details.get("content", []), key=lambda x: x["size"])["link"]
             else:
                 link = details.get('link')
+                
         elif stream_type == "series":
-            # For series, more specific logic to pick the correct episode would be needed
-            season_episode = query_details.get('season') + query_details.get('episode')
             if is_folder:
-                link = next(
-                    (content["link"] for content in details.get("content", []) if season_episode in content["name"]),
-                    None)
+                season = query["season"]
+                episode = query["episode"]
+                files = details.get("content", [])
+                strict_matching_files = []
+                matching_files = []
+                
+                for file in files:
+                    if season_episode_in_filename(file["name"], season, episode, strict=True):
+                        strict_matching_files.append(file)
+                    elif season_episode_in_filename(file["name"], season, episode, strict=False):
+                        matching_files.append(file)
+
+                if len(strict_matching_files) > 0:
+                    matching_files = strict_matching_files
+                    
+                if len(matching_files) == 0:
+                    return "Error: No matching files for {season} {episode} in torrent."
+                
+                link = max(matching_files, key=lambda x: x["size"])["link"]
             else:
                 link = details.get('link')
         else:
