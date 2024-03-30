@@ -16,6 +16,7 @@ from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 
 from debrid.get_debrid_service import get_debrid_service
+from jackett.jackett_result import JackettResult
 from jackett.jackett_service import JackettService
 from torrent.torrent_service import TorrentService
 from torrent.torrent_smart_container import TorrentSmartContainer
@@ -24,7 +25,6 @@ from utils.filter_results import filter_items
 from utils.filter_results import sort_items
 from utils.logger import setup_logger
 from utils.parse_config import parse_config
-from utils.process_results import process_results
 from utils.stremio_parser import parse_to_stremio_streams
 from utils.string_encoding import decodeb64
 from utils.tmdb import get_metadata
@@ -119,6 +119,9 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     logger.info("Getting cached results")
     if os.getenv("IS_COMMUNITY_VERSION") == "true" or config['cache']:
         cached_results = search_cache(media)
+        logger.debug(cached_results[0])
+        cached_results = [JackettResult().from_cached_item(torrent) for torrent in cached_results]
+
     else:
         cached_results = []
     logger.info("Got " + str(len(cached_results)) + " cached results")
@@ -126,19 +129,29 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     if len(cached_results) > 0:
         logger.info("Filtering cached results")
         filtered_cached_results = filter_items(cached_results, media, config=config)
-
         logger.info("Filtered cached results")
     # TODO: if we have results per quality set, most of the time we will not have enough cached results AFTER filtering them
     # because we will have less results than the maxResults, so we will always have to search for new results
     if os.getenv("IS_COMMUNITY_VERSION") == "true" or len(filtered_cached_results) >= int(config['maxResults']):
         logger.info("Cached results found")
         logger.info("Processing cached results")
-        # stream_list = process_results(filtered_cached_results[:int(config['maxResults'])], True, media.type,
-        #                               media.season if media.type == "series" else None,
-        #                               media.episode if media.type == "series" else None,
-        #                               debrid_service=debrid_service, config=config)
-        stream_list = parse_to_stremio_streams(filtered_cached_results[:int(config['maxResults'])], config)
-        logger.info("Processed cached results")
+        logger.debug("Converting result to TorrentItems (results: " + str(len(filtered_cached_results)) + ")")
+        torrent_service = TorrentService()
+        torrent_results = torrent_service.convert_and_process(filtered_cached_results)
+        logger.debug("Converted result to TorrentItems (results: " + str(len(torrent_results)) + ")")
+        torrent_smart_container = TorrentSmartContainer(torrent_results)
+        logger.debug("Checking availability")
+        hashes = torrent_smart_container.get_hashes()
+        result = debrid_service.get_availability_bulk(hashes)
+        torrent_smart_container.update_availability(result, type(debrid_service))
+        logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
+        logger.debug("Getting best matching results")
+        best_matching_results = torrent_smart_container.get_best_matching(media)
+        best_matching_results = sort_items(best_matching_results, config)
+        logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
+        logger.info("Processing results")
+        stream_list = parse_to_stremio_streams(best_matching_results, config)
+        logger.info("Processed cached results (results: " + str(len(stream_list)) + ")")
         logger.info("Total time: " + str(time.time() - start) + "s")
         if len(stream_list) == 0:
             logger.info("No results found")

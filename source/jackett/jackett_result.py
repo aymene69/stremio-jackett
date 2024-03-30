@@ -39,3 +39,16 @@ class JackettResult:
             self.season,
             self.type
         )
+
+    def from_cached_item(self, cached_item):
+        self.title = cached_item['title']
+        self.indexer = cached_item['trackers']
+        self.magnet = cached_item['magnet']
+        self.link = cached_item['magnet']
+        self.info_hash = cached_item['hash']
+        self.languages = [cached_item['language']]
+        self.quality = cached_item['quality']
+        self.quality_spec = [cached_item['qualitySpec']]
+        self.seeders = cached_item['seeders']
+        self.size = cached_item['size']
+        return self
