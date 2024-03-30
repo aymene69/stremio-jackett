@@ -35,7 +35,7 @@ if root_path and not root_path.startswith("/"):
     root_path = "/" + root_path
 app = FastAPI(root_path=root_path)
 
-VERSION = "3.0.13"
+VERSION = "3.0.14"
 isDev = os.getenv("NODE_ENV") == "development"
 
 
