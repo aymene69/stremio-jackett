@@ -56,7 +56,13 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
 
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
 
-    title = f"{torrent_item.title}\n👥 {torrent_item.seeders}   💾 {size_in_gb}GB   🔍 {torrent_item.indexer}\n"
+    title = f"{torrent_item.title}\n"
+    
+    if torrent_item.file_name is not None:
+        title += f"{torrent_item.file_name}\n"
+        
+    title += f"👥 {torrent_item.seeders}   💾 {size_in_gb}GB   🔍 {torrent_item.indexer}\n"
+        
     for language in torrent_item.languages:
         title += f"{get_emoji(language)}/"
     title = title[:-1]
@@ -70,14 +76,14 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
     })
 
     if torrenting and torrent_item.privacy == "public" and torrent_item.file_index is not None:
-        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n" + f"({'|'.join(torrent_item.quality_spec)})" if len(
-            torrent_item.quality_spec) > 0 else ""
+        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n" + (f"({'|'.join(torrent_item.quality_spec)})" if len(
+            torrent_item.quality_spec) > 0 else "")
         results.put({
             "name": name,
-            "title": title,
+            "description": title,
             "infoHash": torrent_item.info_hash,
-            "fileIdx": torrent_item.file_index,
-            "sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
+            "fileIdx": int(torrent_item.file_index),
+            #"sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
         })
 
 
