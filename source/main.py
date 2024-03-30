@@ -15,7 +15,6 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, FileResponse
 from fastapi.templating import Jinja2Templates
 
-from constants import NO_RESULTS
 from debrid.get_debrid_service import get_debrid_service
 from jackett.jackett_service import JackettService
 from torrent.torrent_service import TorrentService
@@ -26,9 +25,9 @@ from utils.filter_results import sort_items
 from utils.logger import setup_logger
 from utils.parse_config import parse_config
 from utils.process_results import process_results
+from utils.stremio_parser import parse_to_stremio_streams
 from utils.string_encoding import decodeb64
 from utils.tmdb import get_metadata
-from utils.stremio_parser import parse_to_stremio_streams
 
 load_dotenv()
 
@@ -75,13 +74,10 @@ async def root():
 
 
 @app.get("/configure")
-async def configure(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-
 @app.get("/{config}/configure")
 async def configure(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    return templates.TemplateResponse(
+        "index.html" if os.getenv("IS_COMMUNITY_VERSION") != "true" else "index-community.html", {"request": request})
 
 
 @app.get("/manifest.json")
@@ -121,7 +117,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     logger.info("Got media and properties: " + media.title)
     debrid_service = get_debrid_service(config)
     logger.info("Getting cached results")
-    if config['cache']:
+    if os.getenv("IS_COMMUNITY_VERSION") == "true" or config['cache']:
         cached_results = search_cache(media)
     else:
         cached_results = []
@@ -129,23 +125,24 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     filtered_cached_results = []
     if len(cached_results) > 0:
         logger.info("Filtering cached results")
-        filtered_cached_results = filter_items(cached_results, media.type, config=config)
+        filtered_cached_results = filter_items(cached_results, media, config=config)
 
         logger.info("Filtered cached results")
     # TODO: if we have results per quality set, most of the time we will not have enough cached results AFTER filtering them
     # because we will have less results than the maxResults, so we will always have to search for new results
-    if len(filtered_cached_results) >= int(config['maxResults']):
+    if os.getenv("IS_COMMUNITY_VERSION") == "true" or len(filtered_cached_results) >= int(config['maxResults']):
         logger.info("Cached results found")
         logger.info("Processing cached results")
-        stream_list = process_results(filtered_cached_results[:int(config['maxResults'])], True, media.type,
-                                      media.season if media.type == "series" else None,
-                                      media.episode if media.type == "series" else None,
-                                      debrid_service=debrid_service, config=config)
+        # stream_list = process_results(filtered_cached_results[:int(config['maxResults'])], True, media.type,
+        #                               media.season if media.type == "series" else None,
+        #                               media.episode if media.type == "series" else None,
+        #                               debrid_service=debrid_service, config=config)
+        stream_list = parse_to_stremio_streams(filtered_cached_results[:int(config['maxResults'])], config)
         logger.info("Processed cached results")
         logger.info("Total time: " + str(time.time() - start) + "s")
         if len(stream_list) == 0:
             logger.info("No results found")
-            return NO_RESULTS
+            return {"streams": []}
         return {"streams": stream_list}
     else:
         if len(filtered_cached_results) > 0:
@@ -193,10 +190,10 @@ async def get_playback(config: str, query: str):
 
         debrid_service = get_debrid_service(config)
         link = debrid_service.get_stream_link(query)
-        
+
         if link is None:
             logger.info("Caching in progress.")
-             #This doesn't work for some reason?
+            # This doesn't work for some reason?
             return RedirectResponse(url=f"{config["addonHost"]}/nocache", status_code=status.HTTP_301_MOVED_PERMANENTLY)
 
         logger.info("Got link: " + link)
@@ -205,6 +202,7 @@ async def get_playback(config: str, query: str):
     except Exception as e:
         logger.error(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
+
 
 async def update_app():
     try:
@@ -245,9 +243,11 @@ async def update_app():
     except Exception as e:
         logger.error(f"Error during update: {e}")
 
+
 @app.get("/nocache")
 async def nocache_video_file():
     return FileResponse("videos/nocache.mp4")
+
 
 @crontab("* * * * *", start=not isDev)
 async def schedule_task():
