@@ -34,12 +34,15 @@ class BaseDebrid:
             self.logger.error(f"Request failed with status code {response.status_code}")
             return None
 
-    def wait_for_ready_status(self, check_status_func, timeout=60, interval=5):
+    def wait_for_ready_status(self, check_status_func, timeout=30, interval=5):
+        self.logger.info(f"Waiting for {timeout} seconds to cache.")
         start_time = time.time()
         while time.time() - start_time < timeout:
             if check_status_func():
+                self.logger.info("File is ready!")
                 return True
             time.sleep(interval)
+        self.logger.info(f"Waiting timed out.")
         return False
 
     def donwload_torrent_file(self, download_url):

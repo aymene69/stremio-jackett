@@ -63,15 +63,15 @@ class RealDebrid(BaseDebrid):
                 return torrent['id']
         return False
 
-    def wait_for_link(self, torrent_id):
-        MAX_RETRY_COUNT = 1
-        for i in range(MAX_RETRY_COUNT):
+    def wait_for_link(self, torrent_id, timeout=30, interval=5):
+        start_time = time.time()
+        while time.time() - start_time < timeout:
             torrent_info = self.get_torrent_info(torrent_id)
             if torrent_info and 'links' in torrent_info and len(torrent_info['links']) > 0:
                 return torrent_info['links']
-            time.sleep(10)
+            time.sleep(interval)
         
-        return
+        return None
 
     def get_availability(self, magnet, stream_type, season_episode=None):
         hash = magnet.split("urn:btih:")[1].split("&")[0]
