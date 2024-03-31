@@ -25,7 +25,7 @@ def cache_results(torrents: List[TorrentItem], media):
     
     cache_items = []
     for torrent in torrents:
-        if torrent['indexer'] in EXCLUDED_TRACKERS:
+        if torrent.indexer in EXCLUDED_TRACKERS:
             continue
         
         try:
@@ -58,7 +58,8 @@ def cache_results(torrents: List[TorrentItem], media):
             pass
     try:
         url = f"{CACHER_URL}pushResult/{media.type}"
-        response = requests.post(url, data=json.dumps(cache_items, indent=4))
+        cache_data = json.dumps(cache_items, indent=4)
+        response = requests.post(url, data=cache_data)
         response.raise_for_status()
         
         if response.status_code == 200:

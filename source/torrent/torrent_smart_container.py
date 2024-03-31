@@ -18,10 +18,10 @@ class TorrentSmartContainer:
         self.__media = media
 
     def get_hashes(self):
-        return self.__itemsDict.keys()
+        return list(self.__itemsDict.keys())
 
     def get_items(self):
-        return self.__itemsDict.values()
+        return list(self.__itemsDict.values())
 
     def get_direct_torrentable(self):
         direct_torrentable_items = []
@@ -51,7 +51,7 @@ class TorrentSmartContainer:
         threading.Thread(target = self.__save_to_cache).start()
 
     def __save_to_cache(self):
-        public_torrents = list(filter(self.get_items(), lambda x: x.privacy == "public"))
+        public_torrents = list(filter(lambda x: x.privacy == "public", self.get_items()))
         cache_results(public_torrents, self.__media)
 
     def update_availability(self, debrid_response, debrid_type):

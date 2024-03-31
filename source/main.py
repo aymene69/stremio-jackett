@@ -138,7 +138,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     # TODO: if we have results per quality set, most of the time we will not have enough cached results AFTER filtering them
     # because we will have less results than the maxResults, so we will always have to search for new results
         
-    if not COMMUNITY_VERSION or len(search_results) < int(config['maxResults']):
+    if not COMMUNITY_VERSION and len(search_results) < int(config['maxResults']):
         if len(search_results) > 0 and config['cache']:
             logger.info("Not enough cached results found (results: " + str(len(search_results)) + ")")
         elif config['cache']:
@@ -172,7 +172,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     torrent_smart_container.cache_container_items()
     
     logger.debug("Getting best matching results")
-    best_matching_results = torrent_smart_container.get_best_matching(media)
+    best_matching_results = torrent_smart_container.get_best_matching()
     best_matching_results = sort_items(best_matching_results, config)
     logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
     
