@@ -48,16 +48,13 @@ class BaseDebrid:
     def donwload_torrent_file(self, download_url):
         response = requests.get(download_url)
         response.raise_for_status()
-        
+
         return response.content
 
     def get_stream_link(self, query):
         raise NotImplementedError
 
     def add_magnet(self, magnet):
-        raise NotImplementedError
-
-    def get_availability(self, stream, stream_type, season_episode=None):
         raise NotImplementedError
 
     def get_availability_bulk(self, hashes_or_magnets):

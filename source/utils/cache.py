@@ -1,13 +1,11 @@
 import json
+from typing import List
 
 import requests
 
 from constants import CACHER_URL, EXCLUDED_TRACKERS
-from debrid.get_debrid_service import get_debrid_service
-from utils.availability import get_availability
-from utils.logger import setup_logger
-from typing import List
 from torrent.torrent_item import TorrentItem
+from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
@@ -22,19 +20,19 @@ def search_cache(media):
 
 def cache_results(torrents: List[TorrentItem], media):
     logger.info("Started caching results")
-    
+
     cache_items = []
     for torrent in torrents:
         if torrent.indexer in EXCLUDED_TRACKERS:
             continue
-        
+
         try:
             cache_item = dict()
-            
+
             cache_item['title'] = torrent.title
             cache_item['trackers'] = "tracker:".join(torrent.trackers)
             cache_item['magnet'] = torrent.magnet
-            cache_item['files'] = [] # I guess keep it empty?
+            cache_item['files'] = []  # I guess keep it empty?
             cache_item['hash'] = torrent.info_hash
             cache_item['indexer'] = torrent.indexer
             cache_item['quality'] = torrent.quality
@@ -42,16 +40,16 @@ def cache_results(torrents: List[TorrentItem], media):
             cache_item['seeders'] = torrent.seeders
             cache_item['size'] = torrent.size
             cache_item['language'] = ";".join(torrent.languages)
-            cache_item['type'] = media.type  
+            cache_item['type'] = media.type
             cache_item['availability'] = torrent.availability
-            
+
             if media.type == "movie":
                 cache_item['year'] = media.year
             elif media.type == "series":
                 cache_item['season'] = media.season
                 cache_item['episode'] = media.episode
-                cache_item['seasonfile'] = False # I guess keep it false to not mess up results?
-            
+                cache_item['seasonfile'] = False  # I guess keep it false to not mess up results?
+
             cache_items.append(cache_item)
         except:
             logger.exception("An exception occured durring cache parsing")
@@ -61,7 +59,7 @@ def cache_results(torrents: List[TorrentItem], media):
         cache_data = json.dumps(cache_items, indent=4)
         response = requests.post(url, data=cache_data)
         response.raise_for_status()
-        
+
         if response.status_code == 200:
             logger.info(f"Cached {str(len(cache_items))} {media.type} results")
         else:

@@ -80,5 +80,5 @@ def detect_languages(torrent_name):
 
     if len(languages) == 0:
         return ["en"]
-    
+
     return languages
