@@ -1,5 +1,5 @@
-from torrent.torrent_item import TorrentItem
 from models.series import Series
+from torrent.torrent_item import TorrentItem
 
 
 class JackettResult:
@@ -43,7 +43,7 @@ class JackettResult:
 
     def from_cached_item(self, cached_item, media):
         self.title = cached_item['title']
-        self.indexer = "Cache" # Cache doesn't return an indexer sadly (It stores it tho)
+        self.indexer = "Cache"  # Cache doesn't return an indexer sadly (It stores it tho)
         self.magnet = cached_item['magnet']
         self.link = cached_item['magnet']
         self.info_hash = cached_item['hash']
@@ -59,5 +59,5 @@ class JackettResult:
             self.type = media.type
         else:
             self.type = media.type
-            
+
         return self

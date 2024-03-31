@@ -89,7 +89,6 @@ def filter_items(items, media, config):
     logger.info(f"Item count after filtering: {len(items)}")
     logger.info("Finished filtering torrents")
 
-
     return items
 
 

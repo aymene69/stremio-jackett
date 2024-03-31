@@ -57,12 +57,12 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
 
     title = f"{torrent_item.title}\n"
-    
+
     if torrent_item.file_name is not None:
         title += f"{torrent_item.file_name}\n"
-        
+
     title += f"👥 {torrent_item.seeders}   💾 {size_in_gb}GB   🔍 {torrent_item.indexer}\n"
-        
+
     for language in torrent_item.languages:
         title += f"{get_emoji(language)}/"
     title = title[:-1]
@@ -83,7 +83,7 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
             "description": title,
             "infoHash": torrent_item.info_hash,
             "fileIdx": int(torrent_item.file_index),
-            #"sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
+            # "sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
         })
 
 
@@ -95,7 +95,8 @@ def parse_to_stremio_streams(torrent_items: List[TorrentItem], config):
     configb64 = encodeb64(json.dumps(config).replace('=', '%3D'))
     for torrent_item in torrent_items:
         thread = threading.Thread(target=parse_to_debrid_stream,
-                                  args=(torrent_item, configb64, config['addonHost'], config['torrenting'], thread_results_queue),
+                                  args=(torrent_item, configb64, config['addonHost'], config['torrenting'],
+                                        thread_results_queue),
                                   daemon=True)
         thread.start()
         threads.append(thread)
@@ -105,7 +106,7 @@ def parse_to_stremio_streams(torrent_items: List[TorrentItem], config):
 
     while not thread_results_queue.empty():
         stream_list.append(thread_results_queue.get())
-        
+
     if len(stream_list) == 0:
         return []
 

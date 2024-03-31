@@ -9,9 +9,9 @@ import requests
 
 from jackett.jackett_result import JackettResult
 from torrent.torrent_item import TorrentItem
-from utils.logger import setup_logger
-from utils.general import season_episode_in_filename
 from utils.general import get_info_hash_from_magnet
+from utils.general import season_episode_in_filename
+from utils.logger import setup_logger
 
 
 class TorrentService:
@@ -171,7 +171,7 @@ class TorrentService:
 
         if len(episode_files) == 0:
             return None
-        
+
         return max(episode_files, key=lambda file: file["size"])
 
     def __find_movie_file(self, file_structure):

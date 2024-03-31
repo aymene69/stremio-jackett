@@ -1,14 +1,13 @@
 import threading
-
 from typing import List, Dict
 
 from debrid.alldebrid import AllDebrid
 from debrid.premiumize import Premiumize
 from debrid.realdebrid import RealDebrid
 from torrent.torrent_item import TorrentItem
-from utils.logger import setup_logger
-from utils.general import season_episode_in_filename
 from utils.cache import cache_results
+from utils.general import season_episode_in_filename
+from utils.logger import setup_logger
 
 
 class TorrentSmartContainer:
@@ -46,9 +45,9 @@ class TorrentSmartContainer:
                 best_matching.append(torrent_item)  # If it's a movie with a magnet link
 
         return best_matching
-    
+
     def cache_container_items(self):
-        threading.Thread(target = self.__save_to_cache).start()
+        threading.Thread(target=self.__save_to_cache).start()
 
     def __save_to_cache(self):
         public_torrents = list(filter(lambda x: x.privacy == "public", self.get_items()))
@@ -76,13 +75,15 @@ class TorrentSmartContainer:
             if torrent_item.type == "series":
                 for variants in details["rd"]:
                     for file_index, file in variants.items():
-                        if season_episode_in_filename(file["filename"], torrent_item.season, torrent_item.episode, strict=True):
+                        if season_episode_in_filename(file["filename"], torrent_item.season, torrent_item.episode,
+                                                      strict=True):
                             strict_files.append({
                                 "file_index": file_index,
                                 "title": file["filename"],
                                 "size": file["filesize"]
                             })
-                        elif season_episode_in_filename(file["filename"], torrent_item.season, torrent_item.episode, strict=False):
+                        elif season_episode_in_filename(file["filename"], torrent_item.season, torrent_item.episode,
+                                                        strict=False):
                             files.append({
                                 "file_index": file_index,
                                 "title": file["filename"],
@@ -115,7 +116,8 @@ class TorrentSmartContainer:
 
             files = []
             strict_files = []
-            self.__explore_folders(data["files"], files, strict_files, 1, torrent_item.type, torrent_item.season, torrent_item.episode)
+            self.__explore_folders(data["files"], files, strict_files, 1, torrent_item.type, torrent_item.season,
+                                   torrent_item.episode)
 
             if len(strict_files) > 0:
                 files = strict_files
@@ -126,12 +128,11 @@ class TorrentSmartContainer:
         if response["status"] != "success":
             self.logger.error(f"Error while updating availability: {response}")
             return
-        
+
         torrent_items = self.get_items()
         for i in range(len(response["response"])):
             if bool(response["response"][i]):
                 torrent_items[i].availability = response["transcoded"][i] == True
-
 
     def __update_file_details(self, torrent_item, files):
         if len(files) == 0:
@@ -159,9 +160,10 @@ class TorrentSmartContainer:
         if type == "series":
             for file in folder:
                 if "e" in file:
-                    file_index = self.__explore_folders(file["e"], files, strict_files, file_index, type, season, episode)
+                    file_index = self.__explore_folders(file["e"], files, strict_files, file_index, type, season,
+                                                        episode)
                     continue
-                    
+
                 if season_episode_in_filename(file["n"], season, episode, strict=True):
                     strict_files.append({
                         "file_index": file_index,
@@ -181,12 +183,12 @@ class TorrentSmartContainer:
                 if "e" in file:
                     file_index = self.__explore_folders(file["e"], files, strict_files, file_index, type)
                     continue
-                
+
                 files.append({
                     "file_index": file_index,
                     "title": file["n"],
                     "size": file["s"] if "s" in file else 0
                 })
                 file_index += 1
-        
+
         return file_index

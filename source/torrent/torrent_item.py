@@ -4,7 +4,8 @@ from utils.logger import setup_logger
 
 
 class TorrentItem:
-    def __init__(self, title, size, magnet, info_hash, link, seeders, languages, quality, quality_spec, indexer, privacy,
+    def __init__(self, title, size, magnet, info_hash, link, seeders, languages, quality, quality_spec, indexer,
+                 privacy,
                  episode=None, season=None, type=None):
         self.logger = setup_logger(__name__)
 
@@ -21,9 +22,9 @@ class TorrentItem:
         self.episode = episode  # Episode if its a series (for example: "E01" or "E14")
         self.season = season  # Season if its a series (for example: "S01" or "S14")
         self.type = type  # "series" or "movie"
-        self.privacy = privacy # "public" or "private"
+        self.privacy = privacy  # "public" or "private"
 
-        self.file_name = None #it may be updated durring __process_torrent()
+        self.file_name = None  # it may be updated durring __process_torrent()
         self.files = None  # The files inside of the torrent. If it's None, it means that there is only one file inside of the torrent
         self.torrent_download = None  # The torrent jackett download url if its None, it means that there is only a magnet link provided by Jackett. It also means, that we cant do series file filtering before debrid.
         self.trackers = []  # Trackers of the torrent
