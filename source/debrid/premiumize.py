@@ -8,6 +8,7 @@ from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
+
 class Premiumize(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
@@ -17,13 +18,13 @@ class Premiumize(BaseDebrid):
         url = f"{self.base_url}/transfer/create?apikey={self.config['debridKey']}"
         form = {'src': magnet}
         return self.get_json_response(url, method='post', data=form)
-    
-    #Doesn't work for the time being. Premiumize does not support torrent file torrents
+
+    # Doesn't work for the time being. Premiumize does not support torrent file torrents
     def add_torrent(self, torrent_file):
         url = f"{self.base_url}/transfer/create?apikey={self.config['debridKey']}"
         form = {'file': torrent_file}
         return self.get_json_response(url, method='post', data=form)
-    
+
     def list_transfers(self):
         url = f"{self.base_url}/transfer/list?apikey={self.config['debridKey']}"
         return self.get_json_response(url)
@@ -36,13 +37,14 @@ class Premiumize(BaseDebrid):
             logger.info(f"Getting file details with id: {item_id}")
             url = f"{self.base_url}/item/details?id={item_id}&apikey={self.config['debridKey']}"
         return self.get_json_response(url)
-    
+
     def get_availability(self, hash):
         url = f"{self.base_url}/cache/check?apikey={self.config['debridKey']}&items[]={hash}"
         return self.get_json_response(url)
-    
+
     def get_availability_bulk(self, hashes_or_magnets):
-        url = (f"{self.base_url}/cache/check?apikey={self.config['debridKey']}&items[]=") + "&items[]=".join(hashes_or_magnets)
+        url = f"{self.base_url}/cache/check?apikey={self.config['debridKey']}&items[]=" + "&items[]=".join(
+            hashes_or_magnets)
         return self.get_json_response(url)
 
     def get_stream_link(self, query):
@@ -53,7 +55,7 @@ class Premiumize(BaseDebrid):
         logger.info(f"Info hash extracted: {info_hash}")
         stream_type = query['type']
         logger.info(f"Stream type: {stream_type}")
-        
+
         transfer_data = self.add_magnet(magnet)
         if not transfer_data or 'id' not in transfer_data:
             logger.error("Failed to create transfer.")
@@ -61,10 +63,10 @@ class Premiumize(BaseDebrid):
         transfer_id = transfer_data['id']
         logger.info(f"Transfer created with ID: {transfer_id}")
 
-        if not self.wait_for_ready_status(lambda: self.get_availability(info_hash)["transcoded"][0] == True):
+        if not self.wait_for_ready_status(lambda: self.get_availability(info_hash)["transcoded"][0] is True):
             logger.info("Torrent not ready, caching in progress")
             return NO_CACHE_VIDEO_URL
-        
+
         logger.info("Torrent is ready.")
 
         # Assuming the transfer is complete, we need to find whether it's a file or a folder
@@ -101,7 +103,7 @@ class Premiumize(BaseDebrid):
                 files = details.get("content", [])
                 strict_matching_files = []
                 matching_files = []
-                
+
                 for file in files:
                     if season_episode_in_filename(file["name"], season, episode, strict=True):
                         strict_matching_files.append(file)
@@ -110,11 +112,11 @@ class Premiumize(BaseDebrid):
 
                 if len(strict_matching_files) > 0:
                     matching_files = strict_matching_files
-                    
+
                 if len(matching_files) == 0:
                     logger.error(f"No matching files for {season} {episode} in torrent.")
                     return f"Error: No matching files for {season} {episode} in torrent."
-                
+
                 link = max(matching_files, key=lambda x: x["size"])["link"]
             else:
                 link = details.get('link')
