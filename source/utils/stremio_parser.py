@@ -105,6 +105,9 @@ def parse_to_stremio_streams(torrent_items: List[TorrentItem], config):
 
     while not thread_results_queue.empty():
         stream_list.append(thread_results_queue.get())
+        
+    if len(stream_list) == 0:
+        return []
 
     stream_list = sorted(stream_list, key=filter_by_availability)
     return sorted(stream_list, key=filter_by_direct_torrnet)

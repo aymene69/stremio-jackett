@@ -1,4 +1,5 @@
 from torrent.torrent_item import TorrentItem
+from models.series import Series
 
 
 class JackettResult:
@@ -39,3 +40,24 @@ class JackettResult:
             self.season,
             self.type
         )
+
+    def from_cached_item(self, cached_item, media):
+        self.title = cached_item['title']
+        self.indexer = "Cache" # Cache doesn't return an indexer sadly (It stores it tho)
+        self.magnet = cached_item['magnet']
+        self.link = cached_item['magnet']
+        self.info_hash = cached_item['hash']
+        self.languages = cached_item['language'].split(";") if cached_item['language'] is not None else []
+        self.quality = cached_item['quality']
+        self.quality_spec = cached_item['qualitySpec'].split(";") if cached_item['qualitySpec'] is not None else []
+        self.seeders = cached_item['seeders']
+        self.size = cached_item['size']
+
+        if isinstance(media, Series):
+            self.season = media.season
+            self.episode = media.episode
+            self.type = media.type
+        else:
+            self.type = media.type
+            
+        return self
