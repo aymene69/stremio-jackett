@@ -41,22 +41,29 @@ class AllDebrid(BaseDebrid):
         torrent_download = unquote(query["torrent_download"]) if query["torrent_download"] is not None else None
         
         torrent_id = self.__add_magnet_or_torrent(magnet, torrent_download)
+        logger.info(f"Torrent ID: {torrent_id}")
         
         if not self.wait_for_ready_status(
                 lambda: self.check_magnet_status(torrent_id)["data"]["magnets"]["status"] == "Ready"):
+            logger.error("Torrent not ready, caching in progress.")
             return NO_CACHE_VIDEO_URL
+        logger.info("Torrent is ready.")
         
+        logger.info(f"Getting data for torrent id: {torrent_id}")
         data = self.check_magnet_status(torrent_id)["data"]
+        logger.info(f"Retrieved data for torrent id")
         
         link = NO_CACHE_VIDEO_URL
         if stream_type == "movie":
+            logger.info("Getting link for movie")
             link = max(data["magnets"]['links'], key=lambda x: x['size'])['link']
         elif stream_type == "series":
             season = query['season']
             episode = query['episode']
+            logger.info(f"Getting link for series {season}, {episode}")
+            
             strict_matching_files = []
             matching_files = []
-
             for file in data["magnets"]["links"]:
                 if season_episode_in_filename(file["filename"], season, episode, strict=True):
                     strict_matching_files.append(file)
@@ -72,15 +79,22 @@ class AllDebrid(BaseDebrid):
             
             link = max(matching_files, key=lambda x: x["size"])["link"]
         else:
+            logger.error("Unsupported stream type.")
             return "Error: Unsupported stream type."
 
         if link == NO_CACHE_VIDEO_URL:
             return link
         
+        logger.info(f"Alldebrid link: {link}")
+        
         unlocked_link_data = self.unrestrict_link(link)
+        
         if not unlocked_link_data:
+            logger.error("Failed to unlock link.")
             return "Error: Failed to unlock link."
 
+        logger.info(f"Unrestricted link: {unlocked_link_data['data']['link']}")
+        
         return unlocked_link_data["data"]["link"]
 
     def get_availability_bulk(self, hashes_or_magnets):
