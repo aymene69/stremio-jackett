@@ -11,11 +11,11 @@ class BaseDebrid:
         self.logger = setup_logger(__name__)
         self.__session = requests.Session()
 
-    def get_json_response(self, url, method='get', data=None, headers=None):
+    def get_json_response(self, url, method='get', data=None, headers=None, files=None):
         if method == 'get':
             response = self.__session.get(url, headers=headers)
         elif method == 'post':
-            response = self.__session.post(url, data=data, headers=headers)
+            response = self.__session.post(url, data=data, headers=headers, files=files)
         elif method == 'put':
             response = self.__session.put(url, data=data, headers=headers)
         elif method == 'delete':

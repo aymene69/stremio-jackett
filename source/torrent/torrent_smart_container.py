@@ -103,31 +103,7 @@ class TorrentSmartContainer:
 
             files = []
             strict_files = []
-            if torrent_item.type == "series":
-                file_index = 1
-                for file in data["files"]:
-                    if season_episode_in_filename(file["n"], torrent_item.season, torrent_item.episode, strict=True):
-                        strict_files.append({
-                            "file_index": file_index,
-                            "title": file["n"],
-                            "size": file["s"]
-                        })
-                    elif season_episode_in_filename(file["n"], torrent_item.season, torrent_item.episode, strict=False):
-                        files.append({
-                            "file_index": file_index,
-                            "title": file["n"],
-                            "size": file["s"]
-                        })
-                    file_index += 1
-            else:
-                file_index = 1
-                for file in data["files"]:
-                    files.append({
-                        "file_index": file_index,
-                        "title": file["n"],
-                        "size": file["s"]
-                    })
-                    file_index += 1
+            self.__explore_folders(data["files"], files, strict_files, 1, torrent_item.type, torrent_item.season, torrent_item.episode)
 
             if len(strict_files) > 0:
                 files = strict_files
@@ -158,3 +134,40 @@ class TorrentSmartContainer:
                     self.logger.debug(f"Duplicate info hash found: {item.info_hash}")
                 items_dict[item.info_hash] = item
         return items_dict
+
+    # Simple recursion to traverse the file structure returned by AllDebrid
+    def __explore_folders(self, folder, files, strict_files, file_index, type, season=None, episode=None):
+        if type == "series":
+            for file in folder:
+                if "e" in file:
+                    file_index = self.__explore_folders(file["e"], files, strict_files, file_index, type, season, episode)
+                    continue
+                    
+                if season_episode_in_filename(file["n"], season, episode, strict=True):
+                    strict_files.append({
+                        "file_index": file_index,
+                        "title": file["n"],
+                        "size": file["s"] if "s" in file else 0
+                    })
+                elif season_episode_in_filename(file["n"], season, episode, strict=False):
+                    files.append({
+                        "file_index": file_index,
+                        "title": file["n"],
+                        "size": file["s"] if "s" in file else 0
+                    })
+                file_index += 1
+        elif type == "movie":
+            file_index = 1
+            for file in folder:
+                if "e" in file:
+                    file_index = self.__explore_folders(file["e"], files, strict_files, file_index, type)
+                    continue
+                
+                files.append({
+                    "file_index": file_index,
+                    "title": file["n"],
+                    "size": file["s"] if "s" in file else 0
+                })
+                file_index += 1
+        
+        return file_index
