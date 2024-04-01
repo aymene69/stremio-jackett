@@ -27,7 +27,7 @@ jobs:
         run: cd source
 
       - name: 🏗 Installing dependencies
-        run: python3 -m pip install -r requirements.txt
+        run: python3 -m pip install -r source/requirements.txt
 
       - name: 🔒 Login to Docker Hub
         uses: docker/login-action@v3
