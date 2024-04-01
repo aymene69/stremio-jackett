@@ -49,7 +49,7 @@ def get_metadata(id, type, config):
             id=id,
             title=replace_weird_characters(data["movie_results"][0]["title"]),
             year=data["movie_results"][0]["release_date"][:4],
-            language=config['languages'].join(";")
+            language=";".join(config['languages'])
         )
         logger.info("Got metadata for " + type + " with id " + id)
         return result
@@ -59,7 +59,7 @@ def get_metadata(id, type, config):
             title=replace_weird_characters(data["tv_results"][0]["name"]),
             season="S{:02d}".format(int(full_id[1])),
             episode="E{:02d}".format(int(full_id[2])),
-            language=config['languages'].join(";")
+            language=";".join(config['languages'])
         )
         logger.info("Got metadata for " + type + " with id " + id)
         return result
