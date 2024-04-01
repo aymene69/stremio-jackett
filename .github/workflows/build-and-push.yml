@@ -23,9 +23,6 @@ jobs:
         with:
           python-version: '3.12.2'
 
-      - name: 🏗 Change directory
-        run: cd source
-
       - name: 🏗 Installing dependencies
         run: python3 -m pip install -r source/requirements.txt
 
@@ -38,7 +35,7 @@ jobs:
       - name: 🚀 Build and push for latest tag
         uses: docker/build-push-action@v5
         with:
-          context: .
+          context: source/.
           platforms: linux/amd64,linux/arm64
           push: true
           tags: belmeg/stremio-addon-jackett:latest
