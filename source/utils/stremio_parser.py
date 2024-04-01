@@ -93,7 +93,7 @@ def parse_to_stremio_streams(torrent_items: List[TorrentItem], config):
     thread_results_queue = queue.Queue()
 
     configb64 = encodeb64(json.dumps(config).replace('=', '%3D'))
-    for torrent_item in torrent_items:
+    for torrent_item in torrent_items[:int(config['maxResults'])]:
         thread = threading.Thread(target=parse_to_debrid_stream,
                                   args=(torrent_item, configb64, config['addonHost'], config['torrenting'],
                                         thread_results_queue),
