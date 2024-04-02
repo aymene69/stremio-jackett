@@ -22,7 +22,7 @@
         }
 
         .multipleSelection {
-            width: 100px;
+            width: 150px;
         }
 
         .selectBox {
@@ -278,47 +278,55 @@
                             </div>
 
                             <div id="languageCheckBoxes"
-                                 class="bg-opacity-70 bg-white dark:bg-opacity-90 dark:bg-gray-900 border-gray-200">
+                                 class="text-black dark:text-white bg-opacity-70 bg-white dark:bg-opacity-90 dark:bg-gray-900 border-gray-200">
                                 <label for="en">
                                     <input type="checkbox" id="en"/>
-                                    🇬🇧
+                                    🇬🇧 <span class="ml-1">English</span>
                                 </label>
 
                                 <label for="fr">
                                     <input type="checkbox" id="fr"/>
-                                    🇫🇷
+                                    🇫🇷 <span class="ml-1">French</span>
                                 </label>
                                 <label for="es">
                                     <input type="checkbox" id="es"/>
-                                    🇪🇸
+                                    🇪🇸 <span class="ml-1">Spanish</span>
                                 </label>
                                 <label for="de">
                                     <input type="checkbox" id="de"/>
-                                    🇩🇪
+                                    🇩🇪 <span class="ml-1">German</span>
                                 </label>
                                 <label for="it">
                                     <input type="checkbox" id="it"/>
-                                    🇮🇹
+                                    🇮🇹 <span class="ml-1">Italian</span>
                                 </label>
                                 <label for="pt">
                                     <input type="checkbox" id="pt"/>
-                                    🇵🇹
+                                    🇵🇹 <span class="ml-1">Portuguese</span>
                                 </label>
                                 <label for="ru">
                                     <input type="checkbox" id="ru"/>
-                                    🇷🇺
+                                    🇷🇺 <span class="ml-1">Russian</span>
                                 </label>
                                 <label for="in">
                                     <input type="checkbox" id="in"/>
-                                    🇮🇳
+                                    🇮🇳 <span class="ml-1">Hindi</span>
                                 </label>
                                 <label for="nl">
                                     <input type="checkbox" id="nl"/>
-                                    🇳🇱
+                                    🇳🇱 <span class="ml-1">Dutch</span>
                                 </label>
                                 <label for="hu">
                                     <input type="checkbox" id="hu"/>
-                                    🇭🇺
+                                    🇭🇺 <span class="ml-1">Hungarian</span>
+                                </label>
+                                <label for="la">
+                                    <input type="checkbox" id="la"/>
+                                    🇲🇽 <span class="ml-1">Latin</span>
+                                </label>
+                                <label for="multi">
+                                    <input type="checkbox" id="multi"/>
+                                    🌍 <span class="ml-1">MULTi</span>
                                 </label>
                             </div>
                         </div>
@@ -463,6 +471,12 @@
             if (data.languages.includes('hu')) {
                 document.getElementById('hu').checked = true;
             }
+            if (data.languages.includes('la')) {
+                document.getElementById('la').checked = true;
+            }
+            if (data.languages.includes('multi')) {
+                document.getElementById('multi').checked = true;
+            }
 
         }
     }
@@ -542,6 +556,12 @@
         }
         if (document.getElementById('hu').checked) {
             languages.push('hu')
+        }
+        if (document.getElementById('la').checked) {
+            languages.push('la')
+        }
+        if (document.getElementById('multi').checked) {
+            languages.push('multi')
         }
 
         let qualityChecked = document.getElementById('quality').checked;
