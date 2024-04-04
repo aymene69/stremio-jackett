@@ -23,7 +23,7 @@ class JackettService:
         self.__session = requests.Session()
 
     def search(self, media):
-        self.logger.info("Started Jackett search for " + media.type + " " + media.title)
+        self.logger.info("Started Jackett search for " + media.type + " " + media.titles[0])
 
         indexers = self.__get_indexers()
         threads = []
@@ -63,87 +63,102 @@ class JackettService:
         while not results_queue.empty():
             results.extend(results_queue.get())
 
-        return self.__post_process_results(results, media)
+        flatten_results = [result for sublist in results for result in sublist]
+
+        return self.__post_process_results(flatten_results, media)
 
     def __search_movie_indexer(self, movie, indexer):
 
         # url = f"{self.__base_url}/indexers/all/results/torznab/api?apikey={self.__api_key}&t=movie&cat=2000&q={movie.title}&year={movie.year}"
 
-        params = {
-            'apikey': self.__api_key,
-            't': 'movie',
-            'cat': '2000',
-            'q': movie.title,
-            'year': movie.year,
-        }
+        results = []
 
-        if (os.getenv("DISABLE_JACKETT_IMDB_SEARCH") != "true"
-                and indexer.movie_search_capatabilities is not None
-                and 'imdbid' in indexer.movie_search_capatabilities):
-            params['imdbid'] = movie.id
+        has_imdb_search_capability = (os.getenv(
+            "DISABLE_JACKETT_IMDB_SEARCH") != "true" and indexer.movie_search_capatabilities is not None and 'imdbid' in indexer.movie_search_capatabilities)
 
-        url = f"{self.__base_url}/indexers/{indexer.id}/results/torznab/api"
-        url += '?' + '&'.join([f'{k}={v}' for k, v in params.items()])
+        for index, lang in enumerate(movie.languages):
+            params = {
+                'apikey': self.__api_key,
+                't': 'movie',
+                'cat': '2000',
+                'q': movie.titles[index],
+                'year': movie.year,
+            }
 
-        try:
-            response = self.__session.get(url)
-            response.raise_for_status()
-            return self.__get_torrent_links_from_xml(movie, response.text)
-        except Exception:
-            self.logger.exception(
-                f"An exception occured while searching for a movie on Jackett with indexer {indexer.title}.")
-            return []
+            if has_imdb_search_capability:
+                params['imdbid'] = movie.id
+
+            url = f"{self.__base_url}/indexers/{indexer.id}/results/torznab/api"
+            url += '?' + '&'.join([f'{k}={v}' for k, v in params.items()])
+
+            try:
+                response = self.__session.get(url)
+                response.raise_for_status()
+                results.append(self.__get_torrent_links_from_xml(response.text))
+            except Exception:
+                self.logger.exception(
+                    f"An exception occured while searching for a movie on Jackett with indexer {indexer.title} and "
+                    f"language {lang}.")
+
+        return results
 
     def __search_series_indexer(self, series, indexer):
         season = str(int(series.season.replace('S', '')))
         episode = str(int(series.episode.replace('E', '')))
 
-        params = {
-            'apikey': self.__api_key,
-            't': 'tvsearch',
-            'cat': '5000',
-            'q': series.title,
-        }
+        results = []
 
-        if (os.getenv("DISABLE_JACKETT_IMDB_SEARCH") != "true"
-                and indexer.tv_search_capatabilities is not None
-                and 'imdbid' in indexer.tv_search_capatabilities):
-            params['imdbid'] = series.id
+        has_imdb_search_capability = (os.getenv("DISABLE_JACKETT_IMDB_SEARCH") != "true"
+                                      and indexer.tv_search_capatabilities is not None
+                                      and 'imdbid' in indexer.tv_search_capatabilities)
 
-        url_title = f"{self.__base_url}/indexers/{indexer.id}/results/torznab/api"
-        url_title += '?' + '&'.join([f'{k}={v}' for k, v in params.items()])
+        for index, lang in enumerate(series.languages):
+            params = {
+                'apikey': self.__api_key,
+                't': 'tvsearch',
+                'cat': '5000',
+                'q': series.titles[index],
+            }
 
-        url_season = f"{self.__base_url}/indexers/{indexer.id}/results/torznab/api"
-        params['season'] = season
-        url_season += '?' + '&'.join([f'{k}={v}' for k, v in params.items()])
+            if has_imdb_search_capability:
+                params['imdbid'] = series.id
 
-        url_ep = f"{self.__base_url}/indexers/{indexer.id}/results/torznab/api"
-        params['ep'] = episode
-        url_ep += '?' + '&'.join([f'{k}={v}' for k, v in params.items()])
+            url_title = f"{self.__base_url}/indexers/{indexer.id}/results/torznab/api"
+            url_title += '?' + '&'.join([f'{k}={v}' for k, v in params.items()])
 
-        try:
-            # Current functionality is that it returns if the season, episode search was successful. This is subject to change
-            # TODO: what should we prioritize? season, episode or title?
-            response_ep = self.__session.get(url_ep)
-            response_ep.raise_for_status()
-            data_ep = self.__get_torrent_links_from_xml(series, response_ep.text)
-            if data_ep:
-                return data_ep
+            url_season = f"{self.__base_url}/indexers/{indexer.id}/results/torznab/api"
+            params['season'] = season
+            url_season += '?' + '&'.join([f'{k}={v}' for k, v in params.items()])
 
-            response_season = self.__session.get(url_season)
-            response_season.raise_for_status()
-            data_season = self.__get_torrent_links_from_xml(series, response_season.text)
-            if data_season:
-                return data_season
+            url_ep = f"{self.__base_url}/indexers/{indexer.id}/results/torznab/api"
+            params['ep'] = episode
+            url_ep += '?' + '&'.join([f'{k}={v}' for k, v in params.items()])
 
-            response_title = self.__session.get(url_title)
-            response_title.raise_for_status()
-            data_title = self.__get_torrent_links_from_xml(series, response_title.text)
-            return data_title
-        except Exception:
-            self.logger.exception(
-                f"An exception occured while searching for a series on Jackett with indexer {indexer.title}.")
-            return []
+            try:
+                # Current functionality is that it returns if the season, episode search was successful. This is subject to change
+                # TODO: what should we prioritize? season, episode or title?
+                response_ep = self.__session.get(url_ep)
+                response_ep.raise_for_status()
+                data_ep = self.__get_torrent_links_from_xml(response_ep.text)
+                if data_ep:
+                    results.append(data_ep)
+
+                response_season = self.__session.get(url_season)
+                response_season.raise_for_status()
+                data_season = self.__get_torrent_links_from_xml(response_season.text)
+                if data_season:
+                    results.append(data_season)
+
+                response_title = self.__session.get(url_title)
+                response_title.raise_for_status()
+                data_title = self.__get_torrent_links_from_xml(response_title.text)
+                if data_title:
+                    results.append(data_title)
+            except Exception:
+                self.logger.exception(
+                    f"An exception occured while searching for a series on Jackett with indexer {indexer.title} and language {lang}.")
+
+        return results
 
     def __get_indexers(self):
         url = f"{self.__base_url}/indexers/all/results/torznab/api?apikey={self.__api_key}&t=indexers&configured=true"
@@ -187,7 +202,7 @@ class JackettService:
 
         return indexer_list
 
-    def __get_torrent_links_from_xml(self, media, xml_content):
+    def __get_torrent_links_from_xml(self, xml_content):
         xml_root = ET.fromstring(xml_content)
 
         result_list = []
