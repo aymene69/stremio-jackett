@@ -71,17 +71,29 @@ class JackettService:
 
         # url = f"{self.__base_url}/indexers/all/results/torznab/api?apikey={self.__api_key}&t=movie&cat=2000&q={movie.title}&year={movie.year}"
 
-        results = []
-
         has_imdb_search_capability = (os.getenv(
             "DISABLE_JACKETT_IMDB_SEARCH") != "true" and indexer.movie_search_capatabilities is not None and 'imdbid' in indexer.movie_search_capatabilities)
 
-        for index, lang in enumerate(movie.languages):
+        if has_imdb_search_capability:
+            languages = ['en']
+            index_of_language = [index for index, lang in enumerate(movie.languages) if lang == 'en'][0]
+            titles = [movie.titles[index_of_language]]
+        elif indexer.language == "en":
+            languages = movie.languages
+            titles = movie.titles
+        else:
+            index_of_language = [index for index, lang in enumerate(movie.languages) if lang == indexer.language or lang == 'en']
+            languages = [movie.languages[index] for index in index_of_language]
+            titles = [movie.titles[index] for index in index_of_language]
+
+        results = []
+
+        for index, lang in enumerate(languages):
             params = {
                 'apikey': self.__api_key,
                 't': 'movie',
                 'cat': '2000',
-                'q': movie.titles[index],
+                'q': titles[index],
                 'year': movie.year,
             }
 
@@ -106,18 +118,31 @@ class JackettService:
         season = str(int(series.season.replace('S', '')))
         episode = str(int(series.episode.replace('E', '')))
 
-        results = []
 
         has_imdb_search_capability = (os.getenv("DISABLE_JACKETT_IMDB_SEARCH") != "true"
                                       and indexer.tv_search_capatabilities is not None
                                       and 'imdbid' in indexer.tv_search_capatabilities)
+        if has_imdb_search_capability:
+            languages = ['en']
+            index_of_language = [index for index, lang in enumerate(series.languages) if lang == 'en'][0]
+            titles = [series.titles[index_of_language]]
+        elif indexer.language == "en":
+            languages = series.languages
+            titles = series.titles
+        else:
+            index_of_language = [index for index, lang in enumerate(series.languages) if
+                                 lang == indexer.language or lang == 'en']
+            languages = [series.languages[index] for index in index_of_language]
+            titles = [series.titles[index] for index in index_of_language]
 
-        for index, lang in enumerate(series.languages):
+        results = []
+
+        for index, lang in enumerate(languages):
             params = {
                 'apikey': self.__api_key,
                 't': 'tvsearch',
                 'cat': '5000',
-                'q': series.titles[index],
+                'q': titles[index],
             }
 
             if has_imdb_search_capability:
@@ -182,6 +207,7 @@ class JackettService:
             indexer.id = item.attrib['id']
             indexer.link = item.find('link').text
             indexer.type = item.find('type').text
+            indexer.language = item.find('language').text.split('-')[0]
 
             self.logger.info(f"Indexer: {indexer.title} - {indexer.link} - {indexer.type}")
 
