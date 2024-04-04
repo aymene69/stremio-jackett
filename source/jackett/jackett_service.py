@@ -164,21 +164,24 @@ class JackettService:
                 # TODO: what should we prioritize? season, episode or title?
                 response_ep = self.__session.get(url_ep)
                 response_ep.raise_for_status()
-                data_ep = self.__get_torrent_links_from_xml(response_ep.text)
-                if data_ep:
-                    results.append(data_ep)
 
                 response_season = self.__session.get(url_season)
                 response_season.raise_for_status()
+
+                data_ep = self.__get_torrent_links_from_xml(response_ep.text)
                 data_season = self.__get_torrent_links_from_xml(response_season.text)
+
+                if data_ep:
+                    results.append(data_ep)
                 if data_season:
                     results.append(data_season)
 
-                response_title = self.__session.get(url_title)
-                response_title.raise_for_status()
-                data_title = self.__get_torrent_links_from_xml(response_title.text)
-                if data_title:
-                    results.append(data_title)
+                if not data_ep and not data_season:
+                    response_title = self.__session.get(url_title)
+                    response_title.raise_for_status()
+                    data_title = self.__get_torrent_links_from_xml(response_title.text)
+                    if data_title:
+                        results.append(data_title)
             except Exception:
                 self.logger.exception(
                     f"An exception occured while searching for a series on Jackett with indexer {indexer.title} and language {lang}.")
