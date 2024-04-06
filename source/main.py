@@ -19,6 +19,8 @@ from starlette.responses import FileResponse
 from debrid.get_debrid_service import get_debrid_service
 from jackett.jackett_result import JackettResult
 from jackett.jackett_service import JackettService
+from metdata.cinemeta import Cinemeta
+from metdata.tmdb import TMDB
 from torrent.torrent_service import TorrentService
 from torrent.torrent_smart_container import TorrentSmartContainer
 from utils.cache import search_cache
@@ -28,7 +30,6 @@ from utils.logger import setup_logger
 from utils.parse_config import parse_config
 from utils.stremio_parser import parse_to_stremio_streams
 from utils.string_encoding import decodeb64
-from utils.tmdb import get_metadata
 
 load_dotenv()
 
@@ -124,8 +125,12 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     config = parse_config(config)
     logger.info(stream_type + " request")
 
-    logger.info("Getting media from tmdb")
-    media = get_metadata(stream_id, stream_type, config=config)
+    logger.info(f"Getting media from {config['metadataProvider']}")
+    if config['metadataProvider'] == "tmdb" and config['tmdbApi']:
+        metadata_provider = TMDB(config)
+    else:
+        metadata_provider = Cinemeta(config)
+    media = metadata_provider.get_metadata(stream_id, stream_type)
     logger.info("Got media and properties: " + str(media.titles))
 
     debrid_service = get_debrid_service(config)

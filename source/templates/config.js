@@ -25,13 +25,18 @@ function updateProviderFields(isChangeEvent = false) {
     } else {
         setElementDisplay('jackett-fields', 'none');
     }
-    if (!isChangeEvent) {
-        if (document.getElementById('jackett-fields')) {
-            document.getElementById('jackett-host').value = '';
-            document.getElementById('jackett-api').value = '';
-        }
-        document.getElementById('debrid-api').value = '';
+    if (document.getElementById('tmdb')?.checked) {
+        setElementDisplay('tmdb-fields', 'block');
+    } else {
+        setElementDisplay('tmdb-fields', 'none');
     }
+    // if (!isChangeEvent) {
+    //     if (document.getElementById('jackett-fields')) {
+    //         document.getElementById('jackett-host').value = '';
+    //         document.getElementById('jackett-api').value = '';
+    //     }
+    //     document.getElementById('debrid-api').value = '';
+    // }
 }
 
 function loadData() {
@@ -59,6 +64,8 @@ function loadData() {
         }
         document.getElementById('torrenting').checked = data.torrenting;
         document.getElementById('debrid').checked = data.debrid;
+        document.getElementById('tmdb').checked = data.metadataProvider === 'tmdb';
+        document.getElementById('cinemeta').checked = data.metadataProvider === 'cinemeta';
 
         sorts.forEach(sort => {
             if (data.sort === sort) {
@@ -112,6 +119,7 @@ function getLink(method) {
     const cache = document.getElementById('cache')?.checked;
     const torrenting = document.getElementById('torrenting').checked;
     const debrid = document.getElementById('debrid').checked;
+    const metadataProvider = document.getElementById('tmdb').checked ? 'tmdb' : 'cinemeta';
     const selectedQualityExclusion = [];
 
     qualityExclusions.forEach(quality => {
@@ -160,7 +168,8 @@ function getLink(method) {
         jackett,
         cache,
         torrenting,
-        debrid
+        debrid,
+        metadataProvider
     };
     if ((jackett && (jackettHost === '' || jackettApi === '')) || (debrid && debridApi === '') || tmdbApi === '' || languages.length === 0) {
         alert('Please fill all required fields');

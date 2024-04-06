@@ -50,11 +50,12 @@
 </head>
 <body class="backdrop-blur">
 <div id="container" style="display: flex;justify-content: center;align-items: center;">
-    <form style="padding: 2rem;border-radius: 1rem" class="bg-opacity-70 bg-white dark:bg-opacity-90 dark:bg-gray-900">
+    <form style="padding: 2rem;border-radius: 1rem" class="bg-opacity-70 bg-white dark:bg-opacity-90 dark:bg-gray-900 w-1/3 m-12">
         <img src="https://user-images.githubusercontent.com/27040483/28728094-99f3e3f6-73c7-11e7-8f8d-28912dc6ac0d.png"
              alt="logo" style="width: 100px; height: 100px;">
         <div class="space-y-12">
-            <p class="dark:text-white text-center">Stremio-Jackett{% if isCommunityVersion %} Community{% endif %} v4.0.0</p>
+            <p class="dark:text-white text-center">Stremio-Jackett{% if isCommunityVersion %} Community{% endif %}
+                v4.0.0</p>
             <h1 class="text-base font-semibold leading-7 text-gray-900 dark:text-white"
                 style="text-align: center;font-size: 2rem;">
                 Addon configuration</h1>
@@ -67,7 +68,8 @@
                 <div class="relative flex gap-x-3">
                     <div class="flex h-6 items-center">
                         <input id="debrid" name="debrid" value="debrid" type="checkbox"
-                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked oninput="updateProviderFields(true)">
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked
+                               oninput="updateProviderFields(true)">
                     </div>
                     <div class="text-sm leading-6">
                         <label for="debrid" class="block text-sm font-medium mb-2 dark:text-white">Enable debrid
@@ -78,7 +80,8 @@
                 <div class="mt-10 relative flex gap-x-3">
                     <div class="flex h-6 items-center">
                         <input id="torrenting" name="torrenting" value="torrenting" type="checkbox"
-                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked oninput="updateProviderFields(true)">
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked
+                               oninput="updateProviderFields(true)">
                     </div>
                     <div class="text-sm leading-6">
                         <label for="torrenting" class="block text-sm font-medium mb-2 dark:text-white">Enable
@@ -100,17 +103,20 @@
                 <div class="relative flex gap-x-3">
                     <div class="flex h-6 items-center">
                         <input id="jackett" name="jackett" value="jackett" type="checkbox"
-                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked oninput="updateProviderFields(true)">
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked
+                               oninput="updateProviderFields(true)">
                     </div>
                     <div class="text-sm leading-6">
-                        <label for="jackett" class="block text-sm font-medium mb-2 dark:text-white">Enable Jackett</label>
+                        <label for="jackett" class="block text-sm font-medium mb-2 dark:text-white">Enable
+                            Jackett</label>
                         <p class="text-gray-500 dark:text-gray-300">Enable Jackett for more results</p>
                     </div>
                 </div>
                 <div class="mt-10 relative flex gap-x-3">
                     <div class="flex h-6 items-center">
                         <input id="cache" name="cache" value="cache" type="checkbox"
-                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked oninput="updateProviderFields(true)">
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked
+                               oninput="updateProviderFields(true)">
                     </div>
                     <div class="text-sm leading-6">
                         <label for="cache" class="block text-sm font-medium mb-2 dark:text-white">Enable cache</label>
@@ -181,9 +187,39 @@
             </div>
 
             <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
+                <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">Metadata Provider</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter information about
+                    your metadata provider here</p>
+                <br>
+                <div class="relative flex gap-x-3">
+                    <div class="flex h-6 items-center">
+                        <input id="tmdb" name="metadataProvider" value="tmdb" type="radio"
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked
+                               oninput="updateProviderFields(true)">
+                    </div>
+                    <div class="text-sm leading-6">
+                        <label for="tmdb" class="block text-sm font-medium mb-2 dark:text-white">TMDB</label>
+                        <p class="text-gray-500 dark:text-gray-300">Use TMDB for more accurate metadata in different
+                            languages</p>
+                    </div>
+                </div>
+                <div class="mt-10 relative flex gap-x-3">
+                    <div class="flex h-6 items-center">
+                        <input id="cinemeta" name="metadataProvider" value="cinemeta" type="radio"
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked
+                               oninput="updateProviderFields(true)">
+                    </div>
+                    <div class="text-sm leading-6">
+                        <label for="cinemeta" class="block text-sm font-medium mb-2 dark:text-white">Cinemeta</label>
+                        <p class="text-gray-500 dark:text-gray-300">Use Cinemeta for simple metadata</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-b border-gray-900/10 dark:border-white/50 pb-12" id="tmdb-fields">
                 <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">TMDB Informations</h2>
-                <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter here informations
-                    about TMDB. You can
+                <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter information
+                    about TMDB here. You can
                     find your API key in "Settings" after registering <a href="https://www.themoviedb.org/signup"
                                                                          target="_blank">here</a></p>
 
