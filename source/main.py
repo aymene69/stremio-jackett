@@ -14,6 +14,7 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from starlette.responses import FileResponse
 
 from debrid.get_debrid_service import get_debrid_service
 from jackett.jackett_result import JackettResult
@@ -64,7 +65,7 @@ app.add_middleware(
 if not isDev:
     app.add_middleware(LogFilterMiddleware)
 
-templates = Jinja2Templates(directory=".")
+templates = Jinja2Templates(directory="templates")
 
 logger = setup_logger(__name__)
 
@@ -79,8 +80,14 @@ async def root():
 async def configure(request: Request):
     return templates.TemplateResponse(
         "index.html" if not COMMUNITY_VERSION else "index-community.html",
-        {"request": request}
+        {"request": request, "config": parse_config(request.path_params.get("config", ""))}
     )
+
+
+@app.get("/static/{file_path:path}")
+async def function(file_path: str):
+    response = FileResponse(f"templates/{file_path}")
+    return response
 
 
 @app.get("/manifest.json")
@@ -138,7 +145,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     # TODO: if we have results per quality set, most of the time we will not have enough cached results AFTER filtering them
     # because we will have less results than the maxResults, so we will always have to search for new results
 
-    if not COMMUNITY_VERSION and len(search_results) < int(config['maxResults']):
+    if not COMMUNITY_VERSION and config['jackett'] and len(search_results) < int(config['maxResults']):
         if len(search_results) > 0 and config['cache']:
             logger.info("Not enough cached results found (results: " + str(len(search_results)) + ")")
         elif config['cache']:
@@ -162,13 +169,14 @@ async def get_results(config: str, stream_type: str, stream_id: str):
 
     torrent_smart_container = TorrentSmartContainer(torrent_results, media)
 
-    logger.debug("Checking availability")
-    hashes = torrent_smart_container.get_hashes()
-    result = debrid_service.get_availability_bulk(hashes)
-    torrent_smart_container.update_availability(result, type(debrid_service))
-    logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
+    if config['debrid']:
+        logger.debug("Checking availability")
+        hashes = torrent_smart_container.get_hashes()
+        result = debrid_service.get_availability_bulk(hashes)
+        torrent_smart_container.update_availability(result, type(debrid_service))
+        logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
 
-    # Maybe add an if to only save to cache if caching is enabled?
+    # TODO: Maybe add an if to only save to cache if caching is enabled?
     torrent_smart_container.cache_container_items()
 
     logger.debug("Getting best matching results")
