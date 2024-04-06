@@ -35,8 +35,8 @@ def cache_results(torrents: List[TorrentItem], media):
             cache_item['files'] = []  # I guess keep it empty?
             cache_item['hash'] = torrent.info_hash
             cache_item['indexer'] = torrent.indexer
-            cache_item['quality'] = torrent.quality
-            cache_item['qualitySpec'] = ";".join(torrent.quality_spec)
+            cache_item['quality'] = torrent.resolution
+            cache_item['qualitySpec'] = ";".join(torrent.quality)
             cache_item['seeders'] = torrent.seeders
             cache_item['size'] = torrent.size
             cache_item['language'] = ";".join(torrent.languages)

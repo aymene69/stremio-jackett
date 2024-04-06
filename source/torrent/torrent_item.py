@@ -4,7 +4,7 @@ from utils.logger import setup_logger
 
 
 class TorrentItem:
-    def __init__(self, title, size, magnet, info_hash, link, seeders, languages, quality, quality_spec, indexer,
+    def __init__(self, title, size, magnet, info_hash, link, seeders, languages, resolution, quality, codec, audio, indexer,
                  privacy,
                  episode=None, season=None, type=None):
         self.logger = setup_logger(__name__)
@@ -16,8 +16,10 @@ class TorrentItem:
         self.link = link  # Link to download torrent file or magnet link
         self.seeders = seeders  # The number of seeders
         self.languages = languages  # Language of the torrent
+        self.resolution = resolution  # Resolution of the torrent
         self.quality = quality  # Quality of the torrent
-        self.quality_spec = quality_spec if quality_spec is not None else []  # Quality specifications of the torrent
+        self.codec = codec  # Codec of the media
+        self.audio = audio  # Audio of the media
         self.indexer = indexer  # Indexer of the torrent
         self.episode = episode  # Episode if its a series (for example: "E01" or "E14")
         self.season = season  # Season if its a series (for example: "S01" or "S14")

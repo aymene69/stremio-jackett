@@ -5,12 +5,13 @@ import time
 import xml.etree.ElementTree as ET
 
 import requests
+from RTN import parse
 
 from jackett.jackett_indexer import JackettIndexer
 from jackett.jackett_result import JackettResult
 from models.movie import Movie
 from models.series import Series
-from utils import detection
+from utils.detection import detect_languages
 from utils.logger import setup_logger
 
 
@@ -43,7 +44,7 @@ class JackettService:
                 raise TypeError("Only Movie and Series is allowed as media!")
 
             self.logger.info(
-                f"Search on {indexer.title} took {time.time() - start_time} seconds and found {len(result)} results")
+                f"Search on {indexer.title} took {time.time() - start_time} seconds and found {len([result for sublist in result for result in sublist])} results")
 
             results_queue.put(result)  # Put the result in the queue
 
@@ -82,7 +83,8 @@ class JackettService:
             languages = movie.languages
             titles = movie.titles
         else:
-            index_of_language = [index for index, lang in enumerate(movie.languages) if lang == indexer.language or lang == 'en']
+            index_of_language = [index for index, lang in enumerate(movie.languages) if
+                                 lang == indexer.language or lang == 'en']
             languages = [movie.languages[index] for index in index_of_language]
             titles = [movie.titles[index] for index in index_of_language]
 
@@ -117,7 +119,6 @@ class JackettService:
     def __search_series_indexer(self, series, indexer):
         season = str(int(series.season.replace('S', '')))
         episode = str(int(series.episode.replace('E', '')))
-
 
         has_imdb_search_capability = (os.getenv("DISABLE_JACKETT_IMDB_SEARCH") != "true"
                                       and indexer.tv_search_capatabilities is not None
@@ -265,10 +266,18 @@ class JackettService:
 
     def __post_process_results(self, results, media):
         for result in results:
-            result.languages = detection.detect_languages(result.title)
-            result.quality = detection.detect_quality(result.title)
-            result.quality_spec = detection.detect_quality_spec(result.title)
-            result.type = media.type
+
+            # self.logger.info(result.title)
+            # self.logger.info(parse(result.title))
+
+            parsed_result = parse(result.title)
+            # result.languages = [languages.get(name=language).alpha2 for language in parsed_result.language]
+            result.languages = detect_languages(result.title)
+            result.resolution = parsed_result.resolution[0] if parsed_result.resolution and len(
+                parsed_result.resolution) > 0 else 'Unknown'
+            result.quality = parsed_result.quality
+            result.codec = parsed_result.codec
+            result.audio = parsed_result.audio
 
             if isinstance(media, Series):
                 result.season = media.season

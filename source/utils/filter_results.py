@@ -1,5 +1,7 @@
 import re
 
+from RTN import SettingsModel, RTN, DefaultRanking
+
 from utils.filter.language_filter import LanguageFilter
 from utils.filter.max_size_filter import MaxSizeFilter
 from utils.filter.quality_exclusion_filter import QualityExclusionFilter
@@ -13,7 +15,7 @@ quality_order = {"4k": 0, "1080p": 1, "720p": 2, "480p": 3}
 
 
 def sort_quality(item):
-    return quality_order.get(item.quality, float('inf')), item.quality is None
+    return quality_order.get(item.resolution, float('inf')), item.resolution is None
 
 
 def items_sort(items, config):

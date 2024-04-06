@@ -1,3 +1,5 @@
+from RTN import parse
+
 from models.series import Series
 from torrent.torrent_item import TorrentItem
 
@@ -15,9 +17,11 @@ class JackettResult:
 
         # Extra processed details for further filtering
         self.languages = None  # Language of the torrent
+        self.resolution = None  # Resolution of the torrent
         self.quality = None  # Quality of the torrent
-        self.quality_spec = None  # Quality specifications of the torrent
         self.type = None  # series or movie
+        self.codec = None  # Codec of the media
+        self.audio = None  # Audio of the media
 
         # Not sure about these
         self.season = None  # Season, if the media is a series
@@ -32,8 +36,10 @@ class JackettResult:
             self.link,
             self.seeders,
             self.languages,
+            self.resolution,
             self.quality,
-            self.quality_spec,
+            self.codec,
+            self.audio,
             self.indexer,
             self.privacy,
             self.episode,
@@ -42,14 +48,18 @@ class JackettResult:
         )
 
     def from_cached_item(self, cached_item, media):
+        parsed_result = parse(cached_item['title'])
+
         self.title = cached_item['title']
         self.indexer = "Cache"  # Cache doesn't return an indexer sadly (It stores it tho)
         self.magnet = cached_item['magnet']
         self.link = cached_item['magnet']
         self.info_hash = cached_item['hash']
         self.languages = cached_item['language'].split(";") if cached_item['language'] is not None else []
-        self.quality = cached_item['quality']
-        self.quality_spec = cached_item['qualitySpec'].split(";") if cached_item['qualitySpec'] is not None else []
+        self.resolution = cached_item['quality']
+        self.quality = cached_item['qualitySpec'].split(";") if cached_item['qualitySpec'] is not None else []
+        self.codec = parsed_result.codec
+        self.audio = parsed_result.audio
         self.seeders = cached_item['seeders']
         self.size = cached_item['size']
 
