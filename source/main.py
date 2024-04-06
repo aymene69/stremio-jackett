@@ -119,7 +119,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
 
     logger.info("Getting media from tmdb")
     media = get_metadata(stream_id, stream_type, config=config)
-    logger.info("Got media and properties: " + media.title)
+    logger.info("Got media and properties: " + str(media.titles))
 
     debrid_service = get_debrid_service(config)
 

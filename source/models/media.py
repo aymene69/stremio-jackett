@@ -1,6 +1,6 @@
 class Media:
-    def __init__(self, id, title, language, type):
+    def __init__(self, id, titles, languages, type):
         self.id = id
-        self.title = title
-        self.language = language
+        self.titles = titles
+        self.languages = languages
         self.type = type

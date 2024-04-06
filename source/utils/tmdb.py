@@ -1,5 +1,6 @@
 import requests
 
+from models.media import Media
 from models.movie import Movie
 from models.series import Series
 from utils.logger import setup_logger
@@ -36,30 +37,35 @@ def get_metadata(id, type, config):
     logger.info("Getting metadata for " + type + " with id " + id)
 
     full_id = id.split(":")
-    language = "en" if "en" in config['languages'] else config['languages'][0]
-    logger.info(f"Language set to: {language}")
-    url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={config['tmdbApi']}&external_source=imdb_id&language={language}"
-    response = requests.get(url)
-    data = response.json()
-    logger.info("Got response from TMDB")
-    logger.info(data)
 
-    if type == "movie":
-        result = Movie(
-            id=id,
-            title=replace_weird_characters(data["movie_results"][0]["title"]),
-            year=data["movie_results"][0]["release_date"][:4],
-            language=";".join(config['languages'])
-        )
-        logger.info("Got metadata for " + type + " with id " + id)
-        return result
-    else:
-        result = Series(
-            id=id,
-            title=replace_weird_characters(data["tv_results"][0]["name"]),
-            season="S{:02d}".format(int(full_id[1])),
-            episode="E{:02d}".format(int(full_id[2])),
-            language=";".join(config['languages'])
-        )
-        logger.info("Got metadata for " + type + " with id " + id)
-        return result
+    result = None
+
+    for lang in config['languages']:
+        url = f"https://api.themoviedb.org/3/find/{full_id[0]}?api_key={config['tmdbApi']}&external_source=imdb_id&language={lang}"
+        response = requests.get(url)
+        data = response.json()
+
+        if lang == config['languages'][0]:
+            if type == "movie":
+                result = Movie(
+                    id=id,
+                    titles=[replace_weird_characters(data["movie_results"][0]["title"])],
+                    year=data["movie_results"][0]["release_date"][:4],
+                    languages=config['languages']
+                )
+            else:
+                result = Series(
+                    id=id,
+                    titles=[replace_weird_characters(data["tv_results"][0]["name"])],
+                    season="S{:02d}".format(int(full_id[1])),
+                    episode="E{:02d}".format(int(full_id[2])),
+                    languages=config['languages']
+                )
+        else:
+            if type == "movie":
+                result.titles.append(replace_weird_characters(data["movie_results"][0]["title"]))
+            else:
+                result.titles.append(replace_weird_characters(data["tv_results"][0]["name"]))
+
+    logger.info("Got metadata for " + type + " with id " + id)
+    return result
