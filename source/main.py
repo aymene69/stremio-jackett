@@ -79,8 +79,8 @@ async def root():
 @app.get("/{config}/configure")
 async def configure(request: Request):
     return templates.TemplateResponse(
-        "index.html" if not COMMUNITY_VERSION else "index-community.html",
-        {"request": request, "config": parse_config(request.path_params.get("config", ""))}
+        "index.html",
+        {"request": request, "isCommunityVersion": COMMUNITY_VERSION},
     )
 
 
@@ -100,7 +100,7 @@ async def get_manifest():
         "catalogs": [],
         "resources": ["stream"],
         "types": ["movie", "series"],
-        "name": "Jackett" + (" (Dev)" if isDev else ""),
+        "name": "Jackett" + (" Community" if COMMUNITY_VERSION else "") + (" (Dev)" if isDev else ""),
         "description": "Elevate your Stremio experience with seamless access to Jackett torrent links, effortlessly "
                        "fetching torrents for your selected movies within the Stremio interface.",
         "behaviorHints": {

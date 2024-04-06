@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Stremio-Jackett</title>
+    <title>Stremio-Jackett {% if isCommunityVersion %}Community{% endif %}</title>
     <style>
         /*On va ajouter la photo de fond */
         body {
@@ -54,7 +54,7 @@
         <img src="https://user-images.githubusercontent.com/27040483/28728094-99f3e3f6-73c7-11e7-8f8d-28912dc6ac0d.png"
              alt="logo" style="width: 100px; height: 100px;">
         <div class="space-y-12">
-            <p class="dark:text-white text-center">Stremio-Jackett v4.0.0</p>
+            <p class="dark:text-white text-center">Stremio-Jackett{% if isCommunityVersion %} Community{% endif %} v4.0.0</p>
             <h1 class="text-base font-semibold leading-7 text-gray-900 dark:text-white"
                 style="text-align: center;font-size: 2rem;">
                 Addon configuration</h1>
@@ -89,6 +89,8 @@
                     </div>
                 </div>
             </div>
+
+            {% if not isCommunityVersion %}
 
             <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
                 <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">Torrent Providers</h2>
@@ -146,6 +148,7 @@
                 </div>
             </div>
 
+            {% endif %}
 
             <div class="border-b border-gray-900/10 dark:border-white/50 pb-12" id="debrid-fields">
                 <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">Debrid Information</h2>

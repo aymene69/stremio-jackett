@@ -1,3 +1,7 @@
+const sorts = ['quality', 'sizedesc', 'sizeasc', 'qualitythensize'];
+const qualityExclusions = ['4k', '1080p', '720p', '480p', 'rips', 'cam'];
+const languages = ['en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'in', 'nl', 'hu', 'la', 'multi'];
+
 document.addEventListener('DOMContentLoaded', function () {
     updateProviderFields();
 });
@@ -8,10 +12,6 @@ function setElementDisplay(elementId, displayStatus) {
         return;
     }
     element.style.display = displayStatus;
-}
-
-function getValue(elementId) {
-    return document.getElementById(elementId).value;
 }
 
 function updateProviderFields(isChangeEvent = false) {
@@ -35,8 +35,8 @@ function updateProviderFields(isChangeEvent = false) {
 }
 
 function loadData() {
-    var currentUrl = window.location.href;
-    var data = currentUrl.match(/\/([^\/]+)\/configure$/);
+    const currentUrl = window.location.href;
+    let data = currentUrl.match(/\/([^\/]+)\/configure$/);
     if (data) {
         data = atob(data[1]);
         data = JSON.parse(data);
@@ -59,72 +59,24 @@ function loadData() {
         }
         document.getElementById('torrenting').checked = data.torrenting;
         document.getElementById('debrid').checked = data.debrid;
-        if (data.sort === 'quality') {
-            document.getElementById('quality').checked = true;
-        }
-        if (data.sort === 'sizedesc') {
-            document.getElementById('sizedesc').checked = true;
-        }
-        if (data.sort === 'sizeasc') {
-            document.getElementById('sizeasc').checked = true;
-        }
-        if (data.sort === 'qualitythensize') {
-            document.getElementById('qualitythensize').checked = true;
-        }
-        if (data.exclusion.includes('4k')) {
-            document.getElementById('4k').checked = true;
-        }
-        if (data.exclusion.includes('1080p')) {
-            document.getElementById('1080p').checked = true;
-        }
-        if (data.exclusion.includes('720p')) {
-            document.getElementById('720p').checked = true;
-        }
-        if (data.exclusion.includes('480p')) {
-            document.getElementById('480p').checked = true;
-        }
-        if (data.exclusion.includes('rips')) {
-            document.getElementById('rips').checked = true;
-        }
-        if (data.exclusion.includes('cam')) {
-            document.getElementById('cam').checked = true;
-        }
-        if (data.languages.includes('en')) {
-            document.getElementById('en').checked = true;
-        }
-        if (data.languages.includes('fr')) {
-            document.getElementById('fr').checked = true;
-        }
-        if (data.languages.includes('es')) {
-            document.getElementById('es').checked = true;
-        }
-        if (data.languages.includes('de')) {
-            document.getElementById('de').checked = true;
-        }
-        if (data.languages.includes('it')) {
-            document.getElementById('it').checked = true;
-        }
-        if (data.languages.includes('pt')) {
-            document.getElementById('pt').checked = true;
-        }
-        if (data.languages.includes('ru')) {
-            document.getElementById('ru').checked = true;
-        }
-        if (data.languages.includes('in')) {
-            document.getElementById('in').checked = true;
-        }
-        if (data.languages.includes('nl')) {
-            document.getElementById('nl').checked = true;
-        }
-        if (data.languages.includes('hu')) {
-            document.getElementById('hu').checked = true;
-        }
-        if (data.languages.includes('la')) {
-            document.getElementById('la').checked = true;
-        }
-        if (data.languages.includes('multi')) {
-            document.getElementById('multi').checked = true;
-        }
+
+        sorts.forEach(sort => {
+            if (data.sort === sort) {
+                document.getElementById(sort).checked = true;
+            }
+        });
+
+        qualityExclusions.forEach(quality => {
+            if (data.exclusion.includes(quality)) {
+                document.getElementById(quality).checked = true;
+            }
+        })
+
+        languages.forEach(language => {
+            if (data.languages.includes(language)) {
+                document.getElementById(language).checked = true;
+            }
+        });
 
     }
 }
@@ -160,80 +112,28 @@ function getLink(method) {
     const cache = document.getElementById('cache')?.checked;
     const torrenting = document.getElementById('torrenting').checked;
     const debrid = document.getElementById('debrid').checked;
-    const qualityExclusion = [];
-    if (document.getElementById('4k').checked) {
-        qualityExclusion.push('4k');
-    }
-    if (document.getElementById('1080p').checked) {
-        qualityExclusion.push('1080p');
-    }
-    if (document.getElementById('720p').checked) {
-        qualityExclusion.push('720p');
-    }
-    if (document.getElementById('480p').checked) {
-        qualityExclusion.push('480p');
-    }
-    if (document.getElementById('rips').checked) {
-        qualityExclusion.push('rips');
-    }
-    if (document.getElementById('cam').checked) {
-        qualityExclusion.push('cam');
-    }
-    const languages = [];
-    if (document.getElementById('en').checked) {
-        languages.push('en')
-    }
-    if (document.getElementById('fr').checked) {
-        languages.push('fr')
-    }
-    if (document.getElementById('es').checked) {
-        languages.push('es')
-    }
-    if (document.getElementById('de').checked) {
-        languages.push('de')
-    }
-    if (document.getElementById('it').checked) {
-        languages.push('it')
-    }
-    if (document.getElementById('pt').checked) {
-        languages.push('pt')
-    }
-    if (document.getElementById('ru').checked) {
-        languages.push('ru')
-    }
-    if (document.getElementById('in').checked) {
-        languages.push('in')
-    }
-    if (document.getElementById('nl').checked) {
-        languages.push('nl')
-    }
-    if (document.getElementById('hu').checked) {
-        languages.push('hu')
-    }
-    if (document.getElementById('la').checked) {
-        languages.push('la')
-    }
-    if (document.getElementById('multi').checked) {
-        languages.push('multi')
-    }
+    const selectedQualityExclusion = [];
 
-    let qualityChecked = document.getElementById('quality').checked;
-    let sizedescChecked = document.getElementById('sizedesc').checked;
-    let sizeascChecked = document.getElementById('sizeasc').checked;
-    let qualitythensizeChecked = document.getElementById('qualitythensize').checked;
+    qualityExclusions.forEach(quality => {
+        if (document.getElementById(quality).checked) {
+            selectedQualityExclusion.push(quality);
+        }
+    });
+
+    const selectedLanguages = [];
+    languages.forEach(language => {
+        if (document.getElementById(language).checked) {
+            selectedLanguages.push(language);
+        }
+    });
+
     let filter;
-    if (qualityChecked) {
-        filter = 'quality';
-    }
-    if (sizedescChecked) {
-        filter = 'sizedesc';
-    }
-    if (sizeascChecked) {
-        filter = 'sizeasc';
-    }
-    if (qualitythensizeChecked) {
-        filter = 'qualitythensize';
-    }
+    sorts.forEach(sort => {
+        if (document.getElementById(sort).checked) {
+            filter = sort;
+        }
+    });
+
     if (maxSize === '' || isNaN(maxSize)) {
         maxSize = 0;
     }
@@ -251,11 +151,11 @@ function getLink(method) {
         'debridKey': debridApi,
         maxSize,
         exclusionKeywords,
-        languages,
+        'languages': selectedLanguages,
         'sort': filter,
         resultsPerQuality,
         maxResults,
-        'exclusion': qualityExclusion,
+        'exclusion': selectedQualityExclusion,
         tmdbApi,
         jackett,
         cache,
