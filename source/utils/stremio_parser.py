@@ -86,7 +86,7 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, config, results
             "name": name,
             "description": title,
             "infoHash": torrent_item.info_hash,
-            "fileIdx": int(torrent_item.file_index or 0),
+            "fileIdx": int(torrent_item.file_index) if torrent_item.file_index else None,
             # "sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
         })
 
