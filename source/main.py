@@ -14,10 +14,13 @@ from fastapi import FastAPI, Request, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
+from starlette.responses import FileResponse
 
 from debrid.get_debrid_service import get_debrid_service
 from jackett.jackett_result import JackettResult
 from jackett.jackett_service import JackettService
+from metdata.cinemeta import Cinemeta
+from metdata.tmdb import TMDB
 from torrent.torrent_service import TorrentService
 from torrent.torrent_smart_container import TorrentSmartContainer
 from utils.cache import search_cache
@@ -27,7 +30,6 @@ from utils.logger import setup_logger
 from utils.parse_config import parse_config
 from utils.stremio_parser import parse_to_stremio_streams
 from utils.string_encoding import decodeb64
-from utils.tmdb import get_metadata
 
 load_dotenv()
 
@@ -64,7 +66,7 @@ app.add_middleware(
 if not isDev:
     app.add_middleware(LogFilterMiddleware)
 
-templates = Jinja2Templates(directory=".")
+templates = Jinja2Templates(directory="templates")
 
 logger = setup_logger(__name__)
 
@@ -78,9 +80,15 @@ async def root():
 @app.get("/{config}/configure")
 async def configure(request: Request):
     return templates.TemplateResponse(
-        "index.html" if not COMMUNITY_VERSION else "index-community.html",
-        {"request": request}
+        "index.html",
+        {"request": request, "isCommunityVersion": COMMUNITY_VERSION},
     )
+
+
+@app.get("/static/{file_path:path}")
+async def function(file_path: str):
+    response = FileResponse(f"templates/{file_path}")
+    return response
 
 
 @app.get("/manifest.json")
@@ -93,7 +101,7 @@ async def get_manifest():
         "catalogs": [],
         "resources": ["stream"],
         "types": ["movie", "series"],
-        "name": "Jackett" + (" (Dev)" if isDev else ""),
+        "name": "Jackett" + (" Community" if COMMUNITY_VERSION else "") + (" (Dev)" if isDev else ""),
         "description": "Elevate your Stremio experience with seamless access to Jackett torrent links, effortlessly "
                        "fetching torrents for your selected movies within the Stremio interface.",
         "behaviorHints": {
@@ -117,8 +125,12 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     config = parse_config(config)
     logger.info(stream_type + " request")
 
-    logger.info("Getting media from tmdb")
-    media = get_metadata(stream_id, stream_type, config=config)
+    logger.info(f"Getting media from {config['metadataProvider']}")
+    if config['metadataProvider'] == "tmdb" and config['tmdbApi']:
+        metadata_provider = TMDB(config)
+    else:
+        metadata_provider = Cinemeta(config)
+    media = metadata_provider.get_metadata(stream_id, stream_type)
     logger.info("Got media and properties: " + str(media.titles))
 
     debrid_service = get_debrid_service(config)
@@ -138,7 +150,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     # TODO: if we have results per quality set, most of the time we will not have enough cached results AFTER filtering them
     # because we will have less results than the maxResults, so we will always have to search for new results
 
-    if not COMMUNITY_VERSION and len(search_results) < int(config['maxResults']):
+    if not COMMUNITY_VERSION and config['jackett'] and len(search_results) < int(config['maxResults']):
         if len(search_results) > 0 and config['cache']:
             logger.info("Not enough cached results found (results: " + str(len(search_results)) + ")")
         elif config['cache']:
@@ -162,13 +174,14 @@ async def get_results(config: str, stream_type: str, stream_id: str):
 
     torrent_smart_container = TorrentSmartContainer(torrent_results, media)
 
-    logger.debug("Checking availability")
-    hashes = torrent_smart_container.get_hashes()
-    result = debrid_service.get_availability_bulk(hashes)
-    torrent_smart_container.update_availability(result, type(debrid_service))
-    logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
+    if config['debrid']:
+        logger.debug("Checking availability")
+        hashes = torrent_smart_container.get_hashes()
+        result = debrid_service.get_availability_bulk(hashes)
+        torrent_smart_container.update_availability(result, type(debrid_service))
+        logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
 
-    # Maybe add an if to only save to cache if caching is enabled?
+    # TODO: Maybe add an if to only save to cache if caching is enabled?
     torrent_smart_container.cache_container_items()
 
     logger.debug("Getting best matching results")

@@ -1,6 +1,8 @@
 from models.series import Series
 from torrent.torrent_item import TorrentItem
+from utils.logger import setup_logger
 
+logger = setup_logger(__name__)
 
 class JackettResult:
     def __init__(self):
@@ -42,6 +44,8 @@ class JackettResult:
         )
 
     def from_cached_item(self, cached_item, media):
+        if type(cached_item) is not dict:
+            logger.error(cached_item)
         self.title = cached_item['title']
         self.indexer = "Cache"  # Cache doesn't return an indexer sadly (It stores it tho)
         self.magnet = cached_item['magnet']

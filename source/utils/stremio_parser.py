@@ -47,20 +47,15 @@ def filter_by_direct_torrnet(item):
         return 0
 
 
-def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrenting, results: queue.Queue):
-    if torrent_item.availability == True:
-        name = f"{INSTANTLY_AVAILABLE}\n"
-    else:
-        name = f"{DOWNLOAD_REQUIRED}\n"
-    name += f"{torrent_item.quality}\n" + (f"({'|'.join(torrent_item.quality_spec)})" if len(
-        torrent_item.quality_spec) > 0 else "")
-
-    size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
+def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, config, results: queue.Queue):
 
     title = f"{torrent_item.title}\n"
 
     if torrent_item.file_name is not None:
         title += f"{torrent_item.file_name}\n"
+
+    size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
+
 
     title += f"👥 {torrent_item.seeders}   💾 {size_in_gb}GB   🔍 {torrent_item.indexer}\n"
 
@@ -68,22 +63,30 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
         title += f"{get_emoji(language)}/"
     title = title[:-1]
 
-    queryb64 = encodeb64(json.dumps(torrent_item.to_debrid_stream_query())).replace('=', '%3D')
+    if config['debrid']:
+        if torrent_item.availability == True:
+            name = f"{INSTANTLY_AVAILABLE}\n"
+        else:
+            name = f"{DOWNLOAD_REQUIRED}\n"
+        name += f"{torrent_item.quality}\n" + (f"({'|'.join(torrent_item.quality_spec)})" if len(
+            torrent_item.quality_spec) > 0 else "")
 
-    results.put({
-        "name": name,
-        "description": title,
-        "url": f"{host}/playback/{configb64}/{queryb64}"
-    })
+        queryb64 = encodeb64(json.dumps(torrent_item.to_debrid_stream_query())).replace('=', '%3D')
 
-    if torrenting and torrent_item.privacy == "public" and torrent_item.file_index is not None:
+        results.put({
+            "name": name,
+            "description": title,
+            "url": f"{config['addonHost']}/playback/{configb64}/{queryb64}"
+        })
+
+    if config['torrenting'] and torrent_item.privacy != "private":
         name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n" + (f"({'|'.join(torrent_item.quality_spec)})" if len(
             torrent_item.quality_spec) > 0 else "")
         results.put({
             "name": name,
             "description": title,
             "infoHash": torrent_item.info_hash,
-            "fileIdx": int(torrent_item.file_index),
+            "fileIdx": int(torrent_item.file_index) if torrent_item.file_index else None,
             # "sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
         })
 
@@ -96,7 +99,7 @@ def parse_to_stremio_streams(torrent_items: List[TorrentItem], config):
     configb64 = encodeb64(json.dumps(config).replace('=', '%3D'))
     for torrent_item in torrent_items[:int(config['maxResults'])]:
         thread = threading.Thread(target=parse_to_debrid_stream,
-                                  args=(torrent_item, configb64, config['addonHost'], config['torrenting'],
+                                  args=(torrent_item, configb64, config,
                                         thread_results_queue),
                                   daemon=True)
         thread.start()
@@ -111,5 +114,7 @@ def parse_to_stremio_streams(torrent_items: List[TorrentItem], config):
     if len(stream_list) == 0:
         return []
 
-    stream_list = sorted(stream_list, key=filter_by_availability)
-    return sorted(stream_list, key=filter_by_direct_torrnet)
+    if config['debrid']:
+        stream_list = sorted(stream_list, key=filter_by_availability)
+        stream_list = sorted(stream_list, key=filter_by_direct_torrnet)
+    return stream_list
