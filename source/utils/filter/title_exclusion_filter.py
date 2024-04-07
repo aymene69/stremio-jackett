@@ -13,7 +13,7 @@ class TitleExclusionFilter(BaseFilter):
         excluded_keywords = [keyword.upper() for keyword in self.config['exclusionKeywords']]
         for stream in data:
             for keyword in excluded_keywords:
-                if keyword in stream['title'].upper():
+                if keyword in stream.title.upper():
                     break
             else:
                 filtered_items.append(stream)

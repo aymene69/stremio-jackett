@@ -19,8 +19,9 @@ class QualityExclusionFilter(BaseFilter):
         cams = "CAM" in excluded_qualities
 
         for stream in data:
-            if stream['quality'].upper() not in excluded_qualities:
-                detection = detect_quality_spec(stream['title'])
+            logger.info(stream)
+            if stream.quality.upper() not in excluded_qualities:
+                detection = detect_quality_spec(stream.title)
                 if detection is not None:
                     for item in detection:
                         if rips and item.upper() in self.RIPS:
