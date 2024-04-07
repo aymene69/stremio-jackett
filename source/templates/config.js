@@ -42,7 +42,7 @@ function updateProviderFields(isChangeEvent = false) {
 function loadData() {
     const currentUrl = window.location.href;
     let data = currentUrl.match(/\/([^\/]+)\/configure$/);
-    if (data) {
+    if (data && data[1].startsWith("ey")) {
         data = atob(data[1]);
         data = JSON.parse(data);
         if (document.getElementById('jackett-fields')) {
@@ -171,7 +171,7 @@ function getLink(method) {
         debrid,
         metadataProvider
     };
-    if ((jackett && (jackettHost === '' || jackettApi === '')) || (debrid && debridApi === '') || tmdbApi === '' || languages.length === 0) {
+    if ((jackett && (jackettHost === '' || jackettApi === '')) || (debrid && debridApi === '') || (metadataProvider === 'tmdb' && tmdbApi === '') || languages.length === 0) {
         alert('Please fill all required fields');
         return false;
     }
