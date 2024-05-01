@@ -79,6 +79,7 @@ async def root():
 @app.get("/configure")
 @app.get("/{config}/configure")
 async def configure(request: Request):
+    print(request.client.host)
     return templates.TemplateResponse(
         "index.html",
         {"request": request, "isCommunityVersion": COMMUNITY_VERSION},
@@ -118,7 +119,7 @@ logger.info("Started Jackett Addon")
 
 
 @app.get("/{config}/stream/{stream_type}/{stream_id}")
-async def get_results(config: str, stream_type: str, stream_id: str):
+async def get_results(config: str, stream_type: str, stream_id: str, request: Request):
     start = time.time()
     stream_id = stream_id.replace(".json", "")
 
@@ -177,7 +178,8 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     if config['debrid']:
         logger.debug("Checking availability")
         hashes = torrent_smart_container.get_hashes()
-        result = debrid_service.get_availability_bulk(hashes)
+        ip = request.client.host
+        result = debrid_service.get_availability_bulk(hashes, ip)
         torrent_smart_container.update_availability(result, type(debrid_service))
         logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
 
@@ -199,7 +201,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
 
 
 @app.get("/playback/{config}/{query}")
-async def get_playback(config: str, query: str):
+async def get_playback(config: str, query: str, request: Request):
     try:
         if not query:
             raise HTTPException(status_code=400, detail="Query required.")
@@ -208,9 +210,9 @@ async def get_playback(config: str, query: str):
         query = decodeb64(query)
         logger.info(query)
         logger.info("Decoded query")
-
+        ip = request.client.host
         debrid_service = get_debrid_service(config)
-        link = debrid_service.get_stream_link(query)
+        link = debrid_service.get_stream_link(query, ip)
 
         logger.info("Got link: " + link)
         return RedirectResponse(url=link, status_code=status.HTTP_301_MOVED_PERMANENTLY)
