@@ -79,7 +79,8 @@ async def root():
 @app.get("/configure")
 @app.get("/{config}/configure")
 async def configure(request: Request):
-    print(request.client.host)
+    print(request.headers.get("X-Real-IP"))
+    print(request.headers.get("X-Forwarded-For"))
     return templates.TemplateResponse(
         "index.html",
         {"request": request, "isCommunityVersion": COMMUNITY_VERSION},
