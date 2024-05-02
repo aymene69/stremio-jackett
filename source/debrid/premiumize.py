@@ -14,7 +14,7 @@ class Premiumize(BaseDebrid):
         super().__init__(config)
         self.base_url = "https://www.premiumize.me/api"
 
-    def add_magnet(self, magnet):
+    def add_magnet(self, magnet, ip=None):
         url = f"{self.base_url}/transfer/create?apikey={self.config['debridKey']}"
         form = {'src': magnet}
         return self.get_json_response(url, method='post', data=form)
@@ -47,7 +47,7 @@ class Premiumize(BaseDebrid):
             hashes_or_magnets)
         return self.get_json_response(url)
 
-    def get_stream_link(self, query):
+    def get_stream_link(self, query, ip=None):
         query = json.loads(query)
         magnet = query['magnet']
         logger.info(f"Received query for magnet: {magnet}")
