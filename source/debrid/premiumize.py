@@ -42,7 +42,7 @@ class Premiumize(BaseDebrid):
         url = f"{self.base_url}/cache/check?apikey={self.config['debridKey']}&items[]={hash}"
         return self.get_json_response(url)
 
-    def get_availability_bulk(self, hashes_or_magnets):
+    def get_availability_bulk(self, hashes_or_magnets, ip=None):
         url = f"{self.base_url}/cache/check?apikey={self.config['debridKey']}&items[]=" + "&items[]=".join(
             hashes_or_magnets)
         return self.get_json_response(url)

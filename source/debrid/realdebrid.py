@@ -73,7 +73,7 @@ class RealDebrid(BaseDebrid):
 
         return None
 
-    def get_availability_bulk(self, hashes_or_magnets):
+    def get_availability_bulk(self, hashes_or_magnets, ip=None):
         if len(hashes_or_magnets) == 0:
             logger.info("No hashes to be sent to Real-Debrid.")
             return dict()

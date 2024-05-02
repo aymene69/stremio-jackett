@@ -57,5 +57,5 @@ class BaseDebrid:
     def add_magnet(self, magnet):
         raise NotImplementedError
 
-    def get_availability_bulk(self, hashes_or_magnets):
+    def get_availability_bulk(self, hashes_or_magnets, ip=None):
         raise NotImplementedError

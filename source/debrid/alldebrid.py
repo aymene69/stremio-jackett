@@ -97,7 +97,7 @@ class AllDebrid(BaseDebrid):
 
         return unlocked_link_data["data"]["link"]
 
-    def get_availability_bulk(self, hashes_or_magnets, ip):
+    def get_availability_bulk(self, hashes_or_magnets, ip=None):
         if len(hashes_or_magnets) == 0:
             logger.info("No hashes to be sent to All-Debrid.")
             return dict()
