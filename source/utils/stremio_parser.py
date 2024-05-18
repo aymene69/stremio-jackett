@@ -68,8 +68,10 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, config, results
             name = f"{INSTANTLY_AVAILABLE}\n"
         else:
             name = f"{DOWNLOAD_REQUIRED}\n"
-        name += f"{torrent_item.quality}\n" + (f"({'|'.join(torrent_item.quality_spec)})" if len(
-            torrent_item.quality_spec) > 0 else "")
+        name += f"{torrent_item.quality}\n"
+        if len(torrent_item.quality_spec) > 0 and torrent_item.quality_spec[0] != "Unknown" and \
+                torrent_item.quality_spec[0] != "":
+            name += f"({'|'.join(torrent_item.quality_spec)})"
 
         queryb64 = encodeb64(json.dumps(torrent_item.to_debrid_stream_query())).replace('=', '%3D')
 
@@ -80,8 +82,10 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, config, results
         })
 
     if config['torrenting'] and torrent_item.privacy != "private":
-        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n" + (f"({'|'.join(torrent_item.quality_spec)})" if len(
-            torrent_item.quality_spec) > 0 else "")
+        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n"
+        if len(torrent_item.quality_spec) > 0 and torrent_item.quality_spec[0] != "Unknown" and \
+                torrent_item.quality_spec[0] != "":
+            name += f"({'|'.join(torrent_item.quality_spec)})"
         results.put({
             "name": name,
             "description": title,

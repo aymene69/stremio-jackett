@@ -1,5 +1,5 @@
 const sorts = ['quality', 'sizedesc', 'sizeasc', 'qualitythensize'];
-const qualityExclusions = ['4k', '1080p', '720p', '480p', 'rips', 'cam'];
+const qualityExclusions = ['4k', '1080p', '720p', '480p', 'rips', 'cam', 'unknown'];
 const languages = ['en', 'fr', 'es', 'de', 'it', 'pt', 'ru', 'in', 'nl', 'hu', 'la', 'multi'];
 
 document.addEventListener('DOMContentLoaded', function () {
@@ -122,7 +122,10 @@ function getLink(method) {
     const metadataProvider = document.getElementById('tmdb').checked ? 'tmdb' : 'cinemeta';
     const selectedQualityExclusion = [];
 
+    console.log('Test');
+
     qualityExclusions.forEach(quality => {
+        console.log(quality, document.getElementById(quality).checked);
         if (document.getElementById(quality).checked) {
             selectedQualityExclusion.push(quality);
         }
