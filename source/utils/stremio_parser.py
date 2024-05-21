@@ -53,7 +53,10 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
         name = f"{INSTANTLY_AVAILABLE}\n"
     else:
         name = f"{DOWNLOAD_REQUIRED}\n"
-    name += f"{torrent_item.resolution}" + (f"\n({'|'.join(torrent_item.quality)})" if len(
+
+    # TODO: Always take the first resolution, is that the best one?
+    resolution = torrent_item.resolution[0] if len(torrent_item.resolution) > 0 else "Unknown"
+    name += f"{resolution}" + (f"\n({'|'.join(torrent_item.quality)})" if len(
         torrent_item.quality) > 0 else "")
 
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
@@ -80,17 +83,27 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
     results.put({
         "name": name,
         "description": title,
-        "url": f"{host}/playback/{configb64}/{queryb64}"
+        "url": f"{host}/playback/{configb64}/{queryb64}",
+        "behaviorHints":{
+            "bingeGroup": f"stremio-jackett-{torrent_item.info_hash}",
+            "filename": torrent_item.file_name if torrent_item.file_name is not None else torrent_item.title
+        }
     })
 
-    if torrenting and torrent_item.privacy == "public" and torrent_item.file_index is not None:
-        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n" + (f"({'|'.join(torrent_item.quality)})" if len(
-            torrent_item.quality) > 0 else "")
+    if torrenting and torrent_item.privacy == "public":
+        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n"
+        if len(torrent_item.quality) > 0 and torrent_item.quality[0] != "Unknown" and \
+                torrent_item.quality[0] != "":
+            name += f"({'|'.join(torrent_item.quality)})"
         results.put({
             "name": name,
             "description": title,
             "infoHash": torrent_item.info_hash,
-            "fileIdx": int(torrent_item.file_index),
+            "fileIdx": int(torrent_item.file_index) if torrent_item.file_index else None,
+            "behaviorHints":{
+                "bingeGroup": f"stremio-jackett-{torrent_item.info_hash}",
+                "filename": torrent_item.file_name if torrent_item.file_name is not None else torrent_item.title
+            }
             # "sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
         })
 
@@ -118,5 +131,7 @@ def parse_to_stremio_streams(torrent_items: List[TorrentItem], config, media):
     if len(stream_list) == 0:
         return []
 
-    stream_list = sorted(stream_list, key=filter_by_availability)
-    return sorted(stream_list, key=filter_by_direct_torrnet)
+    if config['debrid']:
+        stream_list = sorted(stream_list, key=filter_by_availability)
+        stream_list = sorted(stream_list, key=filter_by_direct_torrnet)
+    return stream_list

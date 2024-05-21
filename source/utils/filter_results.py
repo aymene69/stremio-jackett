@@ -9,11 +9,15 @@ from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
-quality_order = {"4k": 0, "1080p": 1, "720p": 2, "480p": 3}
+quality_order = {"4k": 0, "2160p": 0, "1080p": 1, "720p": 2, "480p": 3}
 
 
 def sort_quality(item):
-    return quality_order.get(item.resolution, float('inf')), item.resolution is None
+    if len(item.resolution) == 0:
+        return float('inf'), True
+
+    # TODO: first resolution?
+    return quality_order.get(item.resolution[0], float('inf')), item.resolution is None
 
 
 def items_sort(items, config):
@@ -82,7 +86,8 @@ def filter_items(items, media, config):
         items = filter_out_non_matching(items, media.season, media.episode)
         logger.info(f"Item count changed to {len(items)}")
 
-    items = remove_non_matching_title(items, media.title)
+    # TODO: is titles[0] always the correct title? Maybe loop through all titles and get the highest match?
+    # items = remove_non_matching_title(items, media.title[0])
 
     for filter_name, filter_instance in filters.items():
         try:

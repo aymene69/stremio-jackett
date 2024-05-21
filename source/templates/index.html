@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <script src="https://cdn.tailwindcss.com"></script>
-    <title>Stremio-Jackett</title>
+    <title>Stremio-Jackett {% if isCommunityVersion %}Community{% endif %}</title>
     <style>
         /*On va ajouter la photo de fond */
         body {
@@ -50,21 +50,85 @@
 </head>
 <body class="backdrop-blur">
 <div id="container" style="display: flex;justify-content: center;align-items: center;">
-    <form style="padding: 2rem;border-radius: 1rem" class="bg-opacity-70 bg-white dark:bg-opacity-90 dark:bg-gray-900">
+    <form style="padding: 2rem;border-radius: 1rem" class="bg-opacity-70 bg-white dark:bg-opacity-90 dark:bg-gray-900 w-1/3 m-12">
         <img src="https://user-images.githubusercontent.com/27040483/28728094-99f3e3f6-73c7-11e7-8f8d-28912dc6ac0d.png"
              alt="logo" style="width: 100px; height: 100px;">
         <div class="space-y-12">
-            <p class="dark:text-white text-center">Stremio-Jackett v4.0.0</p>
+            <p class="dark:text-white text-center">Stremio-Jackett{% if isCommunityVersion %} Community{% endif %}
+                v4.1.5</p>
             <h1 class="text-base font-semibold leading-7 text-gray-900 dark:text-white"
                 style="text-align: center;font-size: 2rem;">
                 Addon configuration</h1>
 
+            <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
+                <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">Streaming</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter information
+                    about streaming here</p>
+                <br>
+                <div class="relative flex gap-x-3">
+                    <div class="flex h-6 items-center">
+                        <input id="debrid" name="debrid" value="debrid" type="checkbox"
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked
+                               oninput="updateProviderFields(true)">
+                    </div>
+                    <div class="text-sm leading-6">
+                        <label for="debrid" class="block text-sm font-medium mb-2 dark:text-white">Enable debrid
+                            service</label>
+                        <p class="text-gray-500 dark:text-gray-300">Enable debrid service for faster streaming</p>
+                    </div>
+                </div>
+                <div class="mt-10 relative flex gap-x-3">
+                    <div class="flex h-6 items-center">
+                        <input id="torrenting" name="torrenting" value="torrenting" type="checkbox"
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                               oninput="updateProviderFields(true)">
+                    </div>
+                    <div class="text-sm leading-6">
+                        <label for="torrenting" class="block text-sm font-medium mb-2 dark:text-white">Enable
+                            torrenting</label>
+                        <p class="text-gray-500 dark:text-gray-300"><span
+                                class="font-bold text-red-600 dark:text-red-500">(ATTENTION: this is illegal in some
+                            countries)</span></p>
+                    </div>
+                </div>
+            </div>
+
+            {% if not isCommunityVersion %}
 
             <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
+                <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">Torrent Providers</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter information about
+                    your torrent providers here</p>
+                <br>
+                <div class="relative flex gap-x-3">
+                    <div class="flex h-6 items-center">
+                        <input id="jackett" name="jackett" value="jackett" type="checkbox"
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked
+                               oninput="updateProviderFields(true)">
+                    </div>
+                    <div class="text-sm leading-6">
+                        <label for="jackett" class="block text-sm font-medium mb-2 dark:text-white">Enable
+                            Jackett</label>
+                        <p class="text-gray-500 dark:text-gray-300">Enable Jackett for more results</p>
+                    </div>
+                </div>
+                <div class="mt-10 relative flex gap-x-3">
+                    <div class="flex h-6 items-center">
+                        <input id="cache" name="cache" value="cache" type="checkbox"
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked
+                               oninput="updateProviderFields(true)">
+                    </div>
+                    <div class="text-sm leading-6">
+                        <label for="cache" class="block text-sm font-medium mb-2 dark:text-white">Enable cache</label>
+                        <p class="text-gray-500 dark:text-gray-300">Enable caching for faster results</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-b border-gray-900/10 dark:border-white/50 pb-12" id="jackett-fields">
                 <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">Jackett Information</h2>
                 <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter information about your
-                    Jackett
-                    server here</p>
+                    Jackett server here</p>
 
                 <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                     <div class="sm:col-span-3">
@@ -90,12 +154,12 @@
                 </div>
             </div>
 
+            {% endif %}
 
-            <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
+            <div class="border-b border-gray-900/10 dark:border-white/50 pb-12" id="debrid-fields">
                 <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">Debrid Information</h2>
                 <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter your debrid provider
-                    and its API
-                    key here</p>
+                    and its API key here</p>
 
                 <div class="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                     <div class="sm:col-span-3">
@@ -123,30 +187,39 @@
             </div>
 
             <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
-                <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">Direct Torrenting</h2>
-                <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter information about the
-                    torrenting
-                    settings</p>
+                <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">Metadata Provider</h2>
+                <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter information about
+                    your metadata provider here</p>
                 <br>
                 <div class="relative flex gap-x-3">
-                    <div class="flex items-center h-5">
-                        <input oninput="" id="torrenting" name="torrenting" value="torrenting" type="checkbox"
-                               class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600">
+                    <div class="flex h-6 items-center">
+                        <input id="tmdb" name="metadataProvider" value="tmdb" type="radio"
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked
+                               oninput="updateProviderFields(true)">
                     </div>
-                    <div class="ms-2 text-sm">
-                        <label for="torrenting" class="font-medium text-gray-900 dark:text-gray-300">Enable
-                            torrenting</label>
-                        <p class="text-xs font-normal text-gray-500 dark:text-gray-400">Enable direct torrenting <span
-                                class="font-bold text-red-600 dark:text-red-500">(ATTENTION: this is illegal in some
-                            countries)</span></p>
+                    <div class="text-sm leading-6">
+                        <label for="tmdb" class="block text-sm font-medium mb-2 dark:text-white">TMDB</label>
+                        <p class="text-gray-500 dark:text-gray-300">Use TMDB for more accurate metadata in different
+                            languages</p>
+                    </div>
+                </div>
+                <div class="mt-10 relative flex gap-x-3">
+                    <div class="flex h-6 items-center">
+                        <input id="cinemeta" name="metadataProvider" value="cinemeta" type="radio"
+                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                               oninput="updateProviderFields(true)">
+                    </div>
+                    <div class="text-sm leading-6">
+                        <label for="cinemeta" class="block text-sm font-medium mb-2 dark:text-white">Cinemeta</label>
+                        <p class="text-gray-500 dark:text-gray-300">Use Cinemeta for simple metadata</p>
                     </div>
                 </div>
             </div>
 
-            <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
+            <div class="border-b border-gray-900/10 dark:border-white/50 pb-12" id="tmdb-fields">
                 <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">TMDB Informations</h2>
-                <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter here informations
-                    about TMDB. You can
+                <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter information
+                    about TMDB here. You can
                     find your API key in "Settings" after registering <a href="https://www.themoviedb.org/signup"
                                                                          target="_blank">here</a></p>
 
@@ -159,23 +232,6 @@
                                    class="py-3 px-4 block w-full border-gray-200 rounded-lg text-sm focus:border-blue-500 focus:ring-blue-500 disabled:opacity-50 disabled:pointer-events-none dark:bg-slate-900 dark:border-gray-700 dark:text-gray-400 dark:focus:ring-gray-600"
                                    placeholder="Your TMDB API key">
                         </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="border-b border-gray-900/10 dark:border-white/50 pb-12">
-                <h2 class="text-base font-semibold leading-7 text-gray-900 dark:text-white">Caching</h2>
-                <p class="mt-1 text-sm leading-6 text-gray-600 dark:text-gray-400">You will enter here informations
-                    about the cache</p>
-                <br>
-                <div class="relative flex gap-x-3">
-                    <div class="flex h-6 items-center">
-                        <input oninput="" id="cache" name="cache" value="cache" type="checkbox"
-                               class="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600" checked>
-                    </div>
-                    <div class="text-sm leading-6">
-                        <label for="cache" class="block text-sm font-medium mb-2 dark:text-white">Enable cache</label>
-                        <p class="text-gray-500 dark:text-gray-300">Enable caching for faster results</p>
                     </div>
                 </div>
             </div>
@@ -441,251 +497,9 @@
                 <a id="copy" onclick="return getLink('copy')"
                    class="cursor-pointer rounded-md bg-black px-3 py-2 text-sm font-semibold text-white dark:text-black dark:bg-white shadow-sm hover:bg--500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600">Copy</a>
             </div>
+        </div>
     </form>
 </div>
 </body>
-<script>
-    function loadData() {
-        var currentUrl = window.location.href;
-        var data = currentUrl.match(/\/([^\/]+)\/configure$/);
-        if (data) {
-            data = atob(data[1]);
-            data = JSON.parse(data);
-            document.getElementById('jackett-host').value = data.jackettHost;
-            document.getElementById('jackett-api').value = data.jackettApiKey;
-            document.getElementById('debrid-api').value = data.debridKey;
-            document.getElementById('tmdb-api').value = data.tmdbApi;
-            document.getElementById('service').value = data.service;
-            document.getElementById('exclusion-keywords').value = (data.exclusionKeywords || []).join(', ');
-            document.getElementById('maxSize').value = data.maxSize;
-            document.getElementById('resultsPerQuality').value = data.resultsPerQuality;
-            document.getElementById('maxResults').value = data.maxResults;
-            document.getElementById('cache').checked = data.cache;
-            document.getElementById('torrenting').checked = data.torrenting;
-            if (data.sort === 'quality') {
-                document.getElementById('quality').checked = true;
-            }
-            if (data.sort === 'sizedesc') {
-                document.getElementById('sizedesc').checked = true;
-            }
-            if (data.sort === 'sizeasc') {
-                document.getElementById('sizeasc').checked = true;
-            }
-            if (data.sort === 'qualitythensize') {
-                document.getElementById('qualitythensize').checked = true;
-            }
-            if (data.exclusion.includes('4k')) {
-                document.getElementById('4k').checked = true;
-            }
-            if (data.exclusion.includes('1080p')) {
-                document.getElementById('1080p').checked = true;
-            }
-            if (data.exclusion.includes('720p')) {
-                document.getElementById('720p').checked = true;
-            }
-            if (data.exclusion.includes('480p')) {
-                document.getElementById('480p').checked = true;
-            }
-            if (data.exclusion.includes('rips')) {
-                document.getElementById('rips').checked = true;
-            }
-            if (data.exclusion.includes('cam')) {
-                document.getElementById('cam').checked = true;
-            }
-            if (data.languages.includes('en')) {
-                document.getElementById('en').checked = true;
-            }
-            if (data.languages.includes('fr')) {
-                document.getElementById('fr').checked = true;
-            }
-            if (data.languages.includes('es')) {
-                document.getElementById('es').checked = true;
-            }
-            if (data.languages.includes('de')) {
-                document.getElementById('de').checked = true;
-            }
-            if (data.languages.includes('it')) {
-                document.getElementById('it').checked = true;
-            }
-            if (data.languages.includes('pt')) {
-                document.getElementById('pt').checked = true;
-            }
-            if (data.languages.includes('ru')) {
-                document.getElementById('ru').checked = true;
-            }
-            if (data.languages.includes('in')) {
-                document.getElementById('in').checked = true;
-            }
-            if (data.languages.includes('nl')) {
-                document.getElementById('nl').checked = true;
-            }
-            if (data.languages.includes('hu')) {
-                document.getElementById('hu').checked = true;
-            }
-            if (data.languages.includes('la')) {
-                document.getElementById('la').checked = true;
-            }
-            if (data.languages.includes('multi')) {
-                document.getElementById('multi').checked = true;
-            }
-
-        }
-    }
-
-    let showLanguageCheckBoxes = true;
-
-    function showCheckboxes() {
-        let checkboxes = document.getElementById("languageCheckBoxes");
-
-        if (showLanguageCheckBoxes) {
-            checkboxes.style.display = "block";
-            showLanguageCheckBoxes = false;
-        } else {
-            checkboxes.style.display = "none";
-            showLanguageCheckBoxes = true;
-        }
-    }
-
-    loadData();
-
-    function getLink(method) {
-        const addonHost = new URL(window.location.href).protocol.replace(':', '') + "://" + new URL(window.location.href).host
-        const jackettHost = document.getElementById('jackett-host').value;
-        const jackettApi = document.getElementById('jackett-api').value;
-        const debridApi = document.getElementById('debrid-api').value;
-        const tmdbApi = document.getElementById('tmdb-api').value;
-        const service = document.getElementById('service').value;
-        const exclusionKeywords = document.getElementById('exclusion-keywords').value.split(',').map(keyword => keyword.trim()).filter(keyword => keyword !== '');
-        let maxSize = document.getElementById('maxSize').value;
-        let resultsPerQuality = document.getElementById('resultsPerQuality').value;
-        let maxResults = document.getElementById('maxResults').value;
-        const cache = document.getElementById('cache').checked;
-        const torrenting = document.getElementById('torrenting').checked;
-        const qualityExclusion = [];
-        if (document.getElementById('4k').checked) {
-            qualityExclusion.push('4k');
-        }
-        if (document.getElementById('1080p').checked) {
-            qualityExclusion.push('1080p');
-        }
-        if (document.getElementById('720p').checked) {
-            qualityExclusion.push('720p');
-        }
-        if (document.getElementById('480p').checked) {
-            qualityExclusion.push('480p');
-        }
-        if (document.getElementById('rips').checked) {
-            qualityExclusion.push('rips');
-        }
-        if (document.getElementById('cam').checked) {
-            qualityExclusion.push('cam');
-        }
-        const languages = [];
-        if (document.getElementById('en').checked) {
-            languages.push('en')
-        }
-        if (document.getElementById('fr').checked) {
-            languages.push('fr')
-        }
-        if (document.getElementById('es').checked) {
-            languages.push('es')
-        }
-        if (document.getElementById('de').checked) {
-            languages.push('de')
-        }
-        if (document.getElementById('it').checked) {
-            languages.push('it')
-        }
-        if (document.getElementById('pt').checked) {
-            languages.push('pt')
-        }
-        if (document.getElementById('ru').checked) {
-            languages.push('ru')
-        }
-        if (document.getElementById('in').checked) {
-            languages.push('in')
-        }
-        if (document.getElementById('nl').checked) {
-            languages.push('nl')
-        }
-        if (document.getElementById('hu').checked) {
-            languages.push('hu')
-        }
-        if (document.getElementById('la').checked) {
-            languages.push('la')
-        }
-        if (document.getElementById('multi').checked) {
-            languages.push('multi')
-        }
-
-        let qualityChecked = document.getElementById('quality').checked;
-        let sizedescChecked = document.getElementById('sizedesc').checked;
-        let sizeascChecked = document.getElementById('sizeasc').checked;
-        let qualitythensizeChecked = document.getElementById('qualitythensize').checked;
-        let filter;
-        if (qualityChecked) {
-            filter = 'quality';
-        }
-        if (sizedescChecked) {
-            filter = 'sizedesc';
-        }
-        if (sizeascChecked) {
-            filter = 'sizeasc';
-        }
-        if (qualitythensizeChecked) {
-            filter = 'qualitythensize';
-        }
-        if (maxSize === '' || isNaN(maxSize)) {
-            maxSize = 0;
-        }
-        if (maxResults === '' || isNaN(maxResults)) {
-            maxResults = 5;
-        }
-        if (resultsPerQuality === '' || isNaN(resultsPerQuality)) {
-            resultsPerQuality = 1;
-        }
-        let data = {
-            addonHost,
-            jackettHost,
-            'jackettApiKey': jackettApi,
-            service,
-            'debridKey': debridApi,
-            maxSize,
-            exclusionKeywords,
-            languages,
-            'sort': filter,
-            resultsPerQuality,
-            maxResults,
-            'exclusion': qualityExclusion,
-            tmdbApi,
-            cache,
-            torrenting
-        };
-        if (jackettHost === '' || jackettApi === '' || debridApi === '' || tmdbApi === '' || languages.length === 0) {
-            alert('Please fill all the fields');
-            return false;
-        }
-        let stremio_link = `${window.location.host}/${btoa(JSON.stringify(data))}/manifest.json`;
-
-        if (method === 'link') {
-            window.open(`stremio://${stremio_link}`, "_blank");
-        } else if (method === 'copy') {
-            const link = window.location.protocol + '//' + stremio_link;
-
-            if (!navigator.clipboard) {
-                alert('Your browser does not support clipboard');
-                console.log(link);
-                return;
-            }
-
-            navigator.clipboard.writeText(link).then(() => {
-                alert('Link copied to clipboard');
-            }, () => {
-                alert('Error copying link to clipboard');
-            });
-        }
-    }
-
-
-</script>
+<script src="/static/config.js"></script>
 </html>

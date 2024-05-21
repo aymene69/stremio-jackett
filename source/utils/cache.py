@@ -13,8 +13,12 @@ logger = setup_logger(__name__)
 def search_cache(media):
     logger.info("Searching for cached " + media.type + " results")
     url = CACHER_URL + "getResult/" + media.type + "/"
+    # Without that, the cache doesn't return results. Maybe make multiple requests? One for each language, just like jackett?
+    cache_search = media.__dict__
+    cache_search['title'] = cache_search['titles'][0]
+    cache_search['language'] = cache_search['languages'][0]
     # TODO: Wtf, why do we need to use __dict__ here? And also, why is it stuck when we use media directly?
-    response = requests.get(url, json=media.__dict__)
+    response = requests.get(url, json=cache_search)
     return response.json()
 
 

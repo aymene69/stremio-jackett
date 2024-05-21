@@ -51,11 +51,11 @@ class BaseDebrid:
 
         return response.content
 
-    def get_stream_link(self, query):
+    def get_stream_link(self, query, ip=None):
         raise NotImplementedError
 
-    def add_magnet(self, magnet):
+    def add_magnet(self, magnet, ip=None):
         raise NotImplementedError
 
-    def get_availability_bulk(self, hashes_or_magnets):
+    def get_availability_bulk(self, hashes_or_magnets, ip=None):
         raise NotImplementedError

@@ -1,6 +1,7 @@
 import hashlib
 import queue
 import threading
+import time
 import urllib.parse
 from typing import List
 
@@ -50,7 +51,15 @@ class TorrentService:
         return torrent_items_result
 
     def __process_web_url(self, result: TorrentItem):
-        response = self.__session.get(result.link, allow_redirects=False)
+        try:
+            # TODO: is the timeout enough?
+            response = self.__session.get(result.link, allow_redirects=False, timeout=2)
+        except requests.exceptions.RequestException:
+            self.logger.error(f"Error while processing url: {result.link}")
+            return result
+        except requests.exceptions.ReadTimeout:
+            self.logger.error(f"Timeout while processing url: {result.link}")
+            return result
 
         if response.status_code == 200:
             return self.__process_torrent(result, response.content)

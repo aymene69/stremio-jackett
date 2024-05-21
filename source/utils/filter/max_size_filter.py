@@ -11,7 +11,7 @@ class MaxSizeFilter(BaseFilter):
     def filter(self, data):
         filtered_data = []
         for torrent in data:
-            if torrent['size'] <= self.config['maxSize']:
+            if torrent.size <= self.config['maxSize']:
                 filtered_data.append(torrent)
         return filtered_data
 

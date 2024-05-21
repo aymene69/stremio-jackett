@@ -273,8 +273,7 @@ class JackettService:
             parsed_result = parse(result.raw_title)
             # result.languages = [languages.get(name=language).alpha2 for language in parsed_result.language]
             result.languages = detect_languages(result.raw_title)
-            result.resolution = parsed_result.resolution[0] if parsed_result.resolution and len(
-                parsed_result.resolution) > 0 else 'Unknown'
+            result.resolution = parsed_result.resolution
             result.quality = parsed_result.quality
             result.codec = parsed_result.codec
             result.audio = parsed_result.audio

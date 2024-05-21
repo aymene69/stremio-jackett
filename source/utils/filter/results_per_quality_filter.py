@@ -13,13 +13,16 @@ class ResultsPerQualityFilter(BaseFilter):
         resolution_count = {}
         for item in data:
             logger.info(f"Filtering by quality: {item.resolution}")
-            if item.resolution not in resolution_count:
-                resolution_count[item.resolution] = 1
-                filtered_items.append(item)
-            else:
-                if resolution_count[item.resolution] < int(self.config['resultsPerQuality']):
-                    resolution_count[item.resolution] += 1
+            for resolution in item.resolution:
+                if resolution not in resolution_count:
+                    resolution_count[resolution] = 1
                     filtered_items.append(item)
+                else:
+                    if resolution_count[resolution] < int(self.config['resultsPerQuality']):
+                        resolution_count[resolution] += 1
+                        filtered_items.append(item)
+            else:
+                filtered_items.append(item)
 
         return filtered_items
 

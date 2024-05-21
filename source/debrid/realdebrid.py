@@ -20,7 +20,7 @@ class RealDebrid(BaseDebrid):
         self.base_url = "https://api.real-debrid.com"
         self.headers = {"Authorization": f"Bearer {self.config['debridKey']}"}
 
-    def add_magnet(self, magnet):
+    def add_magnet(self, magnet, ip=None):
         url = f"{self.base_url}/rest/1.0/torrents/addMagnet"
         data = {"magnet": magnet}
         return self.get_json_response(url, method='post', headers=self.headers, data=data)
@@ -73,7 +73,7 @@ class RealDebrid(BaseDebrid):
 
         return None
 
-    def get_availability_bulk(self, hashes_or_magnets):
+    def get_availability_bulk(self, hashes_or_magnets, ip=None):
         if len(hashes_or_magnets) == 0:
             logger.info("No hashes to be sent to Real-Debrid.")
             return dict()
@@ -81,7 +81,7 @@ class RealDebrid(BaseDebrid):
         url = f"{self.base_url}/rest/1.0/torrents/instantAvailability/{'/'.join(hashes_or_magnets)}"
         return self.get_json_response(url, headers=self.headers)
 
-    def get_stream_link(self, query_string):
+    def get_stream_link(self, query_string, ip=None):
         query = json.loads(query_string)
 
         magnet = query['magnet']
