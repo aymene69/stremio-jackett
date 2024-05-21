@@ -6,6 +6,8 @@ from torrent.torrent_item import TorrentItem
 
 class JackettResult:
     def __init__(self):
+        self.title = None  # Parsed title of the torrent
+        self.raw_title = None  # Raw title of the torrent
         self.title = None  # Title of the torrent
         self.size = None  # Size of the torrent
         self.link = None  # Download link for the torrent file or magnet url
@@ -30,6 +32,7 @@ class JackettResult:
     def convert_to_torrent_item(self):
         return TorrentItem(
             self.title,
+            self.raw_title,
             self.size,
             self.magnet,
             self.info_hash.lower() if self.info_hash is not None else None,
@@ -51,13 +54,14 @@ class JackettResult:
         parsed_result = parse(cached_item['title'])
 
         self.title = cached_item['title']
+        self.title = parsed_result.parsed_title
         self.indexer = "Cache"  # Cache doesn't return an indexer sadly (It stores it tho)
         self.magnet = cached_item['magnet']
         self.link = cached_item['magnet']
         self.info_hash = cached_item['hash']
         self.languages = cached_item['language'].split(";") if cached_item['language'] is not None else []
-        self.resolution = cached_item['quality']
-        self.quality = cached_item['qualitySpec'].split(";") if cached_item['qualitySpec'] is not None else []
+        self.resolution = parsed_result.resolution
+        self.quality = parsed_result.quality
         self.codec = parsed_result.codec
         self.audio = parsed_result.audio
         self.seeders = cached_item['seeders']

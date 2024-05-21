@@ -1,6 +1,4 @@
-import re
-
-from RTN import SettingsModel, RTN, DefaultRanking
+from RTN import title_match
 
 from utils.filter.language_filter import LanguageFilter
 from utils.filter.max_size_filter import MaxSizeFilter
@@ -45,19 +43,22 @@ def items_sort(items, config):
 #         filtered_items.append(item)
 #     return filtered_items
 
+# TODO: not needed anymore because of RTN
 def filter_out_non_matching(items, season, episode):
     filtered_items = []
     for item in items:
-        title = item.title.upper()
-        season_pattern = r'S\d+'
-        episode_pattern = r'E\d+'
-
-        season_substrings = re.findall(season_pattern, title)
-        if len(season_substrings) > 0 and season not in season_substrings:
+        if season not in item.seasons or episode not in item.episodes:
             continue
 
-        episode_substrings = re.findall(episode_pattern, title)
-        if len(episode_substrings) > 0 and episode not in episode_substrings:
+        filtered_items.append(item)
+
+    return filtered_items
+
+
+def remove_non_matching_title(items, title):
+    filtered_items = []
+    for item in items:
+        if not title_match(title, item.title):
             continue
 
         filtered_items.append(item)
@@ -74,12 +75,14 @@ def filter_items(items, media, config):
         "resultsPerQuality": ResultsPerQualityFilter(config)
     }
 
-    # Filtering out 100% non matching for series
+    # Filtering out 100% non-matching for series
     logger.info(f"Item count before filtering: {len(items)}")
     if media.type == "series":
         logger.info(f"Filtering out non matching series torrents")
         items = filter_out_non_matching(items, media.season, media.episode)
         logger.info(f"Item count changed to {len(items)}")
+
+    items = remove_non_matching_title(items, media.title)
 
     for filter_name, filter_instance in filters.items():
         try:

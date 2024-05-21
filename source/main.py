@@ -177,7 +177,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
 
     logger.info("Processing results")
-    stream_list = parse_to_stremio_streams(best_matching_results, config)
+    stream_list = parse_to_stremio_streams(best_matching_results, config, media)
     logger.info("Processed results (results: " + str(len(stream_list)) + ")")
 
     logger.info("Total time: " + str(time.time() - start) + "s")
@@ -185,6 +185,7 @@ async def get_results(config: str, stream_type: str, stream_id: str):
     return {"streams": stream_list}
 
 
+# @app.head("/playback/{config}/{query}")
 @app.get("/playback/{config}/{query}")
 async def get_playback(config: str, query: str):
     try:

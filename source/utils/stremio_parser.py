@@ -3,6 +3,7 @@ import queue
 import threading
 from typing import List
 
+from models.media import Media
 from torrent.torrent_item import TorrentItem
 from utils.logger import setup_logger
 from utils.string_encoding import encodeb64
@@ -47,17 +48,17 @@ def filter_by_direct_torrnet(item):
         return 0
 
 
-def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrenting, results: queue.Queue):
+def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrenting, results: queue.Queue, media: Media):
     if torrent_item.availability == True:
         name = f"{INSTANTLY_AVAILABLE}\n"
     else:
         name = f"{DOWNLOAD_REQUIRED}\n"
-    name += f"{torrent_item.resolution}\n" + (f"({'|'.join(torrent_item.quality)})" if len(
+    name += f"{torrent_item.resolution}" + (f"\n({'|'.join(torrent_item.quality)})" if len(
         torrent_item.quality) > 0 else "")
 
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
 
-    title = f"{torrent_item.title}\n"
+    title = f"{torrent_item.raw_title}\n"
 
     if torrent_item.file_name is not None:
         title += f"{torrent_item.file_name}\n"
@@ -74,7 +75,7 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
         title += f"{get_emoji(language)}/"
     title = title[:-1]
 
-    queryb64 = encodeb64(json.dumps(torrent_item.to_debrid_stream_query())).replace('=', '%3D')
+    queryb64 = encodeb64(json.dumps(torrent_item.to_debrid_stream_query(media))).replace('=', '%3D')
 
     results.put({
         "name": name,
@@ -94,7 +95,7 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
         })
 
 
-def parse_to_stremio_streams(torrent_items: List[TorrentItem], config):
+def parse_to_stremio_streams(torrent_items: List[TorrentItem], config, media):
     stream_list = []
     threads = []
     thread_results_queue = queue.Queue()
@@ -103,7 +104,7 @@ def parse_to_stremio_streams(torrent_items: List[TorrentItem], config):
     for torrent_item in torrent_items[:int(config['maxResults'])]:
         thread = threading.Thread(target=parse_to_debrid_stream,
                                   args=(torrent_item, configb64, config['addonHost'], config['torrenting'],
-                                        thread_results_queue),
+                                        thread_results_queue, media),
                                   daemon=True)
         thread.start()
         threads.append(thread)

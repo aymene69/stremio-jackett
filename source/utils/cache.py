@@ -29,7 +29,7 @@ def cache_results(torrents: List[TorrentItem], media):
         try:
             cache_item = dict()
 
-            cache_item['title'] = torrent.title
+            cache_item['title'] = torrent.raw_title
             cache_item['trackers'] = "tracker:".join(torrent.trackers)
             cache_item['magnet'] = torrent.magnet
             cache_item['files'] = []  # I guess keep it empty?

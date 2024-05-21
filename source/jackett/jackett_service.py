@@ -244,7 +244,7 @@ class JackettService:
             if int(result.seeders) <= 0:
                 continue
 
-            result.title = item.find('title').text
+            result.raw_title = item.find('title').text
             result.size = item.find('size').text
             result.link = item.find('link').text
             result.indexer = item.find('jackettindexer').text
@@ -270,9 +270,9 @@ class JackettService:
             # self.logger.info(result.title)
             # self.logger.info(parse(result.title))
 
-            parsed_result = parse(result.title)
+            parsed_result = parse(result.raw_title)
             # result.languages = [languages.get(name=language).alpha2 for language in parsed_result.language]
-            result.languages = detect_languages(result.title)
+            result.languages = detect_languages(result.raw_title)
             result.resolution = parsed_result.resolution[0] if parsed_result.resolution and len(
                 parsed_result.resolution) > 0 else 'Unknown'
             result.quality = parsed_result.quality

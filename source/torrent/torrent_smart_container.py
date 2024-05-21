@@ -33,7 +33,7 @@ class TorrentSmartContainer:
         self.logger.debug(f"Amount of items: {len(self.__itemsDict)}")
         for torrent_item in self.__itemsDict.values():
             self.logger.debug(f"-------------------")
-            self.logger.debug(f"Checking {torrent_item.title}")
+            self.logger.debug(f"Checking {torrent_item.raw_title}")
             self.logger.debug(f"Has torrent: {torrent_item.torrent_download is not None}")
             if torrent_item.torrent_download is not None:  # Torrent download
                 self.logger.debug(f"Has file index: {torrent_item.file_index is not None}")
