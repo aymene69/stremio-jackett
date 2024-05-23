@@ -1,4 +1,5 @@
 import json
+import os
 from typing import List
 
 import requests
@@ -23,6 +24,9 @@ def search_cache(media):
 
 
 def cache_results(torrents: List[TorrentItem], media):
+    if os.getenv("NODE_ENV") == "development":
+        return
+
     logger.info("Started caching results")
 
     cache_items = []
@@ -39,8 +43,8 @@ def cache_results(torrents: List[TorrentItem], media):
             cache_item['files'] = []  # I guess keep it empty?
             cache_item['hash'] = torrent.info_hash
             cache_item['indexer'] = torrent.indexer
-            cache_item['quality'] = torrent.resolution
-            cache_item['qualitySpec'] = ";".join(torrent.quality)
+            cache_item['quality'] = torrent.parsed_data.resolution[0] if len(torrent.parsed_data.resolution) > 0 else "Unknown"
+            cache_item['qualitySpec'] = ";".join(torrent.parsed_data.quality)
             cache_item['seeders'] = torrent.seeders
             cache_item['size'] = torrent.size
             cache_item['language'] = ";".join(torrent.languages)
@@ -58,6 +62,7 @@ def cache_results(torrents: List[TorrentItem], media):
         except:
             logger.exception("An exception occured durring cache parsing")
             pass
+
     try:
         url = f"{CACHER_URL}pushResult/{media.type}"
         cache_data = json.dumps(cache_items, indent=4)

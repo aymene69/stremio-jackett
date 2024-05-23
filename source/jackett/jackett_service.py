@@ -272,14 +272,9 @@ class JackettService:
 
             parsed_result = parse(result.raw_title)
             # result.languages = [languages.get(name=language).alpha2 for language in parsed_result.language]
+            result.parsed_data = parsed_result
+            # TODO: replace with parsed_result.lang_codes when RTN is updated
             result.languages = detect_languages(result.raw_title)
-            result.resolution = parsed_result.resolution
-            result.quality = parsed_result.quality
-            result.codec = parsed_result.codec
-            result.audio = parsed_result.audio
-
-            if isinstance(media, Series):
-                result.season = media.season
-                result.episode = media.episode
+            result.type = media.type
 
         return results

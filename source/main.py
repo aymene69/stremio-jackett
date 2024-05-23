@@ -24,8 +24,7 @@ from metdata.tmdb import TMDB
 from torrent.torrent_service import TorrentService
 from torrent.torrent_smart_container import TorrentSmartContainer
 from utils.cache import search_cache
-from utils.filter_results import filter_items
-from utils.filter_results import sort_items
+from utils.filter_results import filter_items, sort_items
 from utils.logger import setup_logger
 from utils.parse_config import parse_config
 from utils.stremio_parser import parse_to_stremio_streams
@@ -181,7 +180,7 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
         hashes = torrent_smart_container.get_hashes()
         ip = request.client.host
         result = debrid_service.get_availability_bulk(hashes, ip)
-        torrent_smart_container.update_availability(result, type(debrid_service))
+        torrent_smart_container.update_availability(result, type(debrid_service), media)
         logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
 
     # TODO: Maybe add an if to only save to cache if caching is enabled?

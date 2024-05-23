@@ -1,4 +1,4 @@
-from RTN import title_match
+from RTN import title_match, RTN, DefaultRanking, SettingsModel, sort_torrents
 
 from utils.filter.language_filter import LanguageFilter
 from utils.filter.max_size_filter import MaxSizeFilter
@@ -13,14 +13,38 @@ quality_order = {"4k": 0, "2160p": 0, "1080p": 1, "720p": 2, "480p": 3}
 
 
 def sort_quality(item):
-    if len(item.resolution) == 0:
+    if len(item.parsed_data.data.resolution) == 0:
         return float('inf'), True
 
     # TODO: first resolution?
-    return quality_order.get(item.resolution[0], float('inf')), item.resolution is None
+    return quality_order.get(item.parsed_data.data.resolution[0],
+                             float('inf')), item.parsed_data.data.resolution is None
 
 
 def items_sort(items, config):
+    logger.info(config)
+
+    settings = SettingsModel(
+        require=[],
+        exclude=config['exclusionKeywords'] + config['exclusion'],
+        preferred=[],
+        # custom_ranks={
+        #     "uhd": CustomRank(enable=True, fetch=True, rank=200),
+        #     "hdr": CustomRank(enable=True, fetch=True, rank=100),
+        # }
+    )
+
+    rtn = RTN(settings=settings, ranking_model=DefaultRanking())
+    torrents = [rtn.rank(item.raw_title, item.info_hash) for item in items]
+    sorted_torrents = sort_torrents(set(torrents))
+
+    for key, value in sorted_torrents.items():
+        index = next((i for i, item in enumerate(items) if item.info_hash == key), None)
+        if index is not None:
+            items[index].parsed_data = value
+
+    logger.info(items)
+
     if config['sort'] == "quality":
         return sorted(items, key=sort_quality)
     if config['sort'] == "sizeasc":
@@ -51,21 +75,39 @@ def items_sort(items, config):
 def filter_out_non_matching(items, season, episode):
     filtered_items = []
     for item in items:
-        if season not in item.seasons or episode not in item.episodes:
+        logger.info(season)
+        logger.info(episode)
+        logger.info(item.parsed_data)
+        clean_season = season.replace("S", "")
+        clean_episode = episode.replace("E", "")
+        numeric_season = int(clean_season)
+        numeric_episode = int(clean_episode)
+
+        if len(item.parsed_data.season) == 0 and len(item.parsed_data.episode) == 0:
             continue
 
-        filtered_items.append(item)
+        if len(item.parsed_data.episode) == 0 and numeric_season in item.parsed_data.season:
+            filtered_items.append(item)
+            continue
+
+        if numeric_season in item.parsed_data.season and numeric_episode in item.parsed_data.episode:
+            filtered_items.append(item)
+            continue
+
 
     return filtered_items
 
 
-def remove_non_matching_title(items, title):
+def remove_non_matching_title(items, titles):
+    logger.info(titles)
     filtered_items = []
     for item in items:
-        if not title_match(title, item.title):
-            continue
+        for title in titles:
+            if not title_match(title, item.parsed_data.parsed_title):
+                continue
 
-        filtered_items.append(item)
+            filtered_items.append(item)
+            break
 
     return filtered_items
 
@@ -87,7 +129,7 @@ def filter_items(items, media, config):
         logger.info(f"Item count changed to {len(items)}")
 
     # TODO: is titles[0] always the correct title? Maybe loop through all titles and get the highest match?
-    # items = remove_non_matching_title(items, media.title[0])
+    items = remove_non_matching_title(items, media.titles)
 
     for filter_name, filter_instance in filters.items():
         try:

@@ -6,12 +6,10 @@ from utils.logger import setup_logger
 
 
 class TorrentItem:
-    def __init__(self, title, raw_title, size, magnet, info_hash, link, seeders, languages, resolution, quality, codec, audio, indexer,
-                 privacy,
-                 episode=None, season=None, type=None):
+    def __init__(self, raw_title, size, magnet, info_hash, link, seeders, languages, indexer,
+                 privacy, type=None, parsed_data=None):
         self.logger = setup_logger(__name__)
 
-        self.title = title  # Parsed title of the torrent
         self.raw_title = raw_title  # Raw title of the torrent
         self.size = size  # Size of the video file inside the torrent - it may be updated during __process_torrent()
         self.magnet = magnet  # Magnet to torrent
@@ -19,13 +17,7 @@ class TorrentItem:
         self.link = link  # Link to download torrent file or magnet link
         self.seeders = seeders  # The number of seeders
         self.languages = languages  # Language of the torrent
-        self.resolution = resolution  # Resolution of the torrent
-        self.quality = quality  # Quality of the torrent
-        self.codec = codec  # Codec of the media
-        self.audio = audio  # Audio of the media
         self.indexer = indexer  # Indexer of the torrent
-        self.episodes = episode  # Episode if it's a series (for example: "E01" or "E14")
-        self.seasons = season  # Season if it's a series (for example: "S01" or "S14")
         self.type = type  # "series" or "movie"
         self.privacy = privacy  # "public" or "private"
 
@@ -36,6 +28,8 @@ class TorrentItem:
         self.file_index = None  # Index of the file inside of the torrent - it may be updated durring __process_torrent() and update_availability(). If the index is None and torrent is not None, it means that the series episode is not inside of the torrent.
 
         self.availability = False  # If it's instantly available on the debrid service
+
+        self.parsed_data = parsed_data  # Ranked result
 
     def to_debrid_stream_query(self, media: Media) -> dict:
         return {

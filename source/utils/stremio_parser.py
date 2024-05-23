@@ -54,10 +54,12 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
     else:
         name = f"{DOWNLOAD_REQUIRED}\n"
 
+    parsed_data = torrent_item.parsed_data.data
+
     # TODO: Always take the first resolution, is that the best one?
-    resolution = torrent_item.resolution[0] if len(torrent_item.resolution) > 0 else "Unknown"
-    name += f"{resolution}" + (f"\n({'|'.join(torrent_item.quality)})" if len(
-        torrent_item.quality) > 0 else "")
+    resolution = parsed_data.resolution[0] if len(parsed_data.resolution) > 0 else "Unknown"
+    name += f"{resolution}" + (f"\n({'|'.join(parsed_data.quality)})" if len(
+        parsed_data.quality) > 0 else "")
 
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
 
@@ -67,11 +69,11 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
         title += f"{torrent_item.file_name}\n"
 
     title += f"👥 {torrent_item.seeders}   💾 {size_in_gb}GB   🔍 {torrent_item.indexer}\n"
-    if torrent_item.codec:
-        title += f"🎥 {", ".join(torrent_item.codec)}   "
-    if torrent_item.audio:
-        title += f"🎧 {", ".join(torrent_item.audio)}   "
-    if torrent_item.codec or torrent_item.audio:
+    if parsed_data.codec:
+        title += f"🎥 {", ".join(parsed_data.codec)}   "
+    if parsed_data.audio:
+        title += f"🎧 {", ".join(parsed_data.audio)}   "
+    if parsed_data.codec or parsed_data.audio:
         title += "\n"
 
     for language in torrent_item.languages:
@@ -86,15 +88,15 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
         "url": f"{host}/playback/{configb64}/{queryb64}",
         "behaviorHints":{
             "bingeGroup": f"stremio-jackett-{torrent_item.info_hash}",
-            "filename": torrent_item.file_name if torrent_item.file_name is not None else torrent_item.title
+            "filename": torrent_item.file_name if torrent_item.file_name is not None else torrent_item.raw_title # TODO: Use parsed title?
         }
     })
 
     if torrenting and torrent_item.privacy == "public":
-        name = f"{DIRECT_TORRENT}\n{torrent_item.quality}\n"
-        if len(torrent_item.quality) > 0 and torrent_item.quality[0] != "Unknown" and \
-                torrent_item.quality[0] != "":
-            name += f"({'|'.join(torrent_item.quality)})"
+        name = f"{DIRECT_TORRENT}\n{parsed_data.quality}\n"
+        if len(parsed_data.quality) > 0 and parsed_data.quality[0] != "Unknown" and \
+                parsed_data.quality[0] != "":
+            name += f"({'|'.join(parsed_data.quality)})"
         results.put({
             "name": name,
             "description": title,
@@ -102,7 +104,7 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
             "fileIdx": int(torrent_item.file_index) if torrent_item.file_index else None,
             "behaviorHints":{
                 "bingeGroup": f"stremio-jackett-{torrent_item.info_hash}",
-                "filename": torrent_item.file_name if torrent_item.file_name is not None else torrent_item.title
+                "filename": torrent_item.file_name if torrent_item.file_name is not None else torrent_item.raw_title # TODO: Use parsed title?
             }
             # "sources": ["tracker:" + tracker for tracker in torrent_item.trackers]
         })
