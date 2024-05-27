@@ -222,6 +222,27 @@ async def get_playback(config: str, query: str, request: Request):
         logger.error(f"An error occurred: {e}")
         raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
 
+@app.head("/playback/{config}/{query}")
+async def get_playback(config: str, query: str, request: Request):
+    try:
+        if not query:
+            raise HTTPException(status_code=400, detail="Query required.")
+        config = parse_config(config)
+        logger.info("Decoding query")
+        query = decodeb64(query)
+        logger.info(query)
+        logger.info("Decoded query")
+        ip = request.client.host
+        debrid_service = get_debrid_service(config)
+        link = debrid_service.get_stream_link(query, ip)
+
+        logger.info("Got link: " + link)
+        return RedirectResponse(url=link, status_code=status.HTTP_301_MOVED_PERMANENTLY)
+
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
+
 
 async def update_app():
     try:
