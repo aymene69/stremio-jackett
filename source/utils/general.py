@@ -1,3 +1,5 @@
+from RTN import parse
+
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -9,26 +11,13 @@ video_formats = {".mkv", ".mp4", ".avi", ".mov", ".flv", ".wmv", ".webm", ".mpg"
                  ".svi", ".3gp", ".3g2", ".mxf", ".roq", ".nsv", ".flv", ".f4v", ".f4p", ".f4a", ".f4b"}
 
 
-def season_episode_in_filename(filename, season, episode, strict=False):
+def season_episode_in_filename(filename, season, episode):
     if not is_video_file(filename):
         return False
 
-    if strict:
-        if not season.lower().startswith("s"):
-            season = "s" + season
-        if not episode.lower().startswith("e"):
-            episode = "e" + episode
-    else:
-        if season.lower().startswith("s"):
-            season = season[1:]
-        if episode.lower().startswith("e"):
-            episode = episode[1:]
+    parsed_name = parse(filename)
 
-    filename = filename.lower()
-    season = season.lower()
-    episode = episode.lower()
-
-    return season in filename and episode in filename and filename.index(season) < filename.rindex(episode)
+    return season in parsed_name.season and episode in parsed_name.episode
 
 
 def get_info_hash_from_magnet(magnet: str):

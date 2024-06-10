@@ -1,6 +1,8 @@
 import threading
 from typing import List, Dict
 
+from RTN import parse
+
 from debrid.alldebrid import AllDebrid
 from debrid.premiumize import Premiumize
 from debrid.realdebrid import RealDebrid
@@ -33,7 +35,7 @@ class TorrentSmartContainer:
         self.logger.debug(f"Amount of items: {len(self.__itemsDict)}")
         for torrent_item in self.__itemsDict.values():
             self.logger.debug(f"-------------------")
-            self.logger.debug(f"Checking {torrent_item.title}")
+            self.logger.debug(f"Checking {torrent_item.raw_title}")
             self.logger.debug(f"Has torrent: {torrent_item.torrent_download is not None}")
             if torrent_item.torrent_download is not None:  # Torrent download
                 self.logger.debug(f"Has file index: {torrent_item.file_index is not None}")
@@ -53,17 +55,17 @@ class TorrentSmartContainer:
         public_torrents = list(filter(lambda x: x.privacy == "public", self.get_items()))
         cache_results(public_torrents, self.__media)
 
-    def update_availability(self, debrid_response, debrid_type):
+    def update_availability(self, debrid_response, debrid_type, media):
         if debrid_type is RealDebrid:
-            self.__update_availability_realdebrid(debrid_response)
+            self.__update_availability_realdebrid(debrid_response, media)
         elif debrid_type is AllDebrid:
-            self.__update_availability_alldebrid(debrid_response)
+            self.__update_availability_alldebrid(debrid_response, media)
         elif debrid_type is Premiumize:
             self.__update_availability_premiumize(debrid_response)
         else:
             raise NotImplemented
 
-    def __update_availability_realdebrid(self, response):
+    def __update_availability_realdebrid(self, response, media):
         for info_hash, details in response.items():
             if "rd" not in details:
                 continue
@@ -71,19 +73,18 @@ class TorrentSmartContainer:
             torrent_item: TorrentItem = self.__itemsDict[info_hash]
 
             files = []
-            strict_files = []
+            self.logger.info(torrent_item.type)
             if torrent_item.type == "series":
                 for variants in details["rd"]:
                     for file_index, file in variants.items():
-                        if season_episode_in_filename(file["filename"], torrent_item.season, torrent_item.episode,
-                                                      strict=True):
-                            strict_files.append({
-                                "file_index": file_index,
-                                "title": file["filename"],
-                                "size": file["filesize"]
-                            })
-                        elif season_episode_in_filename(file["filename"], torrent_item.season, torrent_item.episode,
-                                                        strict=False):
+                        self.logger.info(file["filename"])
+                        clean_season = media.season.replace("S", "")
+                        clean_episode = media.episode.replace("E", "")
+                        numeric_season = int(clean_season)
+                        numeric_episode = int(clean_episode)
+                        if season_episode_in_filename(file["filename"], numeric_season, numeric_episode):
+                            self.logger.info("File details 2")
+                            self.logger.info(file["filename"])
                             files.append({
                                 "file_index": file_index,
                                 "title": file["filename"],
@@ -92,18 +93,17 @@ class TorrentSmartContainer:
             else:
                 for variants in details["rd"]:
                     for file_index, file in variants.items():
+                        self.logger.info("File details 3")
+                        self.logger.info(file["filename"])
                         files.append({
                             "file_index": file_index,
                             "title": file["filename"],
                             "size": file["filesize"]
                         })
 
-            if len(strict_files) > 0:
-                files = strict_files
-
             self.__update_file_details(torrent_item, files)
 
-    def __update_availability_alldebrid(self, response):
+    def __update_availability_alldebrid(self, response, media):
         if response["status"] != "success":
             self.logger.error(f"Error while updating availability: {response}")
             return
@@ -115,12 +115,8 @@ class TorrentSmartContainer:
             torrent_item: TorrentItem = self.__itemsDict[data["hash"]]
 
             files = []
-            strict_files = []
-            self.__explore_folders(data["files"], files, strict_files, 1, torrent_item.type, torrent_item.season,
-                                   torrent_item.episode)
-
-            if len(strict_files) > 0:
-                files = strict_files
+            self.__explore_folders(data["files"], files, 1, torrent_item.type, media.season,
+                                   media.episode)
 
             self.__update_file_details(torrent_item, files)
 
@@ -156,21 +152,19 @@ class TorrentSmartContainer:
         return items_dict
 
     # Simple recursion to traverse the file structure returned by AllDebrid
-    def __explore_folders(self, folder, files, strict_files, file_index, type, season=None, episode=None):
+    def __explore_folders(self, folder, files, file_index, type, season=None, episode=None):
+        if episode is None or season is None:
+            return file_index
         if type == "series":
             for file in folder:
                 if "e" in file:
-                    file_index = self.__explore_folders(file["e"], files, strict_files, file_index, type, season,
+                    file_index = self.__explore_folders(file["e"], files, file_index, type, season,
                                                         episode)
                     continue
 
-                if season_episode_in_filename(file["n"], season, episode, strict=True):
-                    strict_files.append({
-                        "file_index": file_index,
-                        "title": file["n"],
-                        "size": file["s"] if "s" in file else 0
-                    })
-                elif season_episode_in_filename(file["n"], season, episode, strict=False):
+                parsed_file = parse(file["n"])
+
+                if season in parsed_file.season and episode in parsed_file.episode:
                     files.append({
                         "file_index": file_index,
                         "title": file["n"],
@@ -181,7 +175,7 @@ class TorrentSmartContainer:
             file_index = 1
             for file in folder:
                 if "e" in file:
-                    file_index = self.__explore_folders(file["e"], files, strict_files, file_index, type)
+                    file_index = self.__explore_folders(file["e"], files, file_index, type)
                     continue
 
                 files.append({

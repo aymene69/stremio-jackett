@@ -24,8 +24,7 @@ from metdata.tmdb import TMDB
 from torrent.torrent_service import TorrentService
 from torrent.torrent_smart_container import TorrentSmartContainer
 from utils.cache import search_cache
-from utils.filter_results import filter_items
-from utils.filter_results import sort_items
+from utils.filter_results import filter_items, sort_items
 from utils.logger import setup_logger
 from utils.parse_config import parse_config
 from utils.stremio_parser import parse_to_stremio_streams
@@ -138,7 +137,7 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
     debrid_service = get_debrid_service(config)
 
     search_results = []
-    if COMMUNITY_VERSION or config['cache']:
+    if COMMUNITY_VERSION and config['cache']:
         logger.info("Getting cached results")
         cached_results = search_cache(media)
         cached_results = [JackettResult().from_cached_item(torrent, media) for torrent in cached_results]
@@ -181,7 +180,7 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
         hashes = torrent_smart_container.get_hashes()
         ip = request.client.host
         result = debrid_service.get_availability_bulk(hashes, ip)
-        torrent_smart_container.update_availability(result, type(debrid_service))
+        torrent_smart_container.update_availability(result, type(debrid_service), media)
         logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
 
     # TODO: Maybe add an if to only save to cache if caching is enabled?
@@ -193,7 +192,7 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
     logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
 
     logger.info("Processing results")
-    stream_list = parse_to_stremio_streams(best_matching_results, config)
+    stream_list = parse_to_stremio_streams(best_matching_results, config, media)
     logger.info("Processed results (results: " + str(len(stream_list)) + ")")
 
     logger.info("Total time: " + str(time.time() - start) + "s")
@@ -201,6 +200,7 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
     return {"streams": stream_list}
 
 
+# @app.head("/playback/{config}/{query}")
 @app.get("/playback/{config}/{query}")
 async def get_playback(config: str, query: str, request: Request):
     try:

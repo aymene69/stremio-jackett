@@ -62,16 +62,10 @@ class AllDebrid(BaseDebrid):
             episode = query['episode']
             logger.info(f"Getting link for series {season}, {episode}")
 
-            strict_matching_files = []
             matching_files = []
             for file in data["magnets"]["links"]:
-                if season_episode_in_filename(file["filename"], season, episode, strict=True):
-                    strict_matching_files.append(file)
-                elif season_episode_in_filename(file["filename"], season, episode, strict=False):
+                if season_episode_in_filename(file["filename"], season, episode):
                     matching_files.append(file)
-
-            if len(strict_matching_files) > 0:
-                matching_files = strict_matching_files
 
             if len(matching_files) == 0:
                 logger.error(f"No matching files for {season} {episode} in torrent.")

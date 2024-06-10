@@ -1,4 +1,4 @@
-import re
+from RTN import title_match, RTN, DefaultRanking, SettingsModel, sort_torrents
 
 from utils.filter.language_filter import LanguageFilter
 from utils.filter.max_size_filter import MaxSizeFilter
@@ -9,14 +9,42 @@ from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
 
-quality_order = {"4k": 0, "1080p": 1, "720p": 2, "480p": 3}
+quality_order = {"4k": 0, "2160p": 0, "1080p": 1, "720p": 2, "480p": 3}
 
 
 def sort_quality(item):
-    return quality_order.get(item.quality, float('inf')), item.quality is None
+    if len(item.parsed_data.data.resolution) == 0:
+        return float('inf'), True
+
+    # TODO: first resolution?
+    return quality_order.get(item.parsed_data.data.resolution[0],
+                             float('inf')), item.parsed_data.data.resolution is None
 
 
 def items_sort(items, config):
+    logger.info(config)
+
+    settings = SettingsModel(
+        require=[],
+        exclude=config['exclusionKeywords'] + config['exclusion'],
+        preferred=[],
+        # custom_ranks={
+        #     "uhd": CustomRank(enable=True, fetch=True, rank=200),
+        #     "hdr": CustomRank(enable=True, fetch=True, rank=100),
+        # }
+    )
+
+    rtn = RTN(settings=settings, ranking_model=DefaultRanking())
+    torrents = [rtn.rank(item.raw_title, item.info_hash) for item in items]
+    sorted_torrents = sort_torrents(set(torrents))
+
+    for key, value in sorted_torrents.items():
+        index = next((i for i, item in enumerate(items) if item.info_hash == key), None)
+        if index is not None:
+            items[index].parsed_data = value
+
+    logger.info(items)
+
     if config['sort'] == "quality":
         return sorted(items, key=sort_quality)
     if config['sort'] == "sizeasc":
@@ -43,22 +71,43 @@ def items_sort(items, config):
 #         filtered_items.append(item)
 #     return filtered_items
 
+# TODO: not needed anymore because of RTN
 def filter_out_non_matching(items, season, episode):
     filtered_items = []
     for item in items:
-        title = item.title.upper()
-        season_pattern = r'S\d+'
-        episode_pattern = r'E\d+'
+        logger.info(season)
+        logger.info(episode)
+        logger.info(item.parsed_data)
+        clean_season = season.replace("S", "")
+        clean_episode = episode.replace("E", "")
+        numeric_season = int(clean_season)
+        numeric_episode = int(clean_episode)
 
-        season_substrings = re.findall(season_pattern, title)
-        if len(season_substrings) > 0 and season not in season_substrings:
+        if len(item.parsed_data.season) == 0 and len(item.parsed_data.episode) == 0:
             continue
 
-        episode_substrings = re.findall(episode_pattern, title)
-        if len(episode_substrings) > 0 and episode not in episode_substrings:
+        if len(item.parsed_data.episode) == 0 and numeric_season in item.parsed_data.season:
+            filtered_items.append(item)
             continue
 
-        filtered_items.append(item)
+        if numeric_season in item.parsed_data.season and numeric_episode in item.parsed_data.episode:
+            filtered_items.append(item)
+            continue
+
+
+    return filtered_items
+
+
+def remove_non_matching_title(items, titles):
+    logger.info(titles)
+    filtered_items = []
+    for item in items:
+        for title in titles:
+            if not title_match(title, item.parsed_data.parsed_title):
+                continue
+
+            filtered_items.append(item)
+            break
 
     return filtered_items
 
@@ -72,12 +121,15 @@ def filter_items(items, media, config):
         "resultsPerQuality": ResultsPerQualityFilter(config)
     }
 
-    # Filtering out 100% non matching for series
+    # Filtering out 100% non-matching for series
     logger.info(f"Item count before filtering: {len(items)}")
     if media.type == "series":
         logger.info(f"Filtering out non matching series torrents")
         items = filter_out_non_matching(items, media.season, media.episode)
         logger.info(f"Item count changed to {len(items)}")
+
+    # TODO: is titles[0] always the correct title? Maybe loop through all titles and get the highest match?
+    items = remove_non_matching_title(items, media.titles)
 
     for filter_name, filter_instance in filters.items():
         try:

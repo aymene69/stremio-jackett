@@ -1,4 +1,3 @@
-from utils.detection import detect_quality_spec
 from utils.filter.base_filter import BaseFilter
 from utils.logger import setup_logger
 
@@ -19,17 +18,16 @@ class QualityExclusionFilter(BaseFilter):
         cams = "CAM" in excluded_qualities
 
         for stream in data:
-            if stream.quality.upper() not in excluded_qualities:
-                detection = detect_quality_spec(stream.title)
-                if detection is not None:
-                    for item in detection:
-                        if rips and item.upper() in self.RIPS:
-                            break
-                        if cams and item.upper() in self.CAMS:
-                            break
-                    else:
-                        filtered_items.append(stream)
-                elif "Unknown" not in excluded_qualities:
+            for quality in stream.parsed_data.quality:
+                if quality.upper() in excluded_qualities:
+                    break
+                if rips and quality.upper() in self.RIPS:
+                    break
+                if cams and quality.upper() in self.CAMS:
+                    break
+                filtered_items.append(stream)
+            else:
+                if "Unknown" not in excluded_qualities:
                     filtered_items.append(stream)
         return filtered_items
 

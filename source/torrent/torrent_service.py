@@ -1,18 +1,19 @@
 import hashlib
 import queue
 import threading
+import time
 import urllib.parse
 from typing import List
 
 import bencode
 import requests
+from RTN import parse
 
 from jackett.jackett_result import JackettResult
 from torrent.torrent_item import TorrentItem
 from utils.general import get_info_hash_from_magnet
 from utils.general import season_episode_in_filename
 from utils.logger import setup_logger
-
 
 class TorrentService:
     def __init__(self):
@@ -51,7 +52,8 @@ class TorrentService:
 
     def __process_web_url(self, result: TorrentItem):
         try:
-            response = self.__session.get(result.link, allow_redirects=False, timeout=10)
+            # TODO: is the timeout enough?
+            response = self.__session.get(result.link, allow_redirects=False, timeout=2)
         except requests.exceptions.RequestException:
             self.logger.error(f"Error while processing url: {result.link}")
             return result
@@ -84,9 +86,11 @@ class TorrentService:
         result.files = metadata["info"]["files"]
 
         if result.type == "series":
-            file_details = self.__find_episode_file(result.files, result.season, result.episode)
+            file_details = self.__find_episode_file(result.files, result.parsed_data.season, result.parsed_data.episode)
 
             if file_details is not None:
+                self.logger.info("File details")
+                self.logger.info(file_details)
                 result.file_index = file_details["file_index"]
                 result.file_name = file_details["title"]
                 result.size = file_details["size"]
@@ -153,31 +157,27 @@ class TorrentService:
         return trackers
 
     def __find_episode_file(self, file_structure, season, episode):
+
+        if len(season) == 0 or len(episode) == 0:
+            return None
+
         file_index = 1
         strict_episode_files = []
         episode_files = []
         for files in file_structure:
             for file in files["path"]:
-                if season_episode_in_filename(file, season, episode, strict=True):
-                    strict_episode_files.append({
-                        "file_index": file_index,
-                        "title": file,
-                        "size": files["length"]
-                    })
-                elif season_episode_in_filename(file, season, episode, strict=False):
+
+                parsed_file = parse(file)
+
+                if season[0] in parsed_file.season and episode[0] in parsed_file.episode:
                     episode_files.append({
                         "file_index": file_index,
                         "title": file,
                         "size": files["length"]
                     })
 
+            # Doesn't that need to be indented?
             file_index += 1
-
-        if len(strict_episode_files) > 0:
-            episode_files = strict_episode_files
-
-        if len(episode_files) == 0:
-            return None
 
         return max(episode_files, key=lambda file: file["size"])
 

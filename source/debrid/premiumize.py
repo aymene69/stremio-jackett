@@ -101,17 +101,11 @@ class Premiumize(BaseDebrid):
                 season = query["season"]
                 episode = query["episode"]
                 files = details.get("content", [])
-                strict_matching_files = []
                 matching_files = []
 
                 for file in files:
-                    if season_episode_in_filename(file["name"], season, episode, strict=True):
-                        strict_matching_files.append(file)
-                    elif season_episode_in_filename(file["name"], season, episode, strict=False):
+                    if season_episode_in_filename(file["name"], season, episode):
                         matching_files.append(file)
-
-                if len(strict_matching_files) > 0:
-                    matching_files = strict_matching_files
 
                 if len(matching_files) == 0:
                     logger.error(f"No matching files for {season} {episode} in torrent.")
