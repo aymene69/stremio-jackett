@@ -70,8 +70,7 @@ class AllDebrid(BaseDebrid):
                 elif season_episode_in_filename(file["n"], season, episode, strict=False):
                     matching_files.append(file)
                 rank += 1
-            print("aaaaaaaaaaaaaaaaaaaaa")
-            print(strict_matching_files)
+
             if len(strict_matching_files) > 0:
                 matching_files = strict_matching_files
 
@@ -100,7 +99,6 @@ class AllDebrid(BaseDebrid):
         return unlocked_link_data["data"]["link"]
 
     def get_availability_bulk(self, hashes_or_magnets, ip=None):
-        print(hashes_or_magnets)
         torrents = f"{self.base_url}magnet/status?agent=jackett&apikey={self.config['debridKey']}&ip={ip}"
         ids = []
         for element in self.get_json_response(torrents)["data"]["magnets"]:
