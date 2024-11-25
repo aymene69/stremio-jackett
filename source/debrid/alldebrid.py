@@ -56,7 +56,7 @@ class AllDebrid(BaseDebrid):
         link = NO_CACHE_VIDEO_URL
         if stream_type == "movie":
             logger.info("Getting link for movie")
-            link = max(data["magnets"]['links'], key=lambda x: x['size'])['link']
+            link = data["magnets"]["files"][0]['l']
         elif stream_type == "series":
             season = query['season']
             episode = query['episode']
@@ -70,6 +70,8 @@ class AllDebrid(BaseDebrid):
                 elif season_episode_in_filename(file["n"], season, episode, strict=False):
                     matching_files.append(file)
                 rank += 1
+            print("aaaaaaaaaaaaaaaaaaaaa")
+            print(strict_matching_files)
             if len(strict_matching_files) > 0:
                 matching_files = strict_matching_files
 
