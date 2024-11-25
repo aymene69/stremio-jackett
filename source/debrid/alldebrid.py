@@ -14,7 +14,7 @@ logger = setup_logger(__name__)
 class AllDebrid(BaseDebrid):
     def __init__(self, config):
         super().__init__(config)
-        self.base_url = "https://api.alldebrid.com/v4/"
+        self.base_url = "https://api.alldebrid.com/v4.1/"
 
     def add_magnet(self, magnet, ip):
         url = f"{self.base_url}magnet/upload?agent=jackett&apikey={self.config['debridKey']}&magnet={magnet}&ip={ip}"
@@ -61,15 +61,15 @@ class AllDebrid(BaseDebrid):
             season = query['season']
             episode = query['episode']
             logger.info(f"Getting link for series {season}, {episode}")
-
             strict_matching_files = []
             matching_files = []
-            for file in data["magnets"]["links"]:
-                if season_episode_in_filename(file["filename"], season, episode, strict=True):
+            rank = 0
+            for file in data["magnets"]["files"][rank]['e']:
+                if season_episode_in_filename(file["n"], season, episode, strict=True):
                     strict_matching_files.append(file)
-                elif season_episode_in_filename(file["filename"], season, episode, strict=False):
+                elif season_episode_in_filename(file["n"], season, episode, strict=False):
                     matching_files.append(file)
-
+                rank += 1
             if len(strict_matching_files) > 0:
                 matching_files = strict_matching_files
 
@@ -77,7 +77,7 @@ class AllDebrid(BaseDebrid):
                 logger.error(f"No matching files for {season} {episode} in torrent.")
                 return f"Error: No matching files for {season} {episode} in torrent."
 
-            link = max(matching_files, key=lambda x: x["size"])["link"]
+            link = max(matching_files, key=lambda x: x["s"])["l"]
         else:
             logger.error("Unsupported stream type.")
             return "Error: Unsupported stream type."
@@ -98,12 +98,21 @@ class AllDebrid(BaseDebrid):
         return unlocked_link_data["data"]["link"]
 
     def get_availability_bulk(self, hashes_or_magnets, ip=None):
-        if len(hashes_or_magnets) == 0:
-            logger.info("No hashes to be sent to All-Debrid.")
-            return dict()
+        print(hashes_or_magnets)
+        torrents = f"{self.base_url}magnet/status?agent=jackett&apikey={self.config['debridKey']}&ip={ip}"
+        ids = []
+        for element in self.get_json_response(torrents)["data"]["magnets"]:
+            if element["hash"] in hashes_or_magnets:
+                ids.append(element["id"])
 
-        url = f"{self.base_url}magnet/instant?agent=jackett&apikey={self.config['debridKey']}&magnets[]={'&magnets[]='.join(hashes_or_magnets)}&ip={ip}"
-        return self.get_json_response(url)
+        # if len(hashes_or_magnets) == 0:
+        #     logger.info("No hashes to be sent to All-Debrid.")
+        #     return dict()
+        #
+        # url = f"{self.base_url}magnet/instant?agent=jackett&apikey={self.config['debridKey']}&magnets[]={'&magnets[]='.join(hashes_or_magnets)}&ip={ip}"
+        # print(url)
+        # return self.get_json_response(url)
+
 
     def __add_magnet_or_torrent(self, magnet, torrent_download=None, ip=None):
         torrent_id = ""
