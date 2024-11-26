@@ -158,3 +158,28 @@ class TorBox(BaseDebrid):
         except requests.exceptions.RequestException as e:
             logger.error(f"HTTP request failed: {e}")
             return None
+
+    def get_availability_bulk(self, hashes_or_magnets, ip=None):
+
+        available_torrents = {}
+
+        for torrent_hash in hashes_or_magnets:
+            url = f"{self.base_url}torrents/checkcached?hash={torrent_hash}&format=list&list_files=true"
+            try:
+                response = self.get_json_response(url)
+                if response.get("success") and response.get("data"):
+                    torrent_data = response["data"][0]
+                    available_torrents[torrent_hash] = {
+                        "name": torrent_data["name"],
+                        "size": torrent_data["size"],
+                        "files": torrent_data["files"]
+                    }
+                else:
+                    self.logger.warning(f"Torrent {torrent_hash} is not cached or invalid response: {response}")
+
+            except Exception as e:
+                self.logger.error(f"Error while checking availability for hash {torrent_hash}: {e}")
+                continue
+
+        return available_torrents
+
