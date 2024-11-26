@@ -21,6 +21,8 @@ def items_sort(items, config):
         return sorted(items, key=sort_quality)
     if config['sort'] == "sizeasc":
         return sorted(items, key=lambda x: int(x.size))
+    if config['sort'] == "seedsdesc":
+        return sorted(items, key=lambda x: int(x.seeders), reverse=True)
     if config['sort'] == "sizedesc":
         return sorted(items, key=lambda x: int(x.size), reverse=True)
     if config['sort'] == "qualitythensize":
