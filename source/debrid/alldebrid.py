@@ -64,7 +64,7 @@ class AllDebrid(BaseDebrid):
             strict_matching_files = []
             matching_files = []
             rank = 0
-            for file in data["magnets"]["files"][rank]['e']:
+            for file in data["magnets"]["files"]:
                 if season_episode_in_filename(file["n"], season, episode, strict=True):
                     strict_matching_files.append(file)
                 elif season_episode_in_filename(file["n"], season, episode, strict=False):
