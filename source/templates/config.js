@@ -30,6 +30,11 @@ function updateProviderFields(isChangeEvent = false) {
     } else {
         setElementDisplay('tmdb-fields', 'none');
     }
+    if (!document.getElementById('get-all-languages')?.checked) {
+        setElementDisplay('languages-fields', 'block');
+    } else {
+        setElementDisplay('languages-fields', 'none');
+    }
     // if (!isChangeEvent) {
     //     if (document.getElementById('jackett-fields')) {
     //         document.getElementById('jackett-host').value = '';
@@ -85,6 +90,7 @@ function loadData() {
             }
         });
 
+        document.getElementById('get-all-languages').checked = data.getAllLanguages;
     }
 }
 
@@ -138,6 +144,8 @@ function getLink(method) {
         }
     });
 
+    const getAllLanguages = document.getElementById('get-all-languages').checked;
+
     let filter;
     sorts.forEach(sort => {
         if (document.getElementById(sort).checked) {
@@ -163,6 +171,7 @@ function getLink(method) {
         maxSize,
         exclusionKeywords,
         'languages': selectedLanguages,
+        'getAllLanguages': getAllLanguages,
         'sort': filter,
         resultsPerQuality,
         maxResults,
