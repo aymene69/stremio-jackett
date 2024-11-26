@@ -78,7 +78,11 @@ class RealDebrid(BaseDebrid):
             logger.info("No hashes to be sent to Real-Debrid.")
             return dict()
 
-        url = f"{self.base_url}/rest/1.0/torrents/instantAvailability/{'/'.join(hashes_or_magnets)}"
+        url = f"{self.base_url}/torrents/"
+        ids = []
+        for element in self.get_json_response(url)["data"]["hash"]:
+            if element["hash"] in hashes_or_magnets:
+                ids.append(element["id"])
         return self.get_json_response(url, headers=self.headers)
 
     def get_stream_link(self, query_string, ip=None):
