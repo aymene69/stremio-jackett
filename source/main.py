@@ -37,7 +37,7 @@ if root_path and not root_path.startswith("/"):
     root_path = "/" + root_path
 app = FastAPI(root_path=root_path)
 
-VERSION = "4.1.5"
+VERSION = "4.1.9"
 isDev = os.getenv("NODE_ENV") == "development"
 COMMUNITY_VERSION = True if os.getenv("IS_COMMUNITY_VERSION") == "true" else False
 
@@ -176,12 +176,13 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
     torrent_smart_container = TorrentSmartContainer(torrent_results, media)
 
     if config['debrid']:
-        logger.debug("Checking availability")
-        hashes = torrent_smart_container.get_hashes()
-        ip = request.client.host
-        result = debrid_service.get_availability_bulk(hashes, ip)
-        torrent_smart_container.update_availability(result, type(debrid_service), media)
-        logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
+        if config['service'] == "torbox":
+            logger.debug("Checking availability")
+            hashes = torrent_smart_container.get_hashes()
+            ip = request.client.host
+            result = debrid_service.get_availability_bulk(hashes, ip)
+            torrent_smart_container.update_availability(result, type(debrid_service))
+            logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
 
     # TODO: Maybe add an if to only save to cache if caching is enabled?
     torrent_smart_container.cache_container_items()
@@ -202,6 +203,27 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
 
 # @app.head("/playback/{config}/{query}")
 @app.get("/playback/{config}/{query}")
+async def get_playback(config: str, query: str, request: Request):
+    try:
+        if not query:
+            raise HTTPException(status_code=400, detail="Query required.")
+        config = parse_config(config)
+        logger.info("Decoding query")
+        query = decodeb64(query)
+        logger.info(query)
+        logger.info("Decoded query")
+        ip = request.client.host
+        debrid_service = get_debrid_service(config)
+        link = debrid_service.get_stream_link(query, ip)
+
+        logger.info("Got link: " + link)
+        return RedirectResponse(url=link, status_code=status.HTTP_301_MOVED_PERMANENTLY)
+
+    except Exception as e:
+        logger.error(f"An error occurred: {e}")
+        raise HTTPException(status_code=500, detail="An error occurred while processing the request.")
+
+@app.head("/playback/{config}/{query}")
 async def get_playback(config: str, query: str, request: Request):
     try:
         if not query:
