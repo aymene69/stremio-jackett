@@ -79,9 +79,6 @@ class AllDebrid(BaseDebrid):
                         matching_files.append(file)
                     rank += 1
 
-            if len(strict_matching_files) > 0:
-                matching_files = strict_matching_files
-
             if len(matching_files) == 0:
                 logger.error(f"No matching files for {season} {episode} in torrent.")
                 return f"Error: No matching files for {season} {episode} in torrent."

@@ -182,4 +182,3 @@ class TorBox(BaseDebrid):
                 continue
 
         return available_torrents
-
