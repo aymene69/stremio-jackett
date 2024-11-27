@@ -16,7 +16,7 @@ I am not responsible for any content downloaded through this addon.
 
 - A [Jackett](https://github.com/Jackett/Jackett) server running and reachable pubicly.
 - Python 3.11+ and pip.
-- *(optionnal)* A Real-Debrid, All-Debrid or Premiumize account.
+- *(optionnal)* A Real-Debrid, All-Debrid, Premiumize or TorBox account.
 
 # Installation
 
