@@ -70,9 +70,9 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
 
     title += f"👥 {torrent_item.seeders}   💾 {size_in_gb}GB   🔍 {torrent_item.indexer}\n"
     if parsed_data.codec:
-        title += f"🎥 {", ".join(parsed_data.codec)}   "
+        title += f"🎥 {parsed_data.codec.upper()}   "
     if parsed_data.audio:
-        title += f"🎧 {", ".join(parsed_data.audio)}   "
+        title += f"🎧 {', '.join(parsed_data.audio)}"
     if parsed_data.codec or parsed_data.audio:
         title += "\n"
 

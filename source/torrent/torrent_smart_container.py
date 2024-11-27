@@ -6,6 +6,7 @@ from RTN import parse
 from debrid.alldebrid import AllDebrid
 from debrid.premiumize import Premiumize
 from debrid.realdebrid import RealDebrid
+from debrid.torbox import TorBox
 from torrent.torrent_item import TorrentItem
 from utils.cache import cache_results
 from utils.general import season_episode_in_filename
@@ -56,12 +57,16 @@ class TorrentSmartContainer:
         cache_results(public_torrents, self.__media)
 
     def update_availability(self, debrid_response, debrid_type, media):
+        print()
         if debrid_type is RealDebrid:
             self.__update_availability_realdebrid(debrid_response, media)
         elif debrid_type is AllDebrid:
             self.__update_availability_alldebrid(debrid_response, media)
         elif debrid_type is Premiumize:
             self.__update_availability_premiumize(debrid_response)
+        elif debrid_type is TorBox:
+            print("avail torbox")
+            self.__update_availability_torbox(debrid_response, media)
         else:
             raise NotImplemented
 
@@ -120,6 +125,30 @@ class TorrentSmartContainer:
 
             self.__update_file_details(torrent_item, files)
 
+    def __update_availability_torbox(self, response, media):
+        print("bbbbbbbbbbbb")
+        print(media.episode)
+        print("aaaaaaaaa")
+        for torrent_hash, data in response.items():
+
+            if not torrent_hash or torrent_hash not in self.__itemsDict:
+                self.logger.warning(f"Hash {torrent_hash} not found in itemsDict.")
+                continue
+            torrent_item: TorrentItem = self.__itemsDict[torrent_hash]
+            files = []
+            print(data.get("files", []))
+            self.__explore_folders(
+                    folder=data.get("files", []),
+                    files=files,
+                    file_index=1,
+                    type=torrent_item.type,
+                    season=media.season,
+                    episode=media.episode
+            )
+            print("OUIIIIIIIIIIIIIII")
+            self.__update_file_details(torrent_item, files)
+            print("ooooooooooooooooo81372373981731927312873287391287")
+
     def __update_availability_premiumize(self, response):
         if response["status"] != "success":
             self.logger.error(f"Error while updating availability: {response}")
@@ -129,6 +158,7 @@ class TorrentSmartContainer:
         for i in range(len(response["response"])):
             if bool(response["response"][i]):
                 torrent_items[i].availability = response["transcoded"][i] == True
+
 
     def __update_file_details(self, torrent_item, files):
         if len(files) == 0:
@@ -153,35 +183,60 @@ class TorrentSmartContainer:
 
     # Simple recursion to traverse the file structure returned by AllDebrid
     def __explore_folders(self, folder, files, file_index, type, season=None, episode=None):
-        if episode is None or season is None:
-            return file_index
         if type == "series":
             for file in folder:
-                if "e" in file:
-                    file_index = self.__explore_folders(file["e"], files, file_index, type, season,
+                print("AAAAAAAAAAAAA")
+                print(file)
+                print("BBBBBBBBBBBBB")
+                if "e" in file or "files" in file:
+                    print("oui!!!!!!!!!!")
+                    sub_folder = file.get("e") or file.get("files")
+                    print(sub_folder)
+                    print("oooooooooookkkkkkkkkkk")
+                    file_index = self.__explore_folders(sub_folder, files, file_index, type, season,
                                                         episode)
                     continue
 
-                parsed_file = parse(file["n"])
+                file_name = file.get("n") or file.get("name")
+                file_size = file.get("s") or file.get("size", 0)
+                print(file_name, file_size)
+                if not file_name:
+                    self.logger.warning(f"Filename missing for : {file}")
+                    continue
 
-                if season in parsed_file.season and episode in parsed_file.episode:
+                print("verifffffff")
+                print(season_episode_in_filename(file_name, season, episode))
+                print("finverifffffffffff")
+                if season_episode_in_filename(file_name, season, episode):
+                    print("OUI IL Y EST")
                     files.append({
                         "file_index": file_index,
-                        "title": file["n"],
-                        "size": file["s"] if "s" in file else 0
+                        "title": file_name,
+                        "size": file_size
                     })
                 file_index += 1
+            print("PR DE BONNNNNNNNNN")
+            print(files)
+
         elif type == "movie":
             file_index = 1
             for file in folder:
-                if "e" in file:
-                    file_index = self.__explore_folders(file["e"], files, file_index, type)
+                if "e" in file or "files" in file:
+                    sub_folder = file.get("e") or file.get("files")
+                    file_index = self.__explore_folders(sub_folder, files, file_index, type)
+                    continue
+
+                file_name = file.get("n") or file.get("name")
+                file_size = file.get("s") or file.get("size", 0)
+
+                if not file_name:
+                    self.logger.warning(f"Filename missing for : {file}")
                     continue
 
                 files.append({
                     "file_index": file_index,
-                    "title": file["n"],
-                    "size": file["s"] if "s" in file else 0
+                    "title": file_name,
+                    "size": file_size
                 })
                 file_index += 1
 

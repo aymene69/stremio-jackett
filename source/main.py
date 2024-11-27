@@ -78,8 +78,6 @@ async def root():
 @app.get("/configure")
 @app.get("/{config}/configure")
 async def configure(request: Request):
-    print(request.headers.get("X-Real-IP"))
-    print(request.headers.get("X-Forwarded-For"))
     return templates.TemplateResponse(
         "index.html",
         {"request": request, "isCommunityVersion": COMMUNITY_VERSION},
@@ -181,7 +179,9 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
             hashes = torrent_smart_container.get_hashes()
             ip = request.client.host
             result = debrid_service.get_availability_bulk(hashes, ip)
-            torrent_smart_container.update_availability(result, type(debrid_service))
+            print("weeeeeeeeeeeeeeeeeeeeeee")
+            torrent_smart_container.update_availability(result, type(debrid_service), media)
+            print("pas weeeeeeeeeeeee")
             logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
 
     # TODO: Maybe add an if to only save to cache if caching is enabled?
@@ -189,7 +189,9 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
 
     logger.debug("Getting best matching results")
     best_matching_results = torrent_smart_container.get_best_matching()
+    print("best_matching_results")
     best_matching_results = sort_items(best_matching_results, config)
+    print("best_matching_results sort")
     logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
 
     logger.info("Processing results")

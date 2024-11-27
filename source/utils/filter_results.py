@@ -1,5 +1,5 @@
 from RTN import title_match, RTN, DefaultRanking, SettingsModel, sort_torrents
-
+from RTN.models import CustomRank
 from utils.filter.language_filter import LanguageFilter
 from utils.filter.max_size_filter import MaxSizeFilter
 from utils.filter.quality_exclusion_filter import QualityExclusionFilter
@@ -82,19 +82,18 @@ def filter_out_non_matching(items, season, episode):
         clean_episode = episode.replace("E", "")
         numeric_season = int(clean_season)
         numeric_episode = int(clean_episode)
+        try:
+            if len(item.parsed_data.seasons) == 0 and len(item.parsed_data.episodes) == 0:
+                continue
 
-        if len(item.parsed_data.season) == 0 and len(item.parsed_data.episode) == 0:
-            continue
-
-        if len(item.parsed_data.episode) == 0 and numeric_season in item.parsed_data.season:
-            filtered_items.append(item)
-            continue
-
-        if numeric_season in item.parsed_data.season and numeric_episode in item.parsed_data.episode:
-            filtered_items.append(item)
-            continue
-
-
+            if len(item.parsed_data.episodes) == 0 and numeric_season in item.parsed_data.seasons:
+                filtered_items.append(item)
+                continue
+            if numeric_season in item.parsed_data.seasons and numeric_episode in item.parsed_data.episodes:
+                filtered_items.append(item)
+                continue
+        except Exception as e:
+            logger.error(f"Error while filtering out non matching torrents", exc_info=e)
     return filtered_items
 
 
@@ -145,6 +144,8 @@ def filter_items(items, media, config):
 
 
 def sort_items(items, config):
+    print(config)
+    print(items)
     if config['sort'] is not None:
         return items_sort(items, config)
     else:

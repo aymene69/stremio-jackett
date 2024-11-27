@@ -14,10 +14,13 @@ video_formats = {".mkv", ".mp4", ".avi", ".mov", ".flv", ".wmv", ".webm", ".mpg"
 def season_episode_in_filename(filename, season, episode):
     if not is_video_file(filename):
         return False
-
+    print("test ultime hein...")
     parsed_name = parse(filename)
-
-    return season in parsed_name.season and episode in parsed_name.episode
+    print(season)
+    print(episode)
+    print(parsed_name.seasons)
+    print(parsed_name.episodes)
+    return int(season.replace("S", "")) in parsed_name.seasons and int(episode.replace("E", "")) in parsed_name.episodes
 
 
 def get_info_hash_from_magnet(magnet: str):
