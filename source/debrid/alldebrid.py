@@ -61,21 +61,16 @@ class AllDebrid(BaseDebrid):
             season = query['season']
             episode = query['episode']
             logger.info(f"Getting link for series {season}, {episode}")
-            strict_matching_files = []
             matching_files = []
             rank = 0
             if 'e' in data["magnets"]["files"][0].keys():
                 for file in data["magnets"]["files"][0]["e"]:
-                    if season_episode_in_filename(file["n"], season, episode, strict=True):
-                        strict_matching_files.append(file)
-                    elif season_episode_in_filename(file["n"], season, episode, strict=False):
+                    if season_episode_in_filename(file["n"], season, episode):
                         matching_files.append(file)
                     rank += 1
             else:
                 for file in data["magnets"]["files"]:
-                    if season_episode_in_filename(file["n"], season, episode, strict=True):
-                        strict_matching_files.append(file)
-                    elif season_episode_in_filename(file["n"], season, episode, strict=False):
+                    if season_episode_in_filename(file["n"], season, episode):
                         matching_files.append(file)
                     rank += 1
 
