@@ -142,6 +142,39 @@ class TorrentSmartContainer:
             )
             self.__update_file_details(torrent_item, files)
 
+    def __update_availability_torbox(self, response):
+        for torrent_hash, data in response.items():
+
+            if not torrent_hash or torrent_hash not in self.__itemsDict:
+                self.logger.warning(f"Hash {torrent_hash} not found in itemsDict.")
+                continue
+            torrent_item: TorrentItem = self.__itemsDict[torrent_hash]
+            files = []
+            strict_files = []
+
+            try:
+                self.__explore_folders(
+                    folder=data.get("files", []),
+                    files=files,
+                    strict_files=strict_files,
+                    file_index=1,
+                    type=torrent_item.type,
+                    season=torrent_item.season,
+                    episode=torrent_item.episode
+                )
+            except Exception as e:
+                self.logger.error(f"Error when exploring files for {torrent_item.title}: {e}")
+                continue
+
+            if len(strict_files) > 0:
+                files = strict_files
+
+            try:
+                self.__update_file_details(torrent_item, files)
+            except Exception as e:
+                self.logger.error(f"Error when updating details for {torrent_item.title}: {e}")
+                continue
+
     def __update_availability_premiumize(self, response):
         if response["status"] != "success":
             self.logger.error(f"Error while updating availability: {response}")
@@ -186,6 +219,7 @@ class TorrentSmartContainer:
 
                 file_name = file.get("n") or file.get("name")
                 file_size = file.get("s") or file.get("size", 0)
+                
                 if not file_name:
                     self.logger.warning(f"Filename missing for : {file}")
                     continue
