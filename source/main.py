@@ -37,7 +37,7 @@ if root_path and not root_path.startswith("/"):
     root_path = "/" + root_path
 app = FastAPI(root_path=root_path)
 
-VERSION = "4.1.9"
+VERSION = "4.2.0"
 isDev = os.getenv("NODE_ENV") == "development"
 COMMUNITY_VERSION = True if os.getenv("IS_COMMUNITY_VERSION") == "true" else False
 
@@ -179,9 +179,7 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
             hashes = torrent_smart_container.get_hashes()
             ip = request.client.host
             result = debrid_service.get_availability_bulk(hashes, ip)
-            print("weeeeeeeeeeeeeeeeeeeeeee")
             torrent_smart_container.update_availability(result, type(debrid_service), media)
-            print("pas weeeeeeeeeeeee")
             logger.debug("Checked availability (results: " + str(len(result.items())) + ")")
 
     # TODO: Maybe add an if to only save to cache if caching is enabled?
@@ -189,9 +187,7 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
 
     logger.debug("Getting best matching results")
     best_matching_results = torrent_smart_container.get_best_matching()
-    print("best_matching_results")
     best_matching_results = sort_items(best_matching_results, config)
-    print("best_matching_results sort")
     logger.debug("Got best matching results (results: " + str(len(best_matching_results)) + ")")
 
     logger.info("Processing results")
