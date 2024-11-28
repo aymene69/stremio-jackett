@@ -23,11 +23,10 @@ def sort_quality(item):
 
 def items_sort(items, config):
     logger.info(config)
-
+    print("we")
     settings = SettingsModel(
         require=[],
         exclude=config['exclusionKeywords'] + config['exclusion'],
-        preferred=[],
         # custom_ranks={
         #     "uhd": CustomRank(enable=True, fetch=True, rank=200),
         #     "hdr": CustomRank(enable=True, fetch=True, rank=100),
@@ -37,7 +36,6 @@ def items_sort(items, config):
     rtn = RTN(settings=settings, ranking_model=DefaultRanking())
     torrents = [rtn.rank(item.raw_title, item.info_hash) for item in items]
     sorted_torrents = sort_torrents(set(torrents))
-
     for key, value in sorted_torrents.items():
         index = next((i for i, item in enumerate(items) if item.info_hash == key), None)
         if index is not None:
