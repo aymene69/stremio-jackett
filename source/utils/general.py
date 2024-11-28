@@ -46,6 +46,18 @@ def get_info_hash_from_magnet(magnet: str):
 
     return info_hash.lower()
 
+def get_largest_file_ad(data):
+    """
+    Récupère le lien du fichier ayant la plus grande taille dans les données.
+    :param data: Dictionnaire contenant les informations des fichiers.
+    :return: Lien du fichier le plus grand.
+    """
+    if 'e' in data:  # Si plusieurs fichiers sont listés
+        largest_file = max(data['e'], key=lambda x: x['s'])
+        return largest_file['l']
+    else:  # Si un seul fichier est présent
+        return data['l']
+
 
 def is_video_file(filename):
     extension_idx = filename.rfind(".")

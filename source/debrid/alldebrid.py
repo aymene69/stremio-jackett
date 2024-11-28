@@ -5,7 +5,7 @@ from urllib.parse import unquote
 
 from constants import NO_CACHE_VIDEO_URL
 from debrid.base_debrid import BaseDebrid
-from utils.general import season_episode_in_filename
+from utils.general import season_episode_in_filename, get_largest_file_ad
 from utils.logger import setup_logger
 
 logger = setup_logger(__name__)
@@ -56,7 +56,8 @@ class AllDebrid(BaseDebrid):
         link = NO_CACHE_VIDEO_URL
         if stream_type == "movie":
             logger.info("Getting link for movie")
-            link = data["magnets"]["files"][0]['l']
+            largest_file_data = max(data["magnets"]["files"], key=lambda x: x['s'] if 's' in x else 0)
+            link = largest_file_data['l']
         elif stream_type == "series":
             season = query['season']
             episode = query['episode']
