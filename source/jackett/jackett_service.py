@@ -211,7 +211,10 @@ class JackettService:
             indexer.id = item.attrib['id']
             indexer.link = item.find('link').text
             indexer.type = item.find('type').text
-            indexer.language = item.find('language').text.split('-')[0]
+            if item.find('language').text.split('-')[0] in ['en', 'fr', 'es', 'de', 'it', 'ru', 'nl', 'hu', 'la']:
+                indexer.language = item.find('language').text.split('-')[0]
+            else:
+                indexer.language = item.find('language').text # Add support for localizations (e.g., pt-BR)
 
             self.logger.info(f"Indexer: {indexer.title} - {indexer.link} - {indexer.type}")
 
