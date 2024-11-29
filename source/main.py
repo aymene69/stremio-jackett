@@ -40,6 +40,8 @@ app = FastAPI(root_path=root_path)
 VERSION = "4.2.1"
 isDev = os.getenv("NODE_ENV") == "development"
 COMMUNITY_VERSION = True if os.getenv("IS_COMMUNITY_VERSION") == "true" else False
+SPONSOR_MESSAGE = os.getenv("SPONSOR_MESSAGE")
+ADDON_ID = os.getenv("ADDON_ID") if os.getenv("ADDON_ID") is not None else "community.aymene69.jackett"
 
 
 class LogFilterMiddleware:
@@ -80,7 +82,7 @@ async def root():
 async def configure(request: Request):
     return templates.TemplateResponse(
         "index.html",
-        {"request": request, "isCommunityVersion": COMMUNITY_VERSION},
+        {"request": request, "isCommunityVersion": COMMUNITY_VERSION, "sponsorMessage": SPONSOR_MESSAGE}
     )
 
 
@@ -94,7 +96,7 @@ async def function(file_path: str):
 @app.get("/{params}/manifest.json")
 async def get_manifest():
     return {
-        "id": "community.aymene69.jackett",
+        "id": ADDON_ID,
         "icon": "https://i.imgur.com/tVjqEJP.png",
         "version": VERSION,
         "catalogs": [],
