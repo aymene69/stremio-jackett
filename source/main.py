@@ -129,6 +129,9 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
     logger.info(f"Getting media from {config['metadataProvider']}")
     if config['metadataProvider'] == "tmdb" and config['tmdbApi']:
         metadata_provider = TMDB(config)
+        if not COMMUNITY_VERSION and config['jackett']:
+            jackett_service = JackettService(config)
+            metadata_provider.indexers = jackett_service.get_indexers()
     else:
         metadata_provider = Cinemeta(config)
     media = metadata_provider.get_metadata(stream_id, stream_type)
@@ -158,7 +161,7 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
             logger.info("No cached results found")
 
         logger.info("Searching for results on Jackett")
-        jackett_service = JackettService(config)
+        jackett_service = jackett_service if jackett_service else JackettService(config)
         jackett_search_results = jackett_service.search(media)
         logger.info("Got " + str(len(jackett_search_results)) + " results from Jackett")
 

@@ -7,6 +7,13 @@ from models.series import Series
 from utils.logger import setup_logger
 
 class TMDB(MetadataProvider):
+    @property
+    def indexers(self):
+        return self._indexers
+    @indexers.setter
+    def indexers(self, indexers_):
+        self._indexers = indexers_
+    
     def get_metadata(self, id, type):
         self.logger.info("Getting metadata for " + type + " with id " + id)
 

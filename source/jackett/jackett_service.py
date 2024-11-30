@@ -26,7 +26,7 @@ class JackettService:
     def search(self, media):
         self.logger.info("Started Jackett search for " + media.type + " " + media.titles[0])
 
-        indexers = self.__get_indexers()
+        indexers = self.get_indexers()
         threads = []
         results_queue = queue.Queue()  # Create a Queue instance to hold the results
 
@@ -189,7 +189,7 @@ class JackettService:
 
         return results
 
-    def __get_indexers(self):
+    def get_indexers(self):
         url = f"{self.__base_url}/indexers/all/results/torznab/api?apikey={self.__api_key}&t=indexers&configured=true"
 
         try:
