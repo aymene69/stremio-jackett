@@ -126,14 +126,15 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
     config = parse_config(config)
     logger.info(stream_type + " request")
 
-    logger.info(f"Getting media from {config['metadataProvider']}")
     if config['metadataProvider'] == "tmdb" and config['tmdbApi']:
         metadata_provider = TMDB(config)
         if not COMMUNITY_VERSION and config['jackett']:
+            logger.info(f"Getting indexers' languages from Jackett for setting up TMDB")
             jackett_service = JackettService(config)
             metadata_provider.indexers = jackett_service.get_indexers()
     else:
         metadata_provider = Cinemeta(config)
+    logger.info(f"Getting media from {config['metadataProvider']}")
     media = metadata_provider.get_metadata(stream_id, stream_type)
     logger.info("Got media and properties: " + str(media.titles))
 

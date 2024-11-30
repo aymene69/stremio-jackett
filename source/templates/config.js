@@ -171,7 +171,7 @@ function getLink(method) {
         maxSize,
         exclusionKeywords,
         'languages': selectedLanguages,
-        'getAllLanguages': getAllLanguages,
+        getAllLanguages,
         'sort': filter,
         resultsPerQuality,
         maxResults,

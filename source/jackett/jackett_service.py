@@ -18,7 +18,7 @@ from utils.logger import setup_logger
 class JackettService:
     def __init__(self, config):
         self.logger = setup_logger(__name__)
-
+        self._indexers = None
         self.__api_key = config['jackettApiKey']
         self.__base_url = f"{config['jackettHost']}/api/v2.0"
         self.__session = requests.Session()
@@ -190,15 +190,19 @@ class JackettService:
         return results
 
     def get_indexers(self):
-        url = f"{self.__base_url}/indexers/all/results/torznab/api?apikey={self.__api_key}&t=indexers&configured=true"
+        if not self._indexers:
+            self.logger.info(f"Indexer cache miss. Requesting API...")
+            url = f"{self.__base_url}/indexers/all/results/torznab/api?apikey={self.__api_key}&t=indexers&configured=true"
 
-        try:
-            response = self.__session.get(url)
-            response.raise_for_status()
-            return self.__get_indexer_from_xml(response.text)
-        except Exception:
-            self.logger.exception("An exception occured while getting indexers from Jackett.")
-            return []
+            try:
+                response = self.__session.get(url)
+                response.raise_for_status()
+                self._indexers = self.__get_indexer_from_xml(response.text)
+                self.logger.info(f"Successfully retrieved {len(self._indexers)} indexers from Jackett. Storing in cache...")
+            except Exception:
+                self.logger.exception("An exception occured while getting indexers from Jackett.")
+                return []
+        return self._indexers
 
     def __get_indexer_from_xml(self, xml_content):
         xml_root = ET.fromstring(xml_content)
