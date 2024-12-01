@@ -176,7 +176,7 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
     torrent_smart_container = TorrentSmartContainer(torrent_results, media)
 
     if config['debrid']:
-        if config['service'] == "torbox":
+        if config['service'] in ["torbox", "premiumize"]:
             logger.debug("Checking availability")
             hashes = torrent_smart_container.get_hashes()
             ip = request.client.host
