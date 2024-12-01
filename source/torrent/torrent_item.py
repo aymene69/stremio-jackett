@@ -30,6 +30,14 @@ class TorrentItem:
         self.availability = False  # If it's instantly available on the debrid service
 
         self.parsed_data = parsed_data  # Ranked result
+        if not self.parsed_data.quality:
+            self.parsed_data.quality = []
+        if isinstance(self.parsed_data.quality, str):
+            self.parsed_data.quality = [self.parsed_data.quality]
+        if not self.parsed_data.resolution:
+            self.parsed_data.resolution = []
+        if isinstance(self.parsed_data.resolution, str):
+            self.parsed_data.resolution = [self.parsed_data.resolution]
 
     def to_debrid_stream_query(self, media: Media) -> dict:
         return {
