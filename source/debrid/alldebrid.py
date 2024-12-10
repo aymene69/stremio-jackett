@@ -57,7 +57,11 @@ class AllDebrid(BaseDebrid):
         if stream_type == "movie":
             logger.info("Getting link for movie")
             largest_file_data = max(data["magnets"]["files"], key=lambda x: x['s'] if 's' in x else 0)
-            link = largest_file_data['l']
+            try:
+                link = largest_file_data['l']
+            except:
+                largest_file = max(largest_file_data['e'], key=lambda x: x['s'])
+                link = largest_file['l']
         elif stream_type == "series":
             season = query['season']
             episode = query['episode']
