@@ -23,7 +23,6 @@ def season_episode_in_filename(filename, season, episode, strict=False):
             season = season[1:]
         if episode.lower().startswith("e"):
             episode = episode[1:]
-
     filename = filename.lower()
     season = season.lower()
     episode = episode.lower()

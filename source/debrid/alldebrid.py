@@ -69,11 +69,22 @@ class AllDebrid(BaseDebrid):
             strict_matching_files = []
             matching_files = []
             rank = 0
+            deja = False
+            link = None
             for file in data["magnets"]["files"]:
                 if season_episode_in_filename(file["n"], season, episode, strict=True):
                     strict_matching_files.append(file)
                 elif season_episode_in_filename(file["n"], season, episode, strict=False):
                     matching_files.append(file)
+                if len(matching_files) == 0:
+                    largest_file = max(file["e"], key=lambda x: x["s"])
+                    if season_episode_in_filename(largest_file["n"], season, episode, strict=True):
+                        strict_matching_files.append(file)
+                        link = largest_file["l"]
+                    elif season_episode_in_filename(largest_file["n"], season, episode, strict=False):
+                        matching_files.append(file)
+                        link = largest_file["l"]
+                    deja = True
                 rank += 1
 
             if len(strict_matching_files) > 0:
@@ -83,7 +94,8 @@ class AllDebrid(BaseDebrid):
                 logger.error(f"No matching files for {season} {episode} in torrent.")
                 return f"Error: No matching files for {season} {episode} in torrent."
 
-            link = max(matching_files, key=lambda x: x["s"])["l"]
+            if not deja:
+                link = max(matching_files, key=lambda x: x["s"])["l"]
         else:
             logger.error("Unsupported stream type.")
             return "Error: Unsupported stream type."
