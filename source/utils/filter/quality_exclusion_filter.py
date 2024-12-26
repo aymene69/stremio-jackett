@@ -18,12 +18,12 @@ class QualityExclusionFilter(BaseFilter):
         cams = "CAM" in excluded_qualities
 
         for stream in data:
-            for quality in stream.parsed_data.quality:
-                if quality.upper() in excluded_qualities:
+            if stream.parsed_data.quality:
+                if stream.parsed_data.quality.upper() in excluded_qualities:
                     break
-                if rips and quality.upper() in self.RIPS:
+                if rips and stream.parsed_data.quality.upper() in self.RIPS:
                     break
-                if cams and quality.upper() in self.CAMS:
+                if cams and stream.parsed_data.quality.upper() in self.CAMS:
                     break
                 filtered_items.append(stream)
             else:
