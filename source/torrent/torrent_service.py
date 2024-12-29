@@ -54,11 +54,11 @@ class TorrentService:
         try:
             # TODO: is the timeout enough?
             response = self.__session.get(result.link, allow_redirects=False, timeout=2)
+        except requests.exceptions.ReadTimeout:
+            self.logger.error(f"Timeout while processing url (took longer than 2 seconds)")
+            return result
         except requests.exceptions.RequestException:
             self.logger.error(f"Error while processing url: {result.link}")
-            return result
-        except requests.exceptions.ReadTimeout:
-            self.logger.error(f"Timeout while processing url: {result.link}")
             return result
 
         if response.status_code == 200:

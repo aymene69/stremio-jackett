@@ -13,17 +13,15 @@ quality_order = {"4k": 0, "2160p": 0, "1080p": 1, "720p": 2, "480p": 3}
 
 
 def sort_quality(item):
-    if len(item.parsed_data.data.resolution) == 0:
+    if item.parsed_data.data.resolution == None:
         return float('inf'), True
 
     # TODO: first resolution?
-    return quality_order.get(item.parsed_data.data.resolution[0],
+    return quality_order.get(item.parsed_data.data.resolution,
                              float('inf')), item.parsed_data.data.resolution is None
 
 
 def items_sort(items, config):
-    logger.info(config)
-    print("we")
     settings = SettingsModel(
         require=[],
         exclude=config['exclusionKeywords'] + config['exclusion'],
@@ -40,8 +38,6 @@ def items_sort(items, config):
         index = next((i for i, item in enumerate(items) if item.info_hash == key), None)
         if index is not None:
             items[index].parsed_data = value
-
-    logger.info(items)
 
     if config['sort'] == "quality":
         return sorted(items, key=sort_quality)
@@ -144,8 +140,6 @@ def filter_items(items, media, config):
 
 
 def sort_items(items, config):
-    print(config)
-    print(items)
     if config['sort'] is not None:
         return items_sort(items, config)
     else:

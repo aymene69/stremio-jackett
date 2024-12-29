@@ -56,10 +56,7 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
 
     parsed_data = torrent_item.parsed_data.data
 
-    # TODO: Always take the first resolution, is that the best one?
-    resolution = parsed_data.resolution[0] if len(parsed_data.resolution) > 0 else "Unknown"
-    name += f"{resolution}" + (f"\n({'|'.join(parsed_data.quality)})" if len(
-        parsed_data.quality) > 0 else "")
+    name += f"{parsed_data.resolution or "Unknown"}" + (f" ({parsed_data.quality})" if parsed_data.quality else "")
 
     size_in_gb = round(int(torrent_item.size) / 1024 / 1024 / 1024, 2)
 
@@ -93,10 +90,10 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
     })
 
     if torrenting and torrent_item.privacy == "public":
-        name = f"{DIRECT_TORRENT}\n{parsed_data.quality}\n"
-        if len(parsed_data.quality) > 0 and parsed_data.quality[0] != "Unknown" and \
-                parsed_data.quality[0] != "":
-            name += f"({'|'.join(parsed_data.quality)})"
+        name = f"{DIRECT_TORRENT}\n"
+        if parsed_data.quality and parsed_data.quality != "Unknown" and \
+                parsed_data.quality != "":
+            name += f"({parsed_data.quality})"
         results.put({
             "name": name,
             "description": title,

@@ -6,4 +6,4 @@ bencode.py
 jinja2
 aiocron
 python-dotenv
-rank-torrent-name
+rank-torrent-name >= 1.0.0
