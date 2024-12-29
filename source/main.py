@@ -120,6 +120,7 @@ logger.info("Started Jackett Addon")
 
 @app.get("/{config}/stream/{stream_type}/{stream_id}")
 async def get_results(config: str, stream_type: str, stream_id: str, request: Request):
+    jackett_service = None
     start = time.time()
     stream_id = stream_id.replace(".json", "")
 
