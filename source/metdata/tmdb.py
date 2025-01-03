@@ -24,7 +24,7 @@ class TMDB(MetadataProvider):
         full_id = id.split(":")
 
         result = None
-        if self.config['getAllLanguages'] and self._indexers and len(self._indexers) > 0:
+        if self.config.get('getAllLanguages', None) and self._indexers and len(self._indexers) > 0:
           languages = list({indexer.language for indexer in self._indexers}) # Use set to remove duplicated languages
         else:
           languages = self.config['languages']

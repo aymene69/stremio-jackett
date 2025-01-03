@@ -1,4 +1,5 @@
 import hashlib
+import os
 import queue
 import threading
 import time
@@ -52,8 +53,8 @@ class TorrentService:
 
     def __process_web_url(self, result: TorrentItem):
         try:
-            # TODO: is the timeout enough?
-            response = self.__session.get(result.link, allow_redirects=False, timeout=2)
+            # TODO: is the default timeout enough?
+            response = self.__session.get(result.link, allow_redirects=False, timeout=os.environ.get("JACKETT_RESOLVER_TIMEOUT", 2))
         except requests.exceptions.ReadTimeout:
             self.logger.error(f"Timeout while processing url (took longer than 2 seconds)")
             return result
