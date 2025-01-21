@@ -37,7 +37,7 @@ if root_path and not root_path.startswith("/"):
     root_path = "/" + root_path
 app = FastAPI(root_path=root_path)
 
-VERSION = "4.2.2"
+VERSION = "4.2.3"
 isDev = os.getenv("NODE_ENV") == "development"
 COMMUNITY_VERSION = True if os.getenv("IS_COMMUNITY_VERSION") == "true" else False
 SPONSOR_MESSAGE = os.getenv("SPONSOR_MESSAGE")
