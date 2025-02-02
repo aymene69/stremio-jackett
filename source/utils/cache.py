@@ -20,7 +20,10 @@ def search_cache(media):
     cache_search['language'] = cache_search['languages'][0]
     # TODO: Wtf, why do we need to use __dict__ here? And also, why is it stuck when we use media directly?
     response = requests.get(url, json=cache_search)
-    return response.json()
+    if response.status_code == 200:
+        return response.json()
+    else:
+        return []
 
 
 def cache_results(torrents: List[TorrentItem], media):
