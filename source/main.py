@@ -142,7 +142,7 @@ async def get_results(config: str, stream_type: str, stream_id: str, request: Re
     debrid_service = get_debrid_service(config)
 
     search_results = []
-    if COMMUNITY_VERSION and config['cache']:
+    if COMMUNITY_VERSION or config['cache']:
         logger.info("Getting cached results")
         cached_results = search_cache(media)
         cached_results = [JackettResult().from_cached_item(torrent, media) for torrent in cached_results]
