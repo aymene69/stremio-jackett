@@ -6,7 +6,7 @@ from typing import List
 from models.media import Media
 from torrent.torrent_item import TorrentItem
 from utils.logger import setup_logger
-from utils.string_encoding import encodeb64
+from utils.string_encoding import encodeb64, decodeb64
 
 logger = setup_logger(__name__)
 
@@ -48,7 +48,7 @@ def filter_by_direct_torrnet(item):
         return 0
 
 
-def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrenting, results: queue.Queue, media: Media):
+def parse_to_debrid_stream(torrent_item: TorrentItem, config, host, results: queue.Queue, media: Media):
     if torrent_item.availability == True:
         name = f"{INSTANTLY_AVAILABLE}\n"
     else:
@@ -77,19 +77,22 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
         title += f"{get_emoji(language)}/"
     title = title[:-1]
 
-    queryb64 = encodeb64(json.dumps(torrent_item.to_debrid_stream_query(media))).replace('=', '%3D')
+    configb64 = encodeb64(json.dumps(config).replace('=', '%3D'))
 
-    results.put({
-        "name": name,
-        "description": title,
-        "url": f"{host}/playback/{configb64}/{queryb64}",
-        "behaviorHints":{
-            "bingeGroup": f"stremio-jackett-{torrent_item.info_hash}",
-            "filename": torrent_item.file_name if torrent_item.file_name is not None else torrent_item.raw_title # TODO: Use parsed title?
-        }
-    })
+    if config['debrid']:
+        queryb64 = encodeb64(json.dumps(torrent_item.to_debrid_stream_query(media))).replace('=', '%3D')
 
-    if torrenting and torrent_item.privacy == "public":
+        results.put({
+            "name": name,
+            "description": title,
+            "url": f"{host}/playback/{configb64}/{queryb64}",
+            "behaviorHints":{
+                "bingeGroup": f"stremio-jackett-{torrent_item.info_hash}",
+                "filename": torrent_item.file_name if torrent_item.file_name is not None else torrent_item.raw_title # TODO: Use parsed title?
+            }
+        })
+
+    if config['torrenting'] and (torrent_item.privacy == "public" or torrent_item.indexer == "Cache"):
         name = f"{DIRECT_TORRENT}\n"
         if parsed_data.quality and parsed_data.quality != "Unknown" and \
                 parsed_data.quality != "":
@@ -112,10 +115,9 @@ def parse_to_stremio_streams(torrent_items: List[TorrentItem], config, media):
     threads = []
     thread_results_queue = queue.Queue()
 
-    configb64 = encodeb64(json.dumps(config).replace('=', '%3D'))
     for torrent_item in torrent_items[:int(config['maxResults'])]:
         thread = threading.Thread(target=parse_to_debrid_stream,
-                                  args=(torrent_item, configb64, config['addonHost'], config['torrenting'],
+                                  args=(torrent_item, config, config['addonHost'],
                                         thread_results_queue, media),
                                   daemon=True)
         thread.start()
