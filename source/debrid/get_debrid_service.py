@@ -1,13 +1,14 @@
 from fastapi.exceptions import HTTPException
 
 from debrid.alldebrid import AllDebrid
+from debrid.debridlink import DebridLink
 from debrid.premiumize import Premiumize
 from debrid.realdebrid import RealDebrid
 from debrid.torbox import TorBox
 
 
 def get_debrid_service(config):
-    service_name = config['service']
+    service_name = config["service"]
     if service_name == "realdebrid":
         debrid_service = RealDebrid(config)
     elif service_name == "alldebrid":
@@ -16,6 +17,8 @@ def get_debrid_service(config):
         debrid_service = Premiumize(config)
     elif service_name == "torbox":
         debrid_service = TorBox(config)
+    elif service_name == "debridlink":
+        debrid_service = DebridLink(config)
     else:
         raise HTTPException(status_code=500, detail="Invalid service configuration.")
 
