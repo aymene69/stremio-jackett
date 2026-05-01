@@ -1,9 +1,9 @@
-FROM python:3.12.2
+FROM python:3.14.3-alpine3.22
 
 WORKDIR /app
 
 # This is to prevent Python from buffering stdout and stderr
-ENV PYTHONUNBUFFERED 1
+ENV PYTHONUNBUFFERED=1
 
 COPY requirements.txt .
 

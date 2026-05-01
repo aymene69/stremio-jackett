@@ -1,9 +1,9 @@
-fastapi
-uvicorn
-starlette
-requests
+fastapi==0.110.3
+uvicorn==0.30.6
+starlette==0.37.2
+requests==2.32.3
 bencode.py
-jinja2
-aiocron
-python-dotenv
+jinja2==3.1.4
+aiocron==1.8
+python-dotenv==1.0.1
 rank-torrent-name >= 1.0.0
