@@ -54,7 +54,7 @@ def parse_to_debrid_stream(torrent_item: TorrentItem, configb64, host, torrentin
     else:
         name = f"{DOWNLOAD_REQUIRED}\n"
 
-    parsed_data = torrent_item.parsed_data.data
+    parsed_data = torrent_item.parsed_data.data if hasattr(torrent_item.parsed_data, "data") else torrent_item.parsed_data
 
     name += f"{parsed_data.resolution or 'Unknown'}" + (f" ({parsed_data.quality})" if parsed_data.quality else "")
 
