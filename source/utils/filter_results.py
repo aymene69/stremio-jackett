@@ -13,12 +13,13 @@ quality_order = {"4k": 0, "2160p": 0, "1080p": 1, "720p": 2, "480p": 3}
 
 
 def sort_quality(item):
-    if item.parsed_data.data.resolution == None:
+    parsed_data = item.parsed_data.data if hasattr(item.parsed_data, "data") else item.parsed_data
+    if parsed_data.resolution == None:
         return float('inf'), True
 
     # TODO: first resolution?
-    return quality_order.get(item.parsed_data.data.resolution,
-                             float('inf')), item.parsed_data.data.resolution is None
+    return quality_order.get(parsed_data.resolution,
+                             float('inf')), parsed_data.resolution is None
 
 
 def items_sort(items, config):
